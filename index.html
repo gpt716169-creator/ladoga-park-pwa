@@ -47,7 +47,7 @@
         <select id="stageSelector" style="width: 100%; background: #18261e; color: #f3f4f6; border-radius: 0.75rem; padding: 0.625rem; border: 1px solid rgba(232,165,88,0.4); font-size: 0.75rem; cursor: pointer; outline: none;">
           <option value="1">1. T-1 Заезд (Регистрация & Баня)</option>
           <option value="2">2. Заезд (Гид, Уборка & Правила)</option>
-          <option value="3">3. Выезд 09:00 (Кофе, Такси)</option>
+          <option value="3">3. Выезд 09:00 (Такси & Поздний выезд)</option>
           <option value="4">4. После выезда (Прощание / 0 меню)</option>
         </select>
       </div>
@@ -110,7 +110,7 @@
     <!-- MAIN RESORT SERVICES CONTENT -->
     <div id="mainContentArea" style="padding: 0 1.25rem; max-width: 42rem; margin: 1rem auto 0; position: relative; z-index: 30; display: flex; flex-direction: column; gap: 2rem;">
 
-      <!-- ALREADY BOOKED SAUNA BANNER (Shown if sauna is already booked to prevent duplication!) -->
+      <!-- ALREADY BOOKED SAUNA BANNER -->
       <div id="saunaBookedBanner" class="hidden glass-card p-4" style="background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.4); display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
         <div style="display: flex; align-items: center; gap: 0.625rem;">
           <span style="font-size: 24px;">♨️</span>
@@ -124,7 +124,7 @@
         </button>
       </div>
 
-      <!-- SECTION 1: SAUNA SWIPABLE CAROUSEL (Баня в лесу vs Баня на берегу Ладоги) -->
+      <!-- SECTION 1: SAUNA SWIPABLE CAROUSEL -->
       <section id="saunaSection" style="display: flex; flex-direction: column; gap: 0.875rem;">
         <div style="display: flex; justify-content: space-between; align-items: baseline;">
           <h2 id="saunaSectionHeader" style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 700; color: var(--accent-gold); letter-spacing: 0.03em;">Выберите баню к приезду (Свайп ➔)</h2>
@@ -161,7 +161,6 @@
                 <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; line-height: 1.4;">Прогрев до 85°C на березовых дровах, дубовые веники, карельский чай с медом. Тишина и уединение соснового леса.</p>
               </div>
 
-              <!-- Add Hot Tub Option inside Card 1 (Prices never wrap!) -->
               <div style="background: rgba(232,165,88,0.1); border: 1px dashed rgba(232,165,88,0.4); padding: 0.625rem 0.75rem; border-radius: 0.75rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
                 <span style="font-size: 0.75rem; color: #f3f4f6; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">➕ Сибирский банный чан</span>
                 <button class="btn-quick-add" style="background: var(--bg-pine-light); border: 1px solid var(--border-ember); color: var(--accent-gold); font-weight: 800; padding: 0.375rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; cursor: pointer; flex-shrink: 0; white-space: nowrap;" data-id="hottub-siberian">
@@ -169,7 +168,6 @@
                 </button>
               </div>
 
-              <!-- Main Sauna Order Button (Structure guarantees price NEVER wraps!) -->
               <button class="btn-quick-add btn-primary-gold" style="width: 100%; padding: 0.75rem 1rem; font-size: 0.75rem;" data-id="sauna-forest">
                 <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">🌲 Баня в лесу</span>
                 <span style="font-weight: 800; background: rgba(0,0,0,0.25); padding: 0.15rem 0.5rem; border-radius: 9999px; flex-shrink: 0;">4 500 ₽</span>
@@ -201,7 +199,6 @@
                 <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; line-height: 1.4;">Захватывающий вид на Ладожское озеро, прямой спуск к воде для охлаждения и парящая терраса под звездным небом.</p>
               </div>
 
-              <!-- Add Aroma Tub Option inside Card 2 (Prices never wrap!) -->
               <div style="background: rgba(232,165,88,0.1); border: 1px dashed rgba(232,165,88,0.4); padding: 0.625rem 0.75rem; border-radius: 0.75rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
                 <span style="font-size: 0.75rem; color: #f3f4f6; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">➕ Арома-купель на цитрусах</span>
                 <button class="btn-quick-add" style="background: var(--bg-pine-light); border: 1px solid var(--border-ember); color: var(--accent-gold); font-weight: 800; padding: 0.375rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; cursor: pointer; flex-shrink: 0; white-space: nowrap;" data-id="aroma-tub">
@@ -209,7 +206,6 @@
                 </button>
               </div>
 
-              <!-- Main Sauna Order Button (Structure guarantees price NEVER wraps!) -->
               <button class="btn-quick-add btn-primary-gold" style="width: 100%; padding: 0.75rem 1rem; font-size: 0.75rem;" data-id="sauna-lake">
                 <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">🌊 Баня у Ладоги</span>
                 <span style="font-weight: 800; background: rgba(0,0,0,0.25); padding: 0.15rem 0.5rem; border-radius: 9999px; flex-shrink: 0;">5 500 ₽</span>
@@ -227,7 +223,7 @@
         </div>
       </section>
 
-      <!-- SECTION 2: STAGE 2 IN-STAY GUIDE & HOUSEKEEPING RATING (Shown in Stage 2 ONLY!) -->
+      <!-- SECTION 2: STAGE 2 IN-STAY GUIDE & HOUSEKEEPING RATING -->
       <section id="stage2GuideSection" class="hidden" style="display: flex; flex-direction: column; gap: 1.5rem;">
         
         <!-- Housekeeping Rating Card -->
@@ -266,12 +262,12 @@
               </div>
             </div>
 
-            <!-- Cafe on Territory (Coffee & Croissants notice!) -->
+            <!-- Cafe on Territory (EXACTLY MATCHING USER REQUEST: Zero info about ordering to cabin!) -->
             <div class="glass-card" style="padding: 1rem; display: flex; gap: 0.875rem; align-items: flex-start;">
               <span style="font-size: 28px; flex-shrink: 0;">☕</span>
               <div>
                 <strong style="color: var(--accent-gold); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Панорамное кафе на территории парка</strong>
-                <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">Свежие хрустящие круассаны и ароматный зерновой кофе можно не только заказать в домик, но и выпить прямо в нашем уютном кафе у озера с 08:30 до 22:00!</p>
+                <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">Насладитесь свежими хрустящими круассанами и ароматным зерновым кофе в нашем уютном панорамном кафе у озера с 08:30 до 22:00!</p>
               </div>
             </div>
 
@@ -376,7 +372,7 @@
         </div>
       </section>
 
-      <!-- SECTION 5: STAGE 3 MORNING SERVICE & DIRECT TAXI (Shown in Stage 3 ONLY! ZERO BUGGY/CAR INFO!) -->
+      <!-- SECTION 5: STAGE 3 MORNING SERVICE & DIRECT TAXI (REMOVED COFFEE PER USER REQUEST!) -->
       <section id="morningServiceSection" class="hidden" style="display: flex; flex-direction: column; gap: 1.25rem;">
         <div>
           <h2 style="font-family: var(--font-serif); font-size: 1.35rem; font-weight: 700; color: var(--accent-gold);">Утренний сервис и такси</h2>
@@ -384,20 +380,7 @@
         </div>
 
         <div class="glass-card" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
-          <!-- Item 1: Morning Coffee -->
-          <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.875rem; border-bottom: 1px solid rgba(232,165,88,0.15); gap: 0.5rem;">
-            <div>
-              <strong style="color: #f3f4f6; font-size: 0.875rem; display: flex; align-items: center; gap: 0.375rem;">
-                <span>☕</span> Свежий кофе & Круассаны в домик
-              </strong>
-              <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 0.125rem;">Или насладитесь кофе в нашем кафе у озера!</span>
-            </div>
-            <button class="btn-quick-add btn-primary-gold" style="padding: 0.5rem 0.875rem; font-size: 0.75rem;" data-id="coffee-croissant">
-              <span style="font-weight: 800;">550 ₽</span>
-            </button>
-          </div>
-
-          <!-- Item 2: Late Checkout -->
+          <!-- Item 1: Late Checkout -->
           <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.875rem; border-bottom: 1px solid rgba(232,165,88,0.15); gap: 0.5rem;">
             <div>
               <strong style="color: var(--accent-gold); font-size: 0.875rem; display: flex; align-items: center; gap: 0.375rem;">
@@ -410,7 +393,7 @@
             </button>
           </div>
 
-          <!-- Item 3: Clickable Local Taxi Directory (Zero Buggy/Car info!) -->
+          <!-- Item 2: Clickable Local Taxi Directory -->
           <div style="display: flex; flex-direction: column; gap: 0.625rem; padding-top: 0.25rem;">
             <div style="display: flex; justify-content: space-between; align-items: baseline;">
               <strong style="color: #60a5fa; font-size: 0.875rem; display: flex; align-items: center; gap: 0.375rem;">
@@ -437,7 +420,7 @@
         </div>
       </section>
 
-      <!-- SECTION 6: STAGE 4 FAREWELL NOTE (Shown in Stage 4 ONLY! ZERO MENU OR SAUNA!) -->
+      <!-- SECTION 6: STAGE 4 FAREWELL NOTE -->
       <section id="farewellSection" class="hidden" style="text-align: center; padding: 2rem 1rem; display: flex; flex-direction: column; items-center; gap: 1rem;">
         <div class="glass-card" style="padding: 2rem 1.5rem; border-color: rgba(232,165,88,0.5);">
           <span style="font-size: 3rem; display: block; margin-bottom: 0.5rem;">🌲 ⛵ 🌲</span>
@@ -451,10 +434,10 @@
     </div>
   </main>
 
-  <!-- FLOATING ACTION BUTTON (CONCIERGE SUPPORT) -->
-  <button id="fabSupportBtn" style="position: fixed; right: 1.25rem; bottom: 1.5rem; background: #1a2820; color: var(--accent-gold); border: 1px solid rgba(232,165,88,0.4); width: 3.25rem; height: 3.25rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.8); cursor: pointer; z-index: 40;" title="Связаться с консьержем">
+  <!-- FLOATING ACTION BUTTON (CONCIERGE SUPPORT - DIRECT PHONE CALL!) -->
+  <a id="fabSupportBtn" href="tel:+78125550126" style="position: fixed; right: 1.25rem; bottom: 1.5rem; background: #1a2820; color: var(--accent-gold); border: 1px solid rgba(232,165,88,0.4); width: 3.25rem; height: 3.25rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.8); cursor: pointer; z-index: 40; text-decoration: none;" title="Позвонить консьержу">
     <span style="font-size: 24px;">📞</span>
-  </button>
+  </a>
 
   <!-- ONLINE REGISTRATION MODAL (Stage 1) -->
   <div id="regModal" class="modal-overlay opacity-0 pointer-events-none">
@@ -622,13 +605,13 @@
         </div>
       </div>
 
-      <button id="callAdminBtn" style="width: 100%; padding: 0.875rem; border: 1px solid rgba(232,165,88,0.5); color: var(--accent-gold); font-weight: 700; border-radius: 9999px; font-size: 0.75rem; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-        <span>📞</span>
-        <span>Связаться со стойкой ресепшн Ладога Парк</span>
-      </button>
+      <!-- DIRECT CALL BUTTON TO RECEPTION (href="tel:+79312130048") -->
+      <a id="callAdminBtn" href="tel:+79312130048" class="btn-primary-gold" style="width: 100%; padding: 0.875rem; text-decoration: none; justify-content: center; font-size: 0.75rem;">
+        <span>📞 Позвонить на стойку ресепшн Ладога Парк</span>
+      </a>
 
-      <button class="btn-close-modal-bottom" data-modal="guideModal" style="width: 100%; padding: 0.875rem; background: var(--primary-ember); color: #0b110e; font-weight: 800; border-radius: 9999px; font-size: 0.8rem; cursor: pointer; text-align: center; border: none; box-shadow: 0 4px 15px rgba(232,165,88,0.4);">
-        ✕ Закрыть и вернуться к отдыху
+      <button class="btn-close-modal-bottom" data-modal="guideModal" style="width: 100%; padding: 0.875rem; background: rgba(255,255,255,0.08); color: var(--text-muted); font-weight: 600; border-radius: 9999px; font-size: 0.75rem; cursor: pointer; text-align: center; border: 1px solid rgba(255,255,255,0.15); margin-top: 0.25rem;">
+        ✕ Закрыть окно
       </button>
     </div>
   </div>

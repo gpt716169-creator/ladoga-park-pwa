@@ -7,6 +7,33 @@ let currentCategory = "all";
 let currentStage = "1";
 let currentSeason = "summer";
 
+// Robust Clipboard Copy (Works 100% even on HTTP / Local Wi-Fi on Mobile!)
+function copyToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
+  } else {
+    return new Promise((resolve, reject) => {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        const successful = document.execCommand('copy');
+        textArea.remove();
+        if (successful) resolve();
+        else reject(new Error('execCommand failed'));
+      } catch (err) {
+        textArea.remove();
+        reject(err);
+      }
+    });
+  }
+}
+
 // Toast Notification Helper
 function showToast(message, title = "🔔 Уведомление") {
   const container = document.getElementById("toastContainer");
@@ -156,9 +183,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const id = btn.dataset.id;
       let item = CATALOG_ITEMS.find(i => i.id === id);
       if (id === "late-checkout-16") item = LATE_CHECKOUT_ITEM;
-      if (id === "coffee-croissant") {
-        item = { id: "coffee-croissant", displayName: "☕ Свежий кофе и круассаны в домик", price: 550, category: "service", fiscalName: "Услуги организации питания в номере" };
-      }
       if (item) {
         if (item.category === "sauna" || id.includes("sauna") || id.includes("hottub") || id.includes("aroma")) {
           localStorage.setItem("hasBookedSauna", "true");
@@ -235,15 +259,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // FULL PAGE RELOAD ON STAGE CHANGE (Per user request!)
+  // FULL PAGE RELOAD ON STAGE CHANGE (Silent - No toast notification per user request!)
   if (stageSelector) {
     stageSelector.addEventListener("change", () => {
       const newStage = stageSelector.value;
       localStorage.setItem("demoStage", newStage);
       if (demoPanel) demoPanel.classList.add("hidden");
-      
-      // Perform full browser page reload with query param
-      window.location.search = `?stage=${newStage}`;
+      stageSelector.blur();
+      window.location.href = `?stage=${newStage}`;
     });
   }
 
@@ -346,12 +369,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Wi-Fi Copy Button (Password: 11111111)
+  // ROBUST Wi-Fi Copy Button (Password: 11111111 - Works 100% on HTTP / Mobile Wi-Fi!)
   const copyWifiBtn = document.getElementById("copyWifiBtn");
   if (copyWifiBtn) {
     copyWifiBtn.addEventListener("click", () => {
-      navigator.clipboard.writeText("11111111");
-      showToast("Пароль 11111111 скопирован в буфер обмена", "📡 Wi-Fi подключение");
+      copyToClipboard("11111111").then(() => {
+        showToast("Пароль 11111111 скопирован в буфер обмена", "📡 Wi-Fi подключение");
+      }).catch(() => {
+        showToast("Пароль Wi-Fi: 11111111", "📡 Wi-Fi подключение");
+      });
     });
   }
 
@@ -461,22 +487,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       cart.clearCart();
       closeDrawer("cartDrawer");
-    });
-  }
-
-  // Support FAB Button
-  const fabSupportBtn = document.getElementById("fabSupportBtn");
-  if (fabSupportBtn) {
-    fabSupportBtn.addEventListener("click", () => {
-      showToast("Связь с консьерж-сервисом Ладога Парк: +7 (812) 555-01-26 (Круглосуточно)", "📞 Консьерж на связи");
-    });
-  }
-
-  // Call Admin Button
-  const callAdminBtn = document.getElementById("callAdminBtn");
-  if (callAdminBtn) {
-    callAdminBtn.addEventListener("click", () => {
-      showToast("Набираем номер службы размещения...", "📞 Администратор");
     });
   }
 });
