@@ -1,0 +1,280 @@
+/*
+ * Ладога Парк | Эко-курорт PWA ("Живой домик")
+ * Pure CSS Design System & Hardware Accelerated Animations (Zero CDN dependency!)
+ */
+
+:root {
+  --bg-dark: #0b110e;
+  --bg-card: rgba(18, 28, 23, 0.75);
+  --bg-pine: #121c17;
+  --bg-pine-light: #1a2820;
+  --primary-ember: #e8a558;
+  --accent-gold: #f3bc7a;
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --border-ember: rgba(232, 165, 88, 0.25);
+  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* 100svh prevents mobile address bar layout jumps */
+.hero-container {
+  position: relative;
+  width: 100vw;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 5rem 1.25rem 2rem;
+  overflow: hidden;
+}
+
+.video-background-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+  background-color: #050806;
+}
+
+/* Clean, Full-Frame Video Rendering (NO ZOOM BUG, NO DOUBLE SCALING!) */
+.hero-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  opacity: 0;
+  transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity;
+  pointer-events: none;
+}
+
+.hero-video.active {
+  opacity: 1;
+}
+
+.vignette-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(to bottom, rgba(11,17,14,0.55) 0%, rgba(11,17,14,0.1) 30%, rgba(11,17,14,0.35) 75%, rgba(11,17,14,0.95) 100%),
+    radial-gradient(circle at center, transparent 40%, rgba(5,8,6,0.55) 100%);
+  pointer-events: none;
+}
+
+/* Smooth, Gentle Luxury Appearance (1.2s delay, 1.2s smooth fade - 100% buttery!) */
+.fade-in-delayed {
+  opacity: 0;
+  animation: fadeInSmooth 1.2s cubic-bezier(0.25, 0.1, 0.25, 1) 1.2s forwards;
+  will-change: opacity, transform;
+}
+
+@keyframes fadeInSmooth {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Glassmorphism Cards */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-ember);
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(232, 165, 88, 0.45);
+}
+
+/* Buttons with NO WRAP guarantee for prices! */
+.btn-primary-gold {
+  background: linear-gradient(135deg, var(--primary-ember), var(--accent-gold));
+  color: #0b110e;
+  font-family: var(--font-sans);
+  font-weight: 800;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(232, 165, 88, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-primary-gold:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 10px rgba(232, 165, 88, 0.25);
+}
+
+.btn-icon-round {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid var(--border-ember);
+  background: rgba(232, 165, 88, 0.15);
+  color: var(--accent-gold);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-icon-round:active {
+  transform: scale(0.9);
+  background: rgba(232, 165, 88, 0.3);
+}
+
+/* Clickable Taxi Phone Button */
+.btn-taxi {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #14221c;
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  border-radius: 1rem;
+  color: #60a5fa;
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-taxi:active {
+  background: rgba(96, 165, 250, 0.15);
+  transform: scale(0.98);
+}
+
+/* Category Tabs */
+.tab-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--bg-pine);
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--primary-ember), var(--accent-gold));
+  color: #0b110e;
+  font-weight: 800;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(232, 165, 88, 0.3);
+}
+
+/* Modals and Drawers */
+.modal-overlay,
+.drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100svh;
+  background: rgba(5, 8, 6, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.25s ease;
+  padding: 1rem;
+}
+
+.glass-modal {
+  background: #121c17;
+  border: 1px solid var(--border-ember);
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+  max-height: 90svh;
+  overflow-y: auto;
+}
+
+.drawer-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 24rem;
+  height: 100%;
+  background: #121c17;
+  border-left: 1px solid var(--border-ember);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Utilities */
+.hidden { display: none !important; }
+.opacity-0 { opacity: 0 !important; }
+.pointer-events-none { pointer-events: none !important; }
+.pointer-events-auto { pointer-events: auto !important; }
+
+@keyframes bounceSlow {
+  0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8,0,1,1); }
+  50% { transform: none; animation-timing-function: cubic-bezier(0,0,0.2,1); }
+}
+.animate-bounce { animation: bounceSlow 2s infinite; }
+
+@keyframes floatIn {
+  0% { opacity: 0; transform: translateY(-10px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-float-in { animation: floatIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
