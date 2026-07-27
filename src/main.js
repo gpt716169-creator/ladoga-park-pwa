@@ -2,13 +2,12 @@ import { triggerConfetti } from "./confetti.js";
 import { CATALOG_ITEMS, LATE_CHECKOUT_ITEM } from "./catalogData.js";
 import { cart } from "./cartManager.js";
 import { switchStage } from "./stageManager.js";
-import { computeFiscalSummary } from "./fiscalMapper.js";
 
 let currentCategory = "all";
 let currentStage = "1";
 let currentSeason = "summer";
 
-// Toast Notification Helper (Clean Emojis - No ligatures!)
+// Toast Notification Helper
 function showToast(message, title = "🔔 Уведомление") {
   const container = document.getElementById("toastContainer");
   if (!container) return;
@@ -151,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
   cart.subscribe(() => updateCartUI());
   updateCartUI();
 
-  // Quick Order Add Buttons (.btn-quick-add) for Sauna Carousel & Grid
+  // Quick Order Add Buttons
   document.querySelectorAll(".btn-quick-add").forEach(btn => {
     btn.addEventListener("click", () => {
       const id = btn.dataset.id;
@@ -171,7 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Edit booked sauna button (unhides sauna section)
+  // Edit booked sauna button
   const editSaunaBtn = document.getElementById("showSaunaCarouselBtn");
   if (editSaunaBtn) {
     editSaunaBtn.addEventListener("click", () => {
@@ -185,26 +184,42 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Toggle Demo Menu Panel
+  // Developer Menu Controls & Auto-Close
   const toggleDemoBtn = document.getElementById("toggleDemoMenuBtn");
   const demoPanel = document.getElementById("demoMenuPanel");
+  const closeDemoPanelBtn = document.getElementById("closeDemoPanelBtn");
+
   if (toggleDemoBtn && demoPanel) {
-    toggleDemoBtn.addEventListener("click", () => {
+    toggleDemoBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       demoPanel.classList.toggle("hidden");
     });
   }
 
-  // Stage Selector with Instant SPA Transition (Zero Network Reloads!)
-  const stageSelector = document.getElementById("stageSelector");
+  if (closeDemoPanelBtn && demoPanel) {
+    closeDemoPanelBtn.addEventListener("click", () => {
+      demoPanel.classList.add("hidden");
+    });
+  }
 
-  // Read from URL parameters or localStorage, defaulting to Stage 1!
+  // Tap anywhere outside developer panel to close it!
+  document.addEventListener("click", (e) => {
+    if (demoPanel && !demoPanel.classList.contains("hidden")) {
+      if (!demoPanel.contains(e.target) && e.target !== toggleDemoBtn) {
+        demoPanel.classList.add("hidden");
+      }
+    }
+  });
+
+  // Read Stage from URL or localStorage
   const urlParams = new URLSearchParams(window.location.search);
   const savedStage = urlParams.get("stage") || localStorage.getItem("demoStage") || "1";
 
   currentStage = savedStage;
+  const stageSelector = document.getElementById("stageSelector");
   if (stageSelector) stageSelector.value = currentStage;
 
-  // Apply initial stage view
+  // Initial stage application
   switchStage(currentStage, currentSeason, (bannerConfig) => {
     if (bannerConfig.actionCategory) {
       const catBtn = document.querySelector(`.tab-btn[data-cat="${bannerConfig.actionCategory}"]`);
@@ -220,49 +235,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // INSTANT SPA STAGE SWITCHING (0ms latency, zero HTTP re-downloads!)
-  const handleStageChange = () => {
-    if (!stageSelector) return;
-    const newStage = stageSelector.value;
-    localStorage.setItem("demoStage", newStage);
-    
-    currentStage = newStage;
-
-    // Update URL cleanly without triggering a slow browser network reload
-    history.pushState(null, "", `?stage=${newStage}`);
-
-    // Close any open modals and drawers
-    ["regModal", "guideModal", "ormModal"].forEach(closeModal);
-    ["cartDrawer"].forEach(closeDrawer);
-
-    // Reset tabs to all
-    const allTabBtn = document.querySelector('.tab-btn[data-cat="all"]');
-    if (allTabBtn) allTabBtn.click();
-
-    // Instant scroll to top
-    window.scrollTo({ top: 0, behavior: "instant" });
-
-    // Execute instant stage transition
-    switchStage(currentStage, currentSeason, (bannerConfig) => {
-      if (bannerConfig.actionCategory) {
-        const catBtn = document.querySelector(`.tab-btn[data-cat="${bannerConfig.actionCategory}"]`);
-        if (catBtn) catBtn.click();
-        const catalogEl = document.getElementById("fullCatalogueList");
-        if (catalogEl) catalogEl.scrollIntoView({ behavior: "smooth" });
-      } else if (bannerConfig.actionModal) {
-        openModal(bannerConfig.actionModal);
-      } else if (bannerConfig.actionItem === "late-checkout-16") {
-        cart.addItem(LATE_CHECKOUT_ITEM);
-        openDrawer("cartDrawer");
-        showToast("Поздний выезд до 16:00 добавлен в корзину", "⏳ Продление проживания");
-      }
-    });
-
-    showToast(`Включен демонстрационный режим: Этап ${newStage}`, "⚙️ Настройки обновлены");
-  };
-
+  // FULL PAGE RELOAD ON STAGE CHANGE (Per user request!)
   if (stageSelector) {
-    stageSelector.addEventListener("change", handleStageChange);
+    stageSelector.addEventListener("change", () => {
+      const newStage = stageSelector.value;
+      localStorage.setItem("demoStage", newStage);
+      if (demoPanel) demoPanel.classList.add("hidden");
+      
+      // Perform full browser page reload with query param
+      window.location.search = `?stage=${newStage}`;
+    });
   }
 
   // Category Tabs Filter
@@ -312,7 +294,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 200);
   };
 
-  // BACKGROUND TAP-TO-CLOSE FOR ALL MODALS & DRAWERS (FOOLPROOF INTUITIVE UX!)
+  // Background Tap-to-Close for Modals
   document.querySelectorAll(".modal-overlay, .drawer-overlay").forEach(overlay => {
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) {
@@ -326,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // EXPLICIT BOTTOM CLOSE BUTTONS INSIDE MODALS
+  // Explicit Bottom Close Buttons
   document.querySelectorAll(".btn-close-modal-bottom").forEach(btn => {
     btn.addEventListener("click", () => {
       const modalId = btn.dataset.modal;
@@ -373,7 +355,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Housekeeping Rating Stars (Stage 2)
+  // Housekeeping Rating Stars
   const hkStars = document.querySelectorAll(".hk-star");
   const hkFeedbackBox = document.getElementById("hkFeedbackBox");
   const submitHkBtn = document.getElementById("submitHkBtn");
@@ -412,7 +394,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ORM Interactive Rating Stars (Stage 4)
+  // ORM Interactive Rating Stars
   const stars = document.querySelectorAll(".star-btn");
   const lowForm = document.getElementById("lowRatingForm");
   const highCard = document.getElementById("highRatingCard");
@@ -490,7 +472,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Call Admin Button inside Guide Modal
+  // Call Admin Button
   const callAdminBtn = document.getElementById("callAdminBtn");
   if (callAdminBtn) {
     callAdminBtn.addEventListener("click", () => {
