@@ -472,8 +472,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (cabin) {
-      // Parse cabin number (e.g. "Барнхаус четырехместный № 5" or "Барнхаус 4-местный № 3")
-      const numMatch = cabin.match(/(?:№|N|#|\bномер\b|\bдом\b|\bдомик\b)?\s*(\d+)/i);
+      // Parse cabin number (e.g., 101, 102, 100, 120, 105, 117, 110 or № 5)
+      const numMatch = cabin.match(/(?:№|N|#|\bномер\b)?\s*(\d+)/i);
       const cabinBadge = document.getElementById("cabinBadge");
       const cabinBadgeText = document.getElementById("cabinBadgeText");
       
@@ -481,24 +481,41 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (numMatch && numMatch[1]) {
         shortCabinName = `Домик № ${numMatch[1]}`;
       } else {
-        let clean = cabin
-          .replace(/(?:двух|трех|четырех|пяти|шести|семи|восьми)?\s*-?\s*местный/gi, '')
-          .replace(/(?:4|2|3|5|6|8)\s*-?\s*местный/gi, '')
-          .replace(/барнхаус/gi, '')
-          .replace(/коттедж/gi, '')
-          .trim();
-        if (clean && clean.toLowerCase() !== 'домик' && clean.toLowerCase() !== 'дом') {
-          shortCabinName = `Домик «${clean}»`;
+        const lower = cabin.toLowerCase();
+        if (lower.includes("рыбак")) {
+          shortCabinName = "Домик рыбака";
+        } else if (lower.includes("в лесу") || lower.includes("лесу")) {
+          shortCabinName = "Дом в лесу";
         } else {
-          shortCabinName = "Домик";
+          let clean = cabin
+            .replace(/(?:одно|двух|трех|четырех|пяти|шести|семи|восьми)?\s*-?\s*местный/gi, '')
+            .replace(/(?:4|2|3|5|6|7|8)\s*-?\s*человек/gi, '')
+            .replace(/(?:4|2|3|5|6|7|8)\s*-?\s*местный/gi, '')
+            .replace(/мини-дом/gi, '')
+            .replace(/барнхаус/gi, '')
+            .replace(/коттедж/gi, '')
+            .replace(/\+/g, '')
+            .trim();
+          if (clean && clean.toLowerCase() !== 'домик' && clean.toLowerCase() !== 'дом') {
+            shortCabinName = `Домик «${clean}»`;
+          } else {
+            shortCabinName = "Домик";
+          }
         }
       }
 
       if (cabinBadge && cabinBadgeText) {
-        const badgeLabel = shortCabinName.toLowerCase().startsWith('домик') 
-          ? `Ваш ${shortCabinName.toLowerCase()}` 
-          : `Ваш ${shortCabinName}`;
-        cabinBadgeText.innerText = `🏡 ${badgeLabel.charAt(0).toUpperCase() + badgeLabel.slice(1)}`;
+        let badgeLabel = "";
+        if (shortCabinName === "Дом в лесу") {
+          badgeLabel = "Ваш дом в лесу";
+        } else if (shortCabinName === "Домик рыбака") {
+          badgeLabel = "Ваш домик рыбака";
+        } else if (shortCabinName.startsWith("Домик №")) {
+          badgeLabel = `Ваш ${shortCabinName.toLowerCase()}`;
+        } else {
+          badgeLabel = `Ваш ${shortCabinName}`;
+        }
+        cabinBadgeText.innerText = `🏡 ${badgeLabel}`;
         cabinBadge.classList.remove("hidden");
         cabinBadge.style.display = "inline-flex";
       }

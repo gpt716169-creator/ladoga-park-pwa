@@ -158,26 +158,53 @@ async function getTlAccessToken() {
   }
   return tlAccessToken;
 }
+
+function extractCabinName(roomStay, defaultName = "Домик") {
+  if (!roomStay) return defaultName;
+  const roomTypeName = roomStay.roomType?.name || defaultName;
+  const roomNum = roomStay.roomNumber || 
+                  roomStay.roomName || 
+                  roomStay.room?.number || 
+                  roomStay.room?.name || 
+                  roomStay.placements?.[0]?.roomNumber || 
+                  roomStay.placements?.[0]?.name ||
+                  roomStay.placements?.[0]?.roomName ||
+                  roomStay.unitNumber ||
+                  roomStay.unitName;
+  
+  if (roomNum) {
+    const cleanNum = String(roomNum).replace(/[^\d]/g, '');
+    if (cleanNum) {
+      return `${roomTypeName} № ${cleanNum}`;
+    }
+  }
+  return roomTypeName;
+}
+
 // ==========================================
 // SMS CRON JOB & DB SYNC SYSTEM
 // ==========================================
-// We sync with TL API to update local cache
-async function syncPropertyBookings(config, defaultName) {
+async function syncPropertyBookings(config, defaultName = "Домик") {
   try {
     const isSauna = config.propertyId === TL_SAUNAS.propertyId;
     const token = isSauna ? await getTlSaunaAccessToken() : await getTlAccessToken();
-    let url = `${config.apiUrl}/properties/${config.propertyId}/bookings`;
+    const now = new Date();
+    const updatedAfter = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
+    
+    let page = 1;
     let hasMore = true;
-    let allSummaries = [];
-    while (hasMore) {
+    const allSummaries = [];
+    
+    while (hasMore && page <= 5) {
+      const url = `${config.apiUrl}/properties/${config.propertyId}/bookings?updatedAfter=${updatedAfter}&page=${page}&pageSize=100`;
       const res = await axios.get(url, { headers: { 'Authorization': `Bearer ${token}` } });
       const summaries = res.data.bookingSummaries || [];
-      allSummaries = allSummaries.concat(summaries);
+      allSummaries.push(...summaries);
       
-      if (res.data.hasMoreData && res.data.continueToken) {
-         url = `${config.apiUrl}/properties/${config.propertyId}/bookings?continueToken=${encodeURIComponent(res.data.continueToken)}`;
+      if (summaries.length < 100) {
+        hasMore = false;
       } else {
-         hasMore = false;
+        page++;
       }
     }
     
@@ -197,7 +224,7 @@ async function syncPropertyBookings(config, defaultName) {
             let guestName = b.customer?.firstName || rs.guests?.[0]?.firstName || "Гость";
             guestName = guestName.replace(/\*/g, '').trim() || "Гость";
             const phone = b.customer?.phone || "";
-            const cabin = rs.roomType?.name || defaultName;
+            const cabin = extractCabinName(rs, defaultName);
             const arr = rs.stayDates.arrivalDateTime.split('T')[0];
             const dep = rs.stayDates.departureDateTime.split('T')[0];
             
@@ -258,7 +285,7 @@ app.get('/api/booking/:id', async (req, res) => {
     } else if (roomStay.guests && roomStay.guests[0] && roomStay.guests[0].firstName && !roomStay.guests[0].firstName.includes("*")) {
        guestName = roomStay.guests[0].firstName;
     }
-    const cabinName = roomStay.roomType ? roomStay.roomType.name : "Домик";
+    const cabinName = extractCabinName(roomStay, "Домик");
     const arrivalDate = roomStay.stayDates.arrivalDateTime.split('T')[0];
     const departureDate = roomStay.stayDates.departureDateTime.split('T')[0];
     const earlyArrival = roomStay.extraStayCharges?.earlyArrival || null;
