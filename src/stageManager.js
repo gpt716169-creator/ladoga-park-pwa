@@ -98,9 +98,9 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
       } else {
         currentInactive.classList.add("active");
         currentActive.classList.remove("active");
-        activeVideoIndex = activeVideoIndex === 1 ? 2 : 1;
       }
     }
+  }
   // 2. Update Atmospheric Texts smoothly
   const titleEl = document.getElementById("heroTitle");
   const subtitleEl = document.getElementById("heroSubtitle");
