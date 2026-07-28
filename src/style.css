@@ -41,7 +41,7 @@ body {
   justify-content: center;
 }
 
-#app, main, body > div:not(.modal):not(.modal-overlay) {
+#app, main, body > div:not(.modal):not(.modal-overlay):not(.drawer-overlay):not(#toastContainer) {
   width: 100%;
   max-width: 480px;
   min-height: 100vh;
@@ -52,7 +52,7 @@ body {
   margin: 0 auto;
 }
 
-/* Restrain all Fixed Headers and Floating Elements to the Centered 480px Container */
+/* Restrain Fixed Header to the Centered 480px Frame */
 header {
   position: fixed !important;
   top: 0 !important;
@@ -73,12 +73,63 @@ header {
   max-width: 26rem !important;
 }
 
-/* Restrain Modals to 480px Frame */
-.modal-overlay, .modal {
-  left: 50% !important;
-  transform: translateX(-50%) !important;
+/* ==========================================================================
+   FULL-VIEWPORT MODAL BACKDROPS & CENTERED MODAL CARDS
+   ========================================================================== */
+.modal-overlay, .drawer-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 100 !important;
+  transform: none !important;
+  transition: opacity 0.25s ease-in-out !important;
+}
+
+.modal-overlay.opacity-0, .drawer-overlay.opacity-0 {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.modal-overlay:not(.opacity-0), .drawer-overlay:not(.opacity-0) {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Glass Modal Content Box */
+.glass-modal {
+  background: rgba(20, 34, 28, 0.98) !important;
+  border: 1px solid rgba(232, 165, 88, 0.4) !important;
+  border-radius: 1.5rem !important;
+  max-width: 26rem !important;
+  width: calc(100% - 2rem) !important;
+  margin: 0 auto !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(232, 165, 88, 0.15) !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  position: relative !important;
+}
+
+/* Cart Drawer Panel */
+.drawer-panel {
+  position: fixed !important;
+  right: 0 !important;
+  top: 0 !important;
+  height: 100vh !important;
   width: 100% !important;
-  max-width: 480px !important;
+  max-width: 420px !important;
+  background: #121c17 !important;
+  box-shadow: -10px 0 30px rgba(0,0,0,0.8) !important;
+  z-index: 110 !important;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 /* ==========================================================================
