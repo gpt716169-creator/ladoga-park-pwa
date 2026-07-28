@@ -21,7 +21,7 @@
    DESKTOP CONTAINER CENTERING (MOBILE PWA FRAME ON PC)
    ========================================================================== */
 html, body {
-  background-color: #050807;
+  background-color: #050807 !important;
   margin: 0;
   padding: 0;
   min-height: 100vh;
@@ -35,6 +35,12 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+body {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 #app, main, body > div:not(.modal):not(.modal-overlay) {
   width: 100%;
   max-width: 480px;
@@ -43,6 +49,36 @@ html, body {
   position: relative;
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
   overflow-x: hidden;
+  margin: 0 auto;
+}
+
+/* Restrain all Fixed Headers and Floating Elements to the Centered 480px Container */
+header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 100% !important;
+  max-width: 480px !important;
+  z-index: 40 !important;
+}
+
+/* Restrain Floating Dock to 480px Frame */
+.v2-luxe-dock {
+  position: fixed !important;
+  bottom: 1.25rem !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: calc(100% - 2.5rem) !important;
+  max-width: 26rem !important;
+}
+
+/* Restrain Modals to 480px Frame */
+.modal-overlay, .modal {
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 100% !important;
+  max-width: 480px !important;
 }
 
 /* ==========================================================================
@@ -350,63 +386,6 @@ html, body {
   width: 100%;
   object-fit: cover;
   position: relative;
-}
-
-.v2-luxe-dock {
-  position: fixed;
-  bottom: 1.25rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 2.5rem);
-  max-width: 26rem;
-  height: 4.25rem;
-  background: rgba(26, 36, 30, 0.88);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 9999px;
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(26, 36, 30, 0.3);
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  z-index: 50;
-  padding: 0 0.75rem;
-}
-
-.v2-luxe-dock-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 10px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  padding: 0.35rem 0.75rem;
-  border-radius: 9999px;
-  position: relative;
-}
-
-.v2-luxe-dock-item.active {
-  color: #E4CA92;
-  font-weight: 800;
-  transform: translateY(-2px);
-}
-
-.v2-luxe-dock-item.active::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  width: 4px;
-  height: 4px;
-  border-radius: 9999px;
-  background: #E4CA92;
-  box-shadow: 0 0 8px #E4CA92;
-}
-
-.v2-luxe-dock-item:active {
-  transform: scale(0.92);
 }
 
 .no-scrollbar::-webkit-scrollbar {
