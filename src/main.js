@@ -66,14 +66,12 @@ function showToast(message, title = "🔔 Уведомление") {
 }
 
 // Render Full Catalogue Items List
-function renderFullCatalogue(category = "all") {
+function renderFullCatalogue() {
   const listContainer = document.getElementById("fullCatalogueList");
   if (!listContainer) return;
   listContainer.innerHTML = "";
 
-  const filtered = category === "all" 
-    ? CATALOG_ITEMS.filter(i => i.category !== "sauna") 
-    : CATALOG_ITEMS.filter(i => i.category === category && i.category !== "sauna");
+  const filtered = CATALOG_ITEMS.filter(i => i.category !== "sauna");
 
   filtered.forEach(product => {
     const card = document.createElement("div");
@@ -608,15 +606,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Category Tabs Filter
-  document.querySelectorAll(".tab-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      currentCategory = btn.dataset.cat;
-      renderFullCatalogue(currentCategory);
-    });
-  });
 
   // Drawers & Modals Control
   const openDrawer = (id) => {
