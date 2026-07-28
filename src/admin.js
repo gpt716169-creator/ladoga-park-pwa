@@ -52,6 +52,100 @@ async function showDashboard() {
   loginScreen.style.display = 'none';
   dashboardScreen.style.display = 'block';
   await loadCatalog();
+  await loadBookingsDashboard();
+}
+
+// ----------------------------------------------------
+// TABS & BOOKINGS DASHBOARD
+// ----------------------------------------------------
+const tabCatalogBtn = document.getElementById('tabCatalogBtn');
+const tabBookingsBtn = document.getElementById('tabBookingsBtn');
+const viewCatalog = document.getElementById('viewCatalog');
+const viewBookings = document.getElementById('viewBookings');
+
+if (tabCatalogBtn && tabBookingsBtn) {
+  tabCatalogBtn.addEventListener('click', () => {
+    tabCatalogBtn.className = 'btn btn-primary';
+    tabBookingsBtn.className = 'btn';
+    tabBookingsBtn.style.background = 'rgba(255,255,255,0.1)';
+    tabBookingsBtn.style.color = 'white';
+    viewCatalog.style.display = 'block';
+    viewBookings.style.display = 'none';
+  });
+
+  tabBookingsBtn.addEventListener('click', async () => {
+    tabBookingsBtn.className = 'btn btn-primary';
+    tabCatalogBtn.className = 'btn';
+    tabCatalogBtn.style.background = 'rgba(255,255,255,0.1)';
+    tabCatalogBtn.style.color = 'white';
+    viewCatalog.style.display = 'none';
+    viewBookings.style.display = 'block';
+    await loadBookingsDashboard();
+  });
+}
+
+const forceSyncBtn = document.getElementById('forceSyncBtn');
+if (forceSyncBtn) {
+  forceSyncBtn.addEventListener('click', async () => {
+    forceSyncBtn.innerText = '⏳ Синхронизация...';
+    forceSyncBtn.disabled = true;
+    try {
+      const res = await fetch(`${API_BASE}/admin/sync`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${currentToken}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Синхронизация с TravelLine выполнена успешно!');
+        await loadBookingsDashboard();
+      } else {
+        alert('Ошибка синхронизации: ' + (data.error || 'Неизвестная ошибка'));
+      }
+    } catch(e) {
+      alert('Ошибка сети при синхронизации');
+    } finally {
+      forceSyncBtn.innerText = '🔄 Синхронизировать (TL)';
+      forceSyncBtn.disabled = false;
+    }
+  });
+}
+
+async function loadBookingsDashboard() {
+  try {
+    const res = await fetch(`${API_BASE}/admin/dashboard`);
+    const data = await res.json();
+    if (data.success) {
+      const { tomorrowArrivals, currentStays, todayDepartures } = data.data;
+      renderBookingsTable('tomorrowArrivalsBody', tomorrowArrivals || []);
+      renderBookingsTable('currentStaysBody', currentStays || []);
+      renderBookingsTable('todayDeparturesBody', todayDepartures || []);
+    }
+  } catch (err) {
+    console.error('Failed to load bookings dashboard', err);
+  }
+}
+
+function renderBookingsTable(targetId, bookings) {
+  const body = document.getElementById(targetId);
+  if (!body) return;
+  body.innerHTML = '';
+  if (bookings.length === 0) {
+    body.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1rem;">Записей не найдено</td></tr>`;
+    return;
+  }
+  bookings.forEach(b => {
+    const tr = document.createElement('tr');
+    const directLink = `/?booking=${b.id}`;
+    tr.innerHTML = `
+      <td style="font-weight: 700; color: var(--accent-gold);">${b.id}</td>
+      <td style="font-weight: 600;">${b.guest_name || 'Гость'}</td>
+      <td>${b.phone || '—'}</td>
+      <td>${b.cabin_name || 'Домик / Баня'}</td>
+      <td>${b.arrival_date || ''} → ${b.departure_date || ''}</td>
+      <td><a href="${directLink}" target="_blank" style="color: #60a5fa; text-decoration: underline;">Открыть ПВА</a></td>
+    `;
+    body.appendChild(tr);
+  });
 }
 
 // ----------------------------------------------------

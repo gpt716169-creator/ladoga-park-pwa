@@ -162,11 +162,11 @@ async function getTlAccessToken() {
 // SMS CRON JOB & DB SYNC SYSTEM
 // ==========================================
 // We sync with TL API to update local cache
-async function syncBookings() {
-  console.log('[Sync] Starting TravelLine sync...');
+async function syncPropertyBookings(config, defaultName) {
   try {
-    const token = await getTlAccessToken();
-    let url = `${TL_CABINS.apiUrl}/properties/${TL_CABINS.propertyId}/bookings`;
+    const isSauna = config.propertyId === TL_SAUNAS.propertyId;
+    const token = isSauna ? await getTlSaunaAccessToken() : await getTlAccessToken();
+    let url = `${config.apiUrl}/properties/${config.propertyId}/bookings`;
     let hasMore = true;
     let allSummaries = [];
     while (hasMore) {
@@ -175,26 +175,20 @@ async function syncBookings() {
       allSummaries = allSummaries.concat(summaries);
       
       if (res.data.hasMoreData && res.data.continueToken) {
-         url = `${TL_CABINS.apiUrl}/properties/${TL_CABINS.propertyId}/bookings?continueToken=${encodeURIComponent(res.data.continueToken)}`;
+         url = `${config.apiUrl}/properties/${config.propertyId}/bookings?continueToken=${encodeURIComponent(res.data.continueToken)}`;
       } else {
          hasMore = false;
       }
     }
     
-    // We only care about non-cancelled bookings that might intersect with our current dates.
-    // To avoid fetching thousands of details, we only fetch details for active bookings that changed.
     const activeSummaries = allSummaries.filter(s => s.status !== 'Cancelled');
-    
-    // Process them backwards so we do newest first
-    for (let i = activeSummaries.length - 1; i >= Math.max(0, activeSummaries.length - 200); i--) {
+    for (let i = activeSummaries.length - 1; i >= Math.max(0, activeSummaries.length - 100); i--) {
       const summary = activeSummaries[i];
-      // Check if we need to update it
       const existing = await new Promise((resolve) => db.get('SELECT modified_at, status FROM bookings WHERE id = ?', [summary.number], (err, row) => resolve(row)));
       
       if (!existing || existing.modified_at !== summary.modifiedDateTime || existing.status !== summary.status) {
-        // Fetch details
         try {
-          const detailRes = await axios.get(`${TL_CABINS.apiUrl}/properties/${TL_CABINS.propertyId}/bookings/${summary.number}`, {
+          const detailRes = await axios.get(`${config.apiUrl}/properties/${config.propertyId}/bookings/${summary.number}`, {
              headers: { 'Authorization': `Bearer ${token}` }
           });
           const b = detailRes.data.booking;
@@ -203,7 +197,7 @@ async function syncBookings() {
             let guestName = b.customer?.firstName || rs.guests?.[0]?.firstName || "Гость";
             guestName = guestName.replace(/\*/g, '').trim() || "Гость";
             const phone = b.customer?.phone || "";
-            const cabin = rs.roomType?.name || "Домик";
+            const cabin = rs.roomType?.name || defaultName;
             const arr = rs.stayDates.arrivalDateTime.split('T')[0];
             const dep = rs.stayDates.departureDateTime.split('T')[0];
             
@@ -216,14 +210,21 @@ async function syncBookings() {
               [summary.number, guestName, cabin, arr, dep, summary.status, phone, summary.modifiedDateTime]);
           }
         } catch (detailErr) {
-          console.error(`[Sync] Failed to fetch details for ${summary.number}`);
+          console.error(`[Sync] Failed details for ${summary.number}:`, detailErr.message);
         }
       }
     }
-    console.log('[Sync] TravelLine sync completed. Processed ' + allSummaries.length + ' total summaries.');
+    console.log(`[Sync] Property ${config.propertyId} synced (${allSummaries.length} summaries).`);
   } catch (err) {
-    console.error('[Sync] Error:', err.message);
+    console.error(`[Sync] Property ${config.propertyId} error:`, err.message);
   }
+}
+
+async function syncBookings() {
+  console.log('[Sync] Starting full TravelLine sync for Cabins & Saunas...');
+  await syncPropertyBookings(TL_CABINS, "Домик");
+  await syncPropertyBookings(TL_SAUNAS, "Баня");
+  console.log('[Sync] Full TravelLine sync completed.');
 }
 // Runs every 15 minutes to check bookings and send SMS
 cron.schedule('*/15 * * * *', async () => {
@@ -477,23 +478,21 @@ app.get('/api/admin/dashboard', (req, res) => {
            (SELECT GROUP_CONCAT(stage || ':' || status) FROM sms_logs s WHERE s.booking_id = b.id) as sms_stages
     FROM bookings b
     WHERE b.status != 'Cancelled' 
-      AND (
-        date(b.arrival_date) = date(?, '+1 day') OR 
-        (date(b.arrival_date) <= date(?) AND date(b.departure_date) > date(?)) OR
-        date(b.departure_date) = date(?)
-      )
+    ORDER BY b.arrival_date DESC
   `;
-  db.all(query, [today, today, today, today], (err, rows) => {
+  db.all(query, [], (err, rows) => {
     if (err) {
       console.error('[API] Error fetching dashboard bookings:', err);
       return res.status(500).json({ error: 'Database error' });
     }
     
-    console.log(`[API] Dashboard fetched ${rows ? rows.length : 0} active bookings for today.`);
+    console.log(`[API] Dashboard fetched ${rows ? rows.length : 0} total active bookings/saunas.`);
     const tomorrowArrivals = [];
     const currentStays = [];
     const todayDepartures = [];
-    rows.forEach(b => {
+    const allBookings = [];
+
+    (rows || []).forEach(b => {
       b.sms = {};
       if (b.sms_stages) {
         b.sms_stages.split(',').forEach(pair => {
@@ -502,8 +501,8 @@ app.get('/api/admin/dashboard', (req, res) => {
         });
       }
       
-      const arr = b.arrival_date.split('T')[0];
-      const dep = b.departure_date.split('T')[0];
+      const arr = b.arrival_date ? b.arrival_date.split('T')[0] : '';
+      const dep = b.departure_date ? b.departure_date.split('T')[0] : '';
       
       if (arr === tomorrow) {
         tomorrowArrivals.push(b);
@@ -512,13 +511,16 @@ app.get('/api/admin/dashboard', (req, res) => {
       } else {
         currentStays.push(b);
       }
+      allBookings.push(b);
     });
+
     res.json({
       success: true,
       data: {
         tomorrowArrivals,
         currentStays,
-        todayDepartures
+        todayDepartures,
+        allBookings
       }
     });
   });
