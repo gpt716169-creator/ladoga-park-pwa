@@ -732,30 +732,122 @@ document.addEventListener("DOMContentLoaded", async () => {
   const closeOrmBtn = document.getElementById("closeOrmBtn");
   if (closeOrmBtn) closeOrmBtn.addEventListener("click", () => closeModal("ormModal"));
 
-  // Resort Map Lightbox Modal Event Handlers
+  // Resort Map Lightbox Modal Event Handlers (Full Touch Gestures: Pinch, Double-Tap, Pan)
   const openMapCard = document.getElementById("openMapCard");
   const closeMapBtn = document.getElementById("closeMapBtn");
   const mapFullImage = document.getElementById("mapFullImage");
-  
+  const mapViewport = document.getElementById("mapViewport");
+
   if (openMapCard) {
     openMapCard.addEventListener("click", () => openModal("mapModal"));
   }
-  if (closeMapBtn) {
-    closeMapBtn.addEventListener("click", () => {
-      if (mapFullImage) {
-        mapFullImage.style.transform = "scale(1)";
-        mapFullImage.style.cursor = "zoom-in";
+
+  if (mapFullImage && mapViewport) {
+    let scale = 1;
+    let pointX = 0;
+    let pointY = 0;
+    let startX = 0;
+    let startY = 0;
+    let isDragging = false;
+    let lastTapTime = 0;
+    let initialPinchDist = null;
+    let initialScale = 1;
+
+    function updateTransform() {
+      if (scale <= 1) {
+        scale = 1;
+        pointX = 0;
+        pointY = 0;
       }
-      closeModal("mapModal");
+      mapFullImage.style.transform = `translate3d(${pointX}px, ${pointY}px, 0) scale(${scale})`;
+    }
+
+    function resetZoom() {
+      scale = 1;
+      pointX = 0;
+      pointY = 0;
+      updateTransform();
+    }
+
+    if (closeMapBtn) {
+      closeMapBtn.addEventListener("click", () => {
+        resetZoom();
+        closeModal("mapModal");
+      });
+    }
+
+    // Double Tap & Click Toggle Zoom (1x <-> 2.2x)
+    mapViewport.addEventListener("click", (e) => {
+      const now = Date.now();
+      if (now - lastTapTime < 300) {
+        if (scale > 1) {
+          resetZoom();
+        } else {
+          scale = 2.2;
+          updateTransform();
+        }
+      }
+      lastTapTime = now;
     });
-  }
-  if (mapFullImage) {
-    let isZoomed = false;
-    mapFullImage.addEventListener("click", (e) => {
-      e.stopPropagation();
-      isZoomed = !isZoomed;
-      mapFullImage.style.transform = isZoomed ? "scale(1.6)" : "scale(1)";
-      mapFullImage.style.cursor = isZoomed ? "zoom-out" : "zoom-in";
+
+    // Touch Panning & Pinching
+    mapViewport.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        startX = e.touches[0].clientX - pointX;
+        startY = e.touches[0].clientY - pointY;
+      } else if (e.touches.length === 2) {
+        isDragging = false;
+        initialPinchDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        initialScale = scale;
+      }
+    }, { passive: true });
+
+    mapViewport.addEventListener("touchmove", (e) => {
+      if (e.touches.length === 1 && isDragging && scale > 1) {
+        pointX = e.touches[0].clientX - startX;
+        pointY = e.touches[0].clientY - startY;
+        updateTransform();
+      } else if (e.touches.length === 2 && initialPinchDist) {
+        const currentDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const factor = currentDist / initialPinchDist;
+        scale = Math.min(Math.max(1, initialScale * factor), 4);
+        updateTransform();
+      }
+    }, { passive: true });
+
+    mapViewport.addEventListener("touchend", (e) => {
+      if (e.touches.length < 2) initialPinchDist = null;
+      if (e.touches.length === 0) isDragging = false;
+    });
+
+    // Mouse Panning for Desktop
+    mapViewport.addEventListener("mousedown", (e) => {
+      if (scale > 1) {
+        isDragging = true;
+        startX = e.clientX - pointX;
+        startY = e.clientY - pointY;
+        mapViewport.style.cursor = "grabbing";
+      }
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (isDragging && scale > 1) {
+        pointX = e.clientX - startX;
+        pointY = e.clientY - startY;
+        updateTransform();
+      }
+    });
+
+    window.addEventListener("mouseup", () => {
+      isDragging = false;
+      if (mapViewport) mapViewport.style.cursor = "grab";
     });
   }
 

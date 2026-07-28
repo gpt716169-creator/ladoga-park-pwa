@@ -702,25 +702,30 @@
 
   <!-- FULLSCREEN MAP LIGHTBOX MODAL -->
   <div id="mapModal" class="modal-overlay opacity-0 pointer-events-none" style="z-index: 1000; background: rgba(5, 8, 6, 0.96); backdrop-filter: blur(16px); transition: opacity 0.3s ease;">
-    <div style="position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem;">
+    <div style="position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;">
       
       <!-- Top Bar -->
-      <div style="position: absolute; top: 1.25rem; left: 1rem; right: 1rem; display: flex; justify-content: space-between; align-items: center; z-index: 20;">
-        <div style="display: flex; align-items: center; gap: 0.5rem; background: rgba(18, 28, 23, 0.95); border: 1px solid rgba(232, 165, 88, 0.45); padding: 0.5rem 1rem; border-radius: 9999px; color: var(--accent-gold); font-weight: 700; font-size: 0.875rem; box-shadow: 0 4px 16px rgba(0,0,0,0.8);">
+      <div style="position: absolute; top: 1rem; left: 1rem; right: 1rem; display: flex; justify-content: space-between; align-items: center; z-index: 30;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; background: rgba(18, 28, 23, 0.95); border: 1px solid rgba(232, 165, 88, 0.45); padding: 0.4rem 0.875rem; border-radius: 9999px; color: var(--accent-gold); font-weight: 700; font-size: 0.8125rem; box-shadow: 0 4px 16px rgba(0,0,0,0.8);">
           <span>🗺️</span>
           <span>Карта территории Ладога Парк</span>
         </div>
-        <button id="closeMapBtn" style="width: 2.75rem; height: 2.75rem; border-radius: 9999px; background: rgba(18, 28, 23, 0.95); border: 1px solid rgba(255, 255, 255, 0.25); color: #ffffff; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.8);">✕</button>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <a href="./assets/images/resort_map.webp" target="_blank" style="background: rgba(232, 165, 88, 0.2); border: 1px solid rgba(232, 165, 88, 0.4); color: var(--accent-gold); padding: 0.5rem 0.875rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 0.25rem; box-shadow: 0 4px 16px rgba(0,0,0,0.8);">
+            🔍 Оригинал
+          </a>
+          <button id="closeMapBtn" style="width: 2.5rem; height: 2.5rem; border-radius: 9999px; background: rgba(18, 28, 23, 0.95); border: 1px solid rgba(255, 255, 255, 0.25); color: #ffffff; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.8);">✕</button>
+        </div>
       </div>
 
-      <!-- Image Container -->
-      <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: auto; padding-top: 4rem; padding-bottom: 3rem;">
-        <img id="mapFullImage" src="./assets/images/resort_map.webp" alt="Карта территории Ладога Парк" style="max-width: 95vw; max-height: 82vh; object-fit: contain; border-radius: 1rem; border: 1px solid rgba(232, 165, 88, 0.35); box-shadow: 0 16px 48px rgba(0,0,0,0.95); cursor: zoom-in; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);" />
+      <!-- Image Pan/Zoom Container -->
+      <div id="mapViewport" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; touch-action: none; cursor: grab;">
+        <img id="mapFullImage" src="./assets/images/resort_map.webp" alt="Карта территории Ладога Парк" style="max-width: 95vw; max-height: 82vh; object-fit: contain; border-radius: 0.875rem; border: 1px solid rgba(232, 165, 88, 0.35); box-shadow: 0 16px 48px rgba(0,0,0,0.95); transform-origin: center center; user-select: none; -webkit-user-drag: none; transition: transform 0.1s ease-out;" />
       </div>
 
-      <!-- Bottom Hint -->
-      <div style="position: absolute; bottom: 1.25rem; background: rgba(18, 28, 23, 0.9); border: 1px solid rgba(232, 165, 88, 0.3); padding: 0.4rem 1.25rem; border-radius: 9999px; color: #e5e7eb; font-size: 0.75rem; font-weight: 600; box-shadow: 0 4px 16px rgba(0,0,0,0.6);">
-        💡 Нажмите на карту для zoom-увеличения • Нажмите ✕ для закрытия
+      <!-- Bottom Hint Bar -->
+      <div style="position: absolute; bottom: 1rem; background: rgba(18, 28, 23, 0.9); border: 1px solid rgba(232, 165, 88, 0.3); padding: 0.4rem 1rem; border-radius: 9999px; color: #e5e7eb; font-size: 0.75rem; font-weight: 600; box-shadow: 0 4px 16px rgba(0,0,0,0.6); pointer-events: none; z-index: 20;">
+        💡 Двойной тап / пальцами — Zoom • Перетаскивание • ✕ Закрыть
       </div>
     </div>
   </div>
