@@ -80,22 +80,22 @@ function renderFullCatalogue(category = "all") {
     card.className = "glass-card p-4";
     card.style.cssText = "padding: 1rem; border-radius: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;";
     
-    let mediaHtml = \`<div style="width: 3rem; height: 3rem; border-radius: 1rem; background: rgba(232,165,88,0.1); border: 1px solid rgba(232,165,88,0.2); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">\${product.icon || '📦'}</div>\`;
+    let mediaHtml = `<div style="width: 3rem; height: 3rem; border-radius: 1rem; background: rgba(232,165,88,0.1); border: 1px solid rgba(232,165,88,0.2); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">${product.icon || '📦'}</div>`;
     if (product.image) {
-      mediaHtml = \`<img src="\${product.image}" style="width: 3rem; height: 3rem; border-radius: 1rem; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(232,165,88,0.2);" />\`;
+      mediaHtml = `<img src="${product.image}" style="width: 3rem; height: 3rem; border-radius: 1rem; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(232,165,88,0.2);" />`;
     }
 
     card.innerHTML = `
       <div style="display: flex; align-items: center; gap: 0.875rem;">
-        \${mediaHtml}
+        ${mediaHtml}
         <div>
-          <h4 style="font-weight: 700; font-size: 0.875rem; color: #f3f4f6; line-height: 1.3;">\${product.displayName}</h4>
-          <p style="font-size: 11px; color: var(--text-muted); margin-top: 0.125rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">\${product.desc}</p>
+          <h4 style="font-weight: 700; font-size: 0.875rem; color: #f3f4f6; line-height: 1.3;">${product.displayName}</h4>
+          <p style="font-size: 11px; color: var(--text-muted); margin-top: 0.125rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${product.desc}</p>
         </div>
       </div>
       <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; flex-shrink: 0;">
-        <span style="font-size: 0.875rem; font-weight: 800; color: var(--accent-gold); white-space: nowrap;">\${product.price.toLocaleString("ru-RU")} ₽</span>
-        <button class="btn-add-item btn-primary-gold" style="padding: 0.375rem 0.875rem; font-size: 0.75rem; white-space: nowrap;" data-id="\${product.id}">
+        <span style="font-size: 0.875rem; font-weight: 800; color: var(--accent-gold); white-space: nowrap;">${product.price.toLocaleString("ru-RU")} ₽</span>
+        <button class="btn-add-item btn-primary-gold" style="padding: 0.375rem 0.875rem; font-size: 0.75rem; white-space: nowrap;" data-id="${product.id}">
           + Добавить
         </button>
       </div>
@@ -108,7 +108,7 @@ function renderFullCatalogue(category = "all") {
       const item = CATALOG_ITEMS.find(i => i.id === btn.dataset.id);
       if (item) {
         cart.addItem(item);
-        showToast(\`«\${item.displayName}» добавлен в ваш заказ\`, "✨ Добавлено в корзину");
+        showToast(`«${item.displayName}» добавлен в ваш заказ`, "✨ Добавлено в корзину");
         switchStage(currentStage, currentSeason);
       }
     });
@@ -133,14 +133,14 @@ function updateCartUI() {
   }
 
   const finalTotalEl = document.getElementById("drawerFinalTotal");
-  if (finalTotalEl) finalTotalEl.innerText = \`\${total.toLocaleString("ru-RU")} ₽\`;
+  if (finalTotalEl) finalTotalEl.innerText = `${total.toLocaleString("ru-RU")} ₽`;
 
   const itemsList = document.getElementById("cartItemsList");
   if (!itemsList) return;
   itemsList.innerHTML = "";
 
   if (cart.getItems().length === 0) {
-    itemsList.innerHTML = \`<div style="text-align: center; color: var(--text-muted); font-size: 0.75rem; padding: 2rem 0;">Ваша корзина пока пуста</div>\`;
+    itemsList.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.75rem; padding: 2rem 0;">Ваша корзина пока пуста</div>`;
   } else {
     cart.getItems().forEach(item => {
       const row = document.createElement("div");
@@ -148,13 +148,13 @@ function updateCartUI() {
       row.style.cssText = "padding: 0.875rem; border-radius: 1rem; display: flex; align-items: center; justify-content: space-between; border-color: rgba(232,165,88,0.3); gap: 0.5rem;";
       row.innerHTML = `
         <div style="padding-right: 0.5rem;">
-          <strong style="font-size: 0.75rem; color: #f3f4f6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3;">\${item.displayName}</strong>
-          <span style="font-size: 11px; color: var(--accent-gold); font-weight: 700; margin-top: 0.125rem; display: block;">\${item.price.toLocaleString("ru-RU")} ₽ / шт.</span>
+          <strong style="font-size: 0.75rem; color: #f3f4f6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3;">${item.displayName}</strong>
+          <span style="font-size: 11px; color: var(--accent-gold); font-weight: 700; margin-top: 0.125rem; display: block;">${item.price.toLocaleString("ru-RU")} ₽ / шт.</span>
         </div>
         <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
-          <button class="btn-minus btn-icon-round" style="width: 1.75rem; height: 1.75rem; font-size: 0.875rem;" data-id="\${item.id}">-</button>
-          <span style="font-size: 0.75rem; font-weight: 800; width: 1rem; text-align: center;">\${item.quantity}</span>
-          <button class="btn-plus btn-icon-round" style="width: 1.75rem; height: 1.75rem; font-size: 0.875rem;" data-id="\${item.id}">+</button>
+          <button class="btn-minus btn-icon-round" style="width: 1.75rem; height: 1.75rem; font-size: 0.875rem;" data-id="${item.id}">-</button>
+          <span style="font-size: 0.75rem; font-weight: 800; width: 1rem; text-align: center;">${item.quantity}</span>
+          <button class="btn-plus btn-icon-round" style="width: 1.75rem; height: 1.75rem; font-size: 0.875rem;" data-id="${item.id}">+</button>
         </div>
       `;
       itemsList.appendChild(row);
@@ -186,21 +186,21 @@ function renderQuickOrders() {
     card.className = "glass-card";
     card.style.cssText = "padding: 1rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem;";
     
-    let mediaHtml = \`<span style="font-size: 28px;">\${item.icon || '📦'}</span>\`;
+    let mediaHtml = `<span style="font-size: 28px;">${item.icon || '📦'}</span>`;
     if (item.image) {
-      mediaHtml = \`<img src="\${item.image}" style="width: 2.25rem; height: 2.25rem; border-radius: 8px; object-fit: cover;" />\`;
+      mediaHtml = `<img src="${item.image}" style="width: 2.25rem; height: 2.25rem; border-radius: 8px; object-fit: cover;" />`;
     }
 
     card.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-        \${mediaHtml}
-        <button class="btn-quick-add btn-icon-round" style="width: 2.25rem; height: 2.25rem;" data-id="\${item.id}" title="Добавить в заказ">
+        ${mediaHtml}
+        <button class="btn-quick-add btn-icon-round" style="width: 2.25rem; height: 2.25rem;" data-id="${item.id}" title="Добавить в заказ">
           <span style="font-size: 18px; font-weight: 800;">+</span>
         </button>
       </div>
       <div>
-        <p style="font-weight: 700; font-size: 0.75rem; color: #f3f4f6; line-height: 1.3;">\${item.displayName}</p>
-        <p style="font-size: 11px; color: var(--accent-gold); font-weight: 600; margin-top: 0.125rem;">\${item.price.toLocaleString("ru-RU")} ₽ <span style="color: var(--text-muted); font-weight: 400;">• \${item.desc}</span></p>
+        <p style="font-weight: 700; font-size: 0.75rem; color: #f3f4f6; line-height: 1.3;">${item.displayName}</p>
+        <p style="font-size: 11px; color: var(--accent-gold); font-weight: 600; margin-top: 0.125rem;">${item.price.toLocaleString("ru-RU")} ₽ <span style="color: var(--text-muted); font-weight: 400;">• ${item.desc}</span></p>
       </div>
     `;
     container.appendChild(card);
@@ -244,11 +244,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (item.category === "sauna" || id.includes("sauna") || id.includes("hottub") || id.includes("aroma")) {
         pendingSaunaItem = item;
         openSaunaTimeModal(item);
-      } else {
-        cart.addItem(item);
-        showToast(\`«\${item.displayName}» добавлен в заказ\`, "✨ Заказано");
-        switchStage(currentStage, currentSeason);
+        return;
       }
+      
+      cart.addItem(item);
+      showToast(`«${item.displayName}» добавлен в ваш заказ`, "✨ Корзина обновлена");
     }
   });
 
@@ -268,35 +268,29 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   function loadSaunaSlots(itemId, dateStr) {
-    const cacheKey = \`\${itemId}_\${dateStr}\`;
+    const cacheKey = `${itemId}_${dateStr}`;
     if (clientSaunaCache.has(cacheKey)) {
       renderTimeSlots(clientSaunaCache.get(cacheKey), dateStr);
       return;
     }
 
-    const slotsContainer = document.getElementById("saunaTimeSlots");
-    if(!slotsContainer) return;
-    slotsContainer.innerHTML = \`<div style="text-align: center; color: var(--text-muted); font-size: 0.75rem; grid-column: span 3; padding: 1rem;">Загрузка свободного времени...</div>\`;
     // Immediately render default slots with zero delay so modal opens instantly!
     const defaults = DEFAULT_SAUNA_SLOTS[itemId] || DEFAULT_SAUNA_SLOTS['sauna-forest'];
     renderTimeSlots(defaults, dateStr);
     
     // Fetch live availability from server in background
-    fetch(\`/api/saunas?category=\${itemId}&date=\${dateStr}\`)
+    fetch(`/api/saunas?category=${itemId}&date=${dateStr}`)
       .then(r => r.json())
       .then(res => {
          if (res.success && res.data && res.data.length > 0) {
            clientSaunaCache.set(cacheKey, res.data);
            renderTimeSlots(res.data, dateStr);
-         } else {
-           slotsContainer.innerHTML = \`<div style="text-align: center; color: var(--text-muted); font-size: 0.75rem; grid-column: span 3; padding: 1rem;">Пожалуйста, уточните доступное время и цены у администрации.</div>\`;
          }
       })
-      .catch(err => {
-         console.warn("TravelLine proxy unavailable.");
-         slotsContainer.innerHTML = \`<div style="text-align: center; color: var(--text-muted); font-size: 0.75rem; grid-column: span 3; padding: 1rem;">Пожалуйста, уточните доступное время и цены у администрации.</div>\`;
-      });
+      .catch(() => {});
   }
+
+  let selectedSaunaDate = null;
 
   function openSaunaTimeModal(item) {
     pendingSaunaItem = item;
@@ -305,7 +299,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const datePicker = document.getElementById("saunaDatePicker");
     if (!modal) return;
     
-    title.innerText = \`Время: \${item.displayName}\`;
+    title.innerText = `Время: ${item.displayName}`;
     
     const chanTextEl = document.getElementById("saunaOptChanText");
     const isLakeSauna = item.id.includes("lake") || item.displayName.toLowerCase().includes("берегу");
@@ -333,7 +327,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (datePicker) {
       datePicker.value = defaultDate;
-      let selectedSaunaDate = defaultDate;
+      selectedSaunaDate = defaultDate;
       
       datePicker.onchange = (e) => {
         selectedSaunaDate = e.target.value;
@@ -349,11 +343,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function renderTimeSlots(slots, dateStr) {
     const slotsContainer = document.getElementById("saunaTimeSlots");
-    if(!slotsContainer) return;
     slotsContainer.innerHTML = "";
     slots.forEach(slot => {
       const btn = document.createElement("button");
-      btn.innerHTML = \`\${slot.time}<br><span style="font-size: 10px; opacity: 0.8;">\${slot.price.toLocaleString("ru-RU")} ₽</span>\`;
+      btn.innerHTML = `${slot.time}<br><span style="font-size: 10px; opacity: 0.8;">${slot.price.toLocaleString("ru-RU")} ₽</span>`;
       if (slot.available) {
         btn.style.cssText = "background: rgba(232,165,88,0.1); border: 1px solid rgba(232,165,88,0.3); color: var(--accent-gold); padding: 0.5rem; border-radius: 0.75rem; font-weight: 700; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.125rem;";
         btn.onclick = () => {
@@ -361,8 +354,8 @@ document.addEventListener("DOMContentLoaded", async () => {
            const dateFormatted = dateStr ? dateStr.split('-').reverse().slice(0, 2).join('.') : '';
            const timeItem = {
              ...pendingSaunaItem, 
-             displayName: \`\${pendingSaunaItem.displayName} (\${dateFormatted ? dateFormatted + ' ' : ''}\${slot.time})\`, 
-             id: \`\${pendingSaunaItem.id}-\${dateStr}-\${slot.time}\`,
+             displayName: `${pendingSaunaItem.displayName} (${dateFormatted ? dateFormatted + ' ' : ''}${slot.time})`, 
+             id: `${pendingSaunaItem.id}-${dateStr}-${slot.time}`,
              price: slot.price
            };
            cart.addItem(timeItem);
@@ -393,7 +386,7 @@ document.addEventListener("DOMContentLoaded", async () => {
            if (chanCb) chanCb.checked = false;
            if (aromaCb) aromaCb.checked = false;
            
-           showToast(\`Баня и выбранные услуги добавлены\`, "✨ Забронировано");
+           showToast(`Баня и выбранные услуги добавлены`, "✨ Забронировано");
            switchStage(currentStage, currentSeason);
            closeSaunaModal();
         };
@@ -463,25 +456,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     if (name && name !== "Гость") {
       const heroTitle = document.getElementById("heroTitle");
-      if (heroTitle) heroTitle.innerText = \`Добро пожаловать, \${name}!\`;
+      if (heroTitle) heroTitle.innerText = `Добро пожаловать, ${name}!`;
 
       const farewellTitle = document.getElementById("farewellTitle");
-      if (farewellTitle) farewellTitle.innerText = \`Благодарим за визит, \${name}!\`;
+      if (farewellTitle) farewellTitle.innerText = `Благодарим за визит, ${name}!`;
 
       const regModalGuestHeader = document.getElementById("regModalGuestHeader");
-      if (regModalGuestHeader) regModalGuestHeader.innerText = \`\${name}, ждём вас!\`;
+      if (regModalGuestHeader) regModalGuestHeader.innerText = `${name}, ждём вас!`;
 
       const ormModalTitle = document.getElementById("ormModalTitle");
-      if (ormModalTitle) ormModalTitle.innerText = \`Как прошёл ваш отдых, \${name}?\`;
+      if (ormModalTitle) ormModalTitle.innerText = `Как прошёл ваш отдых, ${name}?`;
 
       const highRatingBanner = document.getElementById("highRatingBanner");
-      if (highRatingBanner) highRatingBanner.innerHTML = \`<span>🎉</span> Спасибо за высокую оценку, \${name}! Вы сделали наш день!\`;
+      if (highRatingBanner) highRatingBanner.innerHTML = `<span>🎉</span> Спасибо за высокую оценку, ${name}! Вы сделали наш день!`;
     }
 
     if (name || cabin) {
       const cartSubtext = document.getElementById("cartSubtext");
       if (cartSubtext) {
-        cartSubtext.innerText = \`\${name || 'Гость'} • «\${cabin || 'Домик'}» • Доставка 15 мин\`;
+        cartSubtext.innerText = `${name || 'Гость'} • «${cabin || 'Домик'}» • Доставка 15 мин`;
       }
     }
   }
@@ -498,7 +491,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   
   if (bookingId) {
     // Fetch personalized data from server
-    fetch(\`/api/booking/\${bookingId}\`)
+    fetch(`/api/booking/${bookingId}`)
       .then(r => r.json())
       .then(res => {
         if (res.success && res.data) {
@@ -587,7 +580,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     switchStage(stageId, currentSeason, (bannerConfig) => {
       if (bannerConfig.actionCategory) {
-        const catBtn = document.querySelector(\`.tab-btn[data-cat="\${bannerConfig.actionCategory}"]\`);
+        const catBtn = document.querySelector(`.tab-btn[data-cat="${bannerConfig.actionCategory}"]`);
         if (catBtn) catBtn.click();
         const catalogEl = document.getElementById("fullCatalogueList");
         if (catalogEl) catalogEl.scrollIntoView({ behavior: "smooth" });
@@ -604,14 +597,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Handled entirely inside initStage function now
 
   // FULL PAGE RELOAD ON STAGE CHANGE (Silent - No toast notification per user request!)
-  const stageSelector = document.getElementById("stageSelector");
   if (stageSelector) {
     stageSelector.addEventListener("change", () => {
       const newStage = stageSelector.value;
       localStorage.setItem("demoStage", newStage);
       if (demoPanel) demoPanel.classList.add("hidden");
       stageSelector.blur();
-      window.location.href = \`?stage=\${newStage}\`;
+      window.location.href = `?stage=${newStage}`;
     });
   }
 
@@ -826,12 +818,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       const payType = document.querySelector('input[name="payType"]:checked')?.value;
       const total = cart.getTotalPrice();
       if (payType === "sbp") {
-        showToast(\`Инициирована оплата СБП на сумму \${total.toLocaleString("ru-RU")} ₽. Электронный чек ОФД сформирован.\`, "⚡ Оплата СБП");
+        showToast(`Инициирована оплата СБП на сумму ${total.toLocaleString("ru-RU")} ₽. Электронный чек ОФД сформирован.`, "⚡ Оплата СБП");
       } else {
-        showToast(\`Заказ на сумму \${total.toLocaleString("ru-RU")} ₽ добавлен в ваш фолио TravelLine. Оплата при выезде.\`, "🏨 Фолио обновлено");
+        showToast(`Заказ на сумму ${total.toLocaleString("ru-RU")} ₽ добавлен в ваш фолио TravelLine. Оплата при выезде.`, "🏨 Фолио обновлено");
       }
       cart.clearCart();
       closeDrawer("cartDrawer");
     });
   }
-});
+})

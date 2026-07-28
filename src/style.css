@@ -1,8 +1,3 @@
-/*
- * Ладога Парк | Эко-курорт PWA
- * Dual Architecture Style Sheet: Apple Design Award Winning Boutique Resort (V2 Scandi Luxe) vs V1 Dark Luxury
- */
-
 :root {
   --bg-dark: #0b110e;
   --bg-card: rgba(18, 28, 23, 0.85);
@@ -13,395 +8,10 @@
   --text-main: #f3f4f6;
   --text-muted: #9ca3af;
   --border-ember: rgba(232, 165, 88, 0.25);
-  --font-sans: 'Outfit', 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-serif: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  --font-sans: "Outfit", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
 }
 
-/* ==========================================================================
-   V2 BOUTIQUE SCANDINAVIAN LUXURY (Apple Design Award Level)
-   Warm Alpine Ivory, Deep Forest Pine, Champagne Gold, Glassmorphism, Ambient Shadows
-   ========================================================================== */
-#v2Container {
-  background-color: #F4F1EA; /* Organic Warm Ivory */
-  color: #1A241E; /* Deep Alpine Green-Black */
-  font-family: 'Manrope', 'Outfit', -apple-system, sans-serif;
-  min-height: 100vh;
-  padding-bottom: 6rem;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* Cinematic Floating Hero */
-.v2-luxe-hero {
-  position: relative;
-  width: 100%;
-  height: 420px;
-  background: #1A241E;
-  border-radius: 0 0 2.5rem 2.5rem;
-  overflow: hidden;
-  box-shadow: 0 20px 40px -10px rgba(26, 36, 30, 0.25);
-  transform: translateZ(0);
-}
-
-.v2-luxe-hero-bg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scale(1.03);
-  transition: transform 10s ease;
-}
-
-.v2-luxe-hero:hover .v2-luxe-hero-bg {
-  transform: scale(1);
-}
-
-.v2-luxe-gradient {
-  position: absolute;
-  inset: 0;
-  background: 
-    linear-gradient(180deg, rgba(26,36,30,0.65) 0%, rgba(26,36,30,0.1) 35%, rgba(26,36,30,0.4) 65%, rgba(26,36,30,0.96) 100%),
-    radial-gradient(circle at top right, rgba(197, 160, 89, 0.25), transparent 50%);
-}
-
-.v2-luxe-header {
-  position: relative;
-  z-index: 20;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem 1.5rem;
-}
-
-.v2-luxe-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #FFFFFF;
-  font-family: 'Playfair Display', serif;
-  font-weight: 700;
-  font-size: 1.35rem;
-  letter-spacing: 0.08em;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-}
-
-.v2-luxe-brand-badge {
-  background: linear-gradient(135deg, #C5A059, #E4CA92);
-  color: #1A241E;
-  font-family: 'Manrope', sans-serif;
-  font-size: 9px;
-  font-weight: 800;
-  padding: 0.2rem 0.5rem;
-  border-radius: 9999px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-}
-
-.v2-luxe-hero-content {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 20;
-  padding: 1.5rem 1.5rem 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.v2-luxe-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 2.15rem;
-  font-weight: 600;
-  color: #FFFFFF;
-  line-height: 1.15;
-  letter-spacing: -0.01em;
-  text-shadow: 0 4px 16px rgba(0,0,0,0.7);
-}
-
-.v2-luxe-timer-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  padding: 0.4rem 0.85rem;
-  border-radius: 9999px;
-  color: #FFFFFF;
-  font-size: 0.8rem;
-  font-weight: 600;
-  align-self: flex-start;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-
-.v2-pulse-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 9999px;
-  background-color: #4ADE80;
-  box-shadow: 0 0 12px #4ADE80;
-  animation: pulseGlow 2s infinite;
-}
-
-@keyframes pulseGlow {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.3); opacity: 0.7; }
-}
-
-/* Floating Booking Pass Card */
-.v2-luxe-pass-card {
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 1.5rem;
-  padding: 1rem 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 16px 32px -8px rgba(26, 36, 30, 0.18), 0 4px 12px rgba(0,0,0,0.05);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.v2-luxe-pass-card:hover {
-  transform: translateY(-2px);
-}
-
-.v2-luxe-main {
-  max-width: 44rem;
-  margin: -1.5rem auto 0;
-  padding: 0 1.25rem;
-  position: relative;
-  z-index: 30;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-/* High-End Surface Cards */
-.v2-luxe-card {
-  background: #FFFFFF;
-  border-radius: 1.75rem;
-  padding: 1.5rem;
-  border: 1px solid rgba(26, 36, 30, 0.06);
-  box-shadow: 0 12px 28px -6px rgba(26, 36, 30, 0.05), 0 4px 10px -2px rgba(26, 36, 30, 0.02);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.v2-luxe-card:hover {
-  box-shadow: 0 20px 36px -8px rgba(26, 36, 30, 0.09), 0 6px 14px -2px rgba(26, 36, 30, 0.04);
-  border-color: rgba(197, 160, 89, 0.3);
-}
-
-/* VIP Black Gold Access Card (Gate & Wi-Fi) */
-.v2-vip-access-card {
-  background: linear-gradient(135deg, #1A241E 0%, #0D1310 100%);
-  border-radius: 1.75rem;
-  padding: 1.5rem;
-  color: #FFFFFF;
-  border: 1px solid rgba(197, 160, 89, 0.35);
-  box-shadow: 0 20px 40px -10px rgba(13, 19, 16, 0.5), 0 0 20px rgba(197, 160, 89, 0.1);
-  position: relative;
-  overflow: hidden;
-}
-
-.v2-vip-access-card::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(197, 160, 89, 0.15) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-/* Boutique Buttons */
-.v2-luxe-btn-primary {
-  background: linear-gradient(135deg, #1A241E 0%, #28382F 100%);
-  color: #FFFFFF;
-  font-family: 'Manrope', sans-serif;
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.03em;
-  padding: 0.9rem 1.5rem;
-  border-radius: 1.15rem;
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 8px 20px -4px rgba(26, 36, 30, 0.4);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.625rem;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  text-decoration: none;
-  width: 100%;
-}
-
-.v2-luxe-btn-primary:hover, .v2-luxe-btn-primary:active {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 26px -4px rgba(26, 36, 30, 0.5);
-  background: linear-gradient(135deg, #223028 0%, #304439 100%);
-}
-
-.v2-luxe-btn-gold {
-  background: linear-gradient(135deg, #C5A059 0%, #E4CA92 100%);
-  color: #1A241E;
-  font-family: 'Manrope', sans-serif;
-  font-weight: 800;
-  font-size: 0.85rem;
-  letter-spacing: 0.03em;
-  padding: 0.9rem 1.5rem;
-  border-radius: 1.15rem;
-  border: none;
-  box-shadow: 0 8px 20px -4px rgba(197, 160, 89, 0.4);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  text-decoration: none;
-  width: 100%;
-}
-
-.v2-luxe-btn-gold:hover, .v2-luxe-btn-gold:active {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px -4px rgba(197, 160, 89, 0.5);
-}
-
-.v2-luxe-btn-outline {
-  background: transparent;
-  color: #1A241E;
-  font-weight: 700;
-  font-size: 0.8rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: 1rem;
-  border: 1.5px solid #1A241E;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: all 0.2s ease;
-  text-decoration: none;
-}
-
-.v2-luxe-btn-outline:hover {
-  background: rgba(26, 36, 30, 0.05);
-}
-
-/* Horizontal Scroll Carousels */
-.v2-luxe-carousel {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  padding-bottom: 0.75rem;
-  margin: 0 -0.5rem;
-  padding: 0.25rem 0.5rem 0.75rem;
-}
-
-.v2-luxe-addon-card {
-  min-width: 160px;
-  flex: 0 0 160px;
-  scroll-snap-align: start;
-  background: #FFFFFF;
-  border-radius: 1.5rem;
-  border: 1px solid rgba(26, 36, 30, 0.06);
-  box-shadow: 0 8px 20px -6px rgba(26, 36, 30, 0.05);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.v2-luxe-addon-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 14px 28px -6px rgba(26, 36, 30, 0.1);
-  border-color: rgba(197, 160, 89, 0.4);
-}
-
-.v2-luxe-addon-img {
-  height: 110px;
-  width: 100%;
-  object-fit: cover;
-  position: relative;
-}
-
-/* Apple-Style Floating Dock Bottom Nav */
-.v2-luxe-dock {
-  position: fixed;
-  bottom: 1.25rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 2.5rem);
-  max-width: 26rem;
-  height: 4.25rem;
-  background: rgba(26, 36, 30, 0.88);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 9999px;
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(26, 36, 30, 0.3);
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  z-index: 50;
-  padding: 0 0.75rem;
-}
-
-.v2-luxe-dock-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 10px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  padding: 0.35rem 0.75rem;
-  border-radius: 9999px;
-  position: relative;
-}
-
-.v2-luxe-dock-item.active {
-  color: #E4CA92;
-  font-weight: 800;
-  transform: translateY(-2px);
-}
-
-.v2-luxe-dock-item.active::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  width: 4px;
-  height: 4px;
-  border-radius: 9999px;
-  background: #E4CA92;
-  box-shadow: 0 0 8px #E4CA92;
-}
-
-.v2-luxe-dock-item:active {
-  transform: scale(0.92);
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* ==========================================================================
-   V1 BASE STYLING (Dark Luxury Atmosphere)
-   ========================================================================== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -416,4 +26,279 @@ body {
   overflow-x: hidden;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+.hero-container {
+  position: relative;
+  width: 100%;
+  height: 72vh;
+  min-height: 480px;
+  max-height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4.5rem 1.25rem 1.5rem;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+.video-background-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+  background-color: #050806;
+}
+
+.hero-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 85%;
+  opacity: 0;
+  transition: opacity 1s cubic-bezier(.4, 0, .2, 1);
+  will-change: opacity;
+  pointer-events: none;
+  transform: translateZ(0);
+}
+
+.hero-video.active {
+  opacity: 1;
+}
+
+.vignette-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(to bottom, #0b110e99, #0b110e26, #0b110e66 70%, #0b110efa),
+    radial-gradient(circle at center, transparent 40%, rgba(5, 8, 6, 0.6) 100%);
+  pointer-events: none;
+}
+
+.fade-in-delayed {
+  opacity: 0;
+  animation: fadeInSmooth 1.2s cubic-bezier(.25, .1, .25, 1) 1s forwards;
+  will-change: opacity, transform;
+}
+
+@keyframes fadeInSmooth {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-ember);
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 24px #0006;
+  transition: border-color .2s ease, transform .2s ease;
+  transform: translateZ(0);
+}
+
+.glass-card:hover {
+  border-color: #e8a55873;
+}
+
+.btn-primary-gold {
+  background: linear-gradient(135deg, var(--primary-ember), var(--accent-gold));
+  color: #0b110e;
+  font-family: var(--font-sans);
+  font-weight: 800;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px #e8a55859;
+  transition: transform .15s ease, box-shadow .15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-primary-gold:active {
+  transform: scale(.97);
+  box-shadow: 0 2px 10px #e8a55840;
+}
+
+.btn-icon-round {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid var(--border-ember);
+  background: #e8a55826;
+  color: var(--accent-gold);
+  cursor: pointer;
+  transition: all .2s ease;
+  flex-shrink: 0;
+}
+
+.btn-icon-round:active {
+  transform: scale(.9);
+  background: #e8a5584d;
+}
+
+.btn-taxi {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .75rem 1rem;
+  background: #14221c;
+  border: 1px solid rgba(96, 165, 250, .3);
+  border-radius: 1rem;
+  color: #60a5fa;
+  text-decoration: none;
+  font-size: .75rem;
+  font-weight: 600;
+  transition: all .2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-taxi:active {
+  background: #60a5fa26;
+  transform: scale(.98);
+}
+
+.tab-btn {
+  padding: .5rem 1rem;
+  border-radius: 9999px;
+  font-size: .75rem;
+  font-weight: 600;
+  background: var(--bg-pine);
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, .08);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .2s ease;
+  flex-shrink: 0;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--primary-ember), var(--accent-gold));
+  color: #0b110e;
+  font-weight: 800;
+  border-color: transparent;
+  box-shadow: 0 4px 12px #e8a5584d;
+}
+
+.modal-overlay, .drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(5, 8, 6, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity .25s ease;
+  padding: 1rem;
+}
+
+.glass-modal {
+  background: #121c17;
+  border: 1px solid var(--border-ember);
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 50px #000c;
+  max-height: 90vh;
+  width: 100%;
+  max-width: 28rem;
+  overflow-y: auto;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.drawer-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 24rem;
+  height: 100%;
+  background: #121c17;
+  border-left: 1px solid var(--border-ember);
+  box-shadow: -10px 0 30px #000c;
+  display: flex;
+  flex-direction: column;
+  transition: transform .3s cubic-bezier(.16, 1, .3, 1);
+  z-index: 110;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.opacity-0 {
+  opacity: 0 !important;
+}
+
+.pointer-events-none {
+  pointer-events: none !important;
+}
+
+.pointer-events-auto {
+  pointer-events: auto !important;
+}
+
+@keyframes bounceSlow {
+  0%, 100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(.8, 0, 1, 1);
+  }
+  50% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0, 0, .2, 1);
+  }
+}
+
+.animate-bounce {
+  animation: bounceSlow 2s infinite;
+}
+
+@keyframes floatIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px) scale(.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-float-in {
+  animation: floatIn .25s cubic-bezier(.16, 1, .3, 1) forwards;
 }

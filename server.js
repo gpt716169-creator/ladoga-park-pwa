@@ -9,14 +9,11 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import multer from 'multer';
 import fs from 'fs';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const app = express();
 app.use(cors());
 app.use(express.json());
-
 // ==========================================
 // STATIC FILES AND UPLOADS
 // ==========================================
@@ -25,7 +22,6 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 app.use('/uploads', express.static(uploadsDir));
-
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadsDir),
   filename: (req, file, cb) => {
@@ -34,15 +30,12 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage });
-
 const JWT_SECRET = 'ladoga-secret-2026-super-secure';
-
 // ==========================================
 // DATABASE SETUP (SQLite)
 // ==========================================
 const dbPath = path.join(__dirname, 'database.sqlite');
 const db = new sqlite3.Database(dbPath);
-
 db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS admin_users (
@@ -51,7 +44,6 @@ db.serialize(() => {
       password TEXT
     )
   `);
-
   db.run(`
     CREATE TABLE IF NOT EXISTS catalog_items (
       id TEXT PRIMARY KEY,
@@ -64,7 +56,6 @@ db.serialize(() => {
       isQuickOrder BOOLEAN DEFAULT 0
     )
   `);
-
   // Seed default admin if not exists (username: admin, password: password)
   db.get('SELECT * FROM admin_users WHERE username = ?', ['admin'], (err, row) => {
     if (!row) {
@@ -72,7 +63,6 @@ db.serialize(() => {
       db.run('INSERT INTO admin_users (username, password) VALUES (?, ?)', ['admin', hash]);
     }
   });
-
   // Create SMS Logs table
   db.run(`CREATE TABLE IF NOT EXISTS sms_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -83,7 +73,6 @@ db.serialize(() => {
     sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(booking_id, stage)
   )`);
-
   // Create Bookings table (Cache from TravelLine)
   db.run(`CREATE TABLE IF NOT EXISTS bookings (
     id TEXT PRIMARY KEY,
@@ -95,7 +84,6 @@ db.serialize(() => {
     phone TEXT,
     modified_at TEXT
   )`);
-
   // Seed default catalog items if empty
   db.get('SELECT COUNT(*) as count FROM catalog_items', (err, row) => {
     if (row && row.count === 0) {
@@ -115,7 +103,6 @@ db.serialize(() => {
     }
   });
 });
-
 // Middleware for JWT Verification
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -127,7 +114,6 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
-
 // API Keys provided by user
 const TL_SAUNAS = {
   propertyId: '54511',
@@ -136,7 +122,6 @@ const TL_SAUNAS = {
   authUrl: 'https://partner.tlintegration.com/auth/token',
   apiUrl: 'https://partner.tlintegration.com/api/search/v1' 
 };
-
 const TL_CABINS = {
   propertyId: '52159',
   connection: 'api_connection_9d1aa_ca2fef1de5',
@@ -144,13 +129,11 @@ const TL_CABINS = {
   authUrl: 'https://partner.tlintegration.com/auth/token',
   apiUrl: 'https://partner.tlintegration.com/api/read-reservation/v1' 
 };
-
 // ==========================================
 // OAUTH2 TOKEN MANAGER (TravelLine Partner API)
 // ==========================================
 let tlAccessToken = null;
 let tokenExpiresAt = 0;
-
 async function getTlAccessToken() {
   const now = Date.now();
   // Refresh if missing or expires within 1 minute
@@ -175,7 +158,6 @@ async function getTlAccessToken() {
   }
   return tlAccessToken;
 }
-
 // ==========================================
 // SMS CRON JOB & DB SYNC SYSTEM
 // ==========================================
@@ -187,7 +169,6 @@ async function syncBookings() {
     let url = `${TL_CABINS.apiUrl}/properties/${TL_CABINS.propertyId}/bookings`;
     let hasMore = true;
     let allSummaries = [];
-
     while (hasMore) {
       const res = await axios.get(url, { headers: { 'Authorization': `Bearer ${token}` } });
       const summaries = res.data.bookingSummaries || [];
@@ -244,13 +225,11 @@ async function syncBookings() {
     console.error('[Sync] Error:', err.message);
   }
 }
-
 // Runs every 15 minutes to check bookings and send SMS
 cron.schedule('*/15 * * * *', async () => {
   await syncBookings();
   // Here we will add SMS sending logic later
 });
-
 // ==========================================
 // BOOKING DATA ENDPOINT (Dynamic Links via Real TravelLine API)
 // ==========================================
@@ -268,19 +247,16 @@ app.get('/api/booking/:id', async (req, res) => {
     if (!booking) {
       return res.status(404).json({ success: false, error: 'Booking not found' });
     }
-
     const roomStay = booking.roomStays && booking.roomStays[0];
     if (!roomStay) {
       return res.status(400).json({ success: false, error: 'No room stays found for booking' });
     }
-
     let guestName = "Гость";
     if (booking.customer && booking.customer.firstName && !booking.customer.firstName.includes("*")) {
        guestName = booking.customer.firstName;
     } else if (roomStay.guests && roomStay.guests[0] && roomStay.guests[0].firstName && !roomStay.guests[0].firstName.includes("*")) {
        guestName = roomStay.guests[0].firstName;
     }
-
     const cabinName = roomStay.roomType ? roomStay.roomType.name : "Домик";
     const arrivalDate = roomStay.stayDates.arrivalDateTime.split('T')[0];
     const departureDate = roomStay.stayDates.departureDateTime.split('T')[0];
@@ -328,10 +304,8 @@ app.get('/api/booking/:id', async (req, res) => {
     res.status(500).json({ success: false, error: 'Failed to fetch booking' });
   }
 });
-
 let tlSaunaAccessToken = null;
 let saunaTokenExpiresAt = 0;
-
 async function getTlSaunaAccessToken() {
   const now = Date.now();
   if (!tlSaunaAccessToken || now > saunaTokenExpiresAt - 60000) {
@@ -354,49 +328,89 @@ async function getTlSaunaAccessToken() {
   }
   return tlSaunaAccessToken;
 }
-
-// ==========================================
-// SAUNA AVAILABILITY PROXY
-// ==========================================
-app.get('/api/saunas/availability', async (req, res) => {
+// In-memory cache for TravelLine requests to eliminate load times & spinners
+const apiCache = new Map();
+function getCachedApi(key) {
+  const item = apiCache.get(key);
+  if (item && (Date.now() - item.time < 60000)) { // 60s cache
+    return item.data;
+  }
+  return null;
+}
+function setCachedApi(key, data) {
+  apiCache.set(key, { time: Date.now(), data });
+}
+app.get('/api/saunas', async (req, res) => {
+  const { date, category } = req.query;
+  const cacheKey = `saunas_${category}_${date}`;
+  const cached = getCachedApi(cacheKey);
+  if (cached) {
+    console.log(`[Cache Hit] /api/saunas for ${cacheKey}`);
+    return res.json({ success: true, data: cached });
+  }
+  console.log(`[API] /api/saunas requested for category: ${category}, date: ${date}`);
+  
+  const SAUNA_MAPPING = {
+    'sauna-lake': [
+      { id: '338241', time: '13:00' },
+      { id: '345933', time: '17:00' },
+      { id: '345934', time: '21:00' }
+    ],
+    'sauna-forest': [
+      { id: '345916', time: '12:00' },
+      { id: '345936', time: '16:00' },
+      { id: '345937', time: '20:00' }
+    ]
+  };
+  const slotsDef = SAUNA_MAPPING[category];
+  if (!slotsDef) {
+    console.warn(`[API] Unknown sauna category: ${category}`);
+    return res.json({ success: true, data: [] });
+  }
   try {
     const token = await getTlSaunaAccessToken();
+    const queryDate = date || new Date().toISOString().split('T')[0];
     
-    // We do a basic search to verify API connectivity.
-    const today = new Date().toISOString().split('T')[0];
-    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-    const url = `${TL_SAUNAS.apiUrl}/properties/${TL_SAUNAS.propertyId}/room-stays?arrivalDate=${today}&departureDate=${tomorrow}&adults=1`;
+    const arrivalDateObj = new Date(queryDate);
+    const departureDate = queryDate; // For saunas, departure date should be the same as arrival date to prevent TravelLine from counting it as 2 days
+    const url = `${TL_SAUNAS.apiUrl}/properties/54511/room-stays?arrivalDate=${queryDate}&departureDate=${departureDate}&adults=1`;
+    console.log(`[TravelLine] Fetching saunas availability from: ${url}`);
     
-    try {
-      const response = await axios.get(url, {
-        headers: { 'Authorization': `Bearer ${token}` },
-        timeout: 5000
-      });
-      console.log('TravelLine Saunas API Connectivity Success!');
-    } catch (apiErr) {
-      console.warn('TravelLine Saunas Search returned an error (often due to PMS unmapped resources), falling back to mock data.', apiErr.response?.status);
-    }
-    
-    // Return mock slots until TL supports hourly resource mapping via Partner API
-    const dynamicSlots = [
-      { time: '12:00', available: true, price: 4000 },
-      { time: '15:00', available: true, price: 4500 },
-      { time: '18:00', available: true, price: 5500 },
-      { time: '21:00', available: false, price: 5500 }
-    ];
+    const tlRes = await axios.get(url, { headers: { 'Authorization': `Bearer ${token}` } });
+    const roomStays = tlRes.data.roomStays || [];
+    console.log(`[TravelLine] Received ${roomStays.length} room-stays for saunas.`);
+    const dynamicSlots = slotsDef.map(slot => {
+      const rs = roomStays.find(r => r.roomType.id === slot.id);
+      let available = false;
+      let price = 0;
+      let bookingUrl = '';
+      if (rs) {
+        available = rs.availability > 0;
+        price = rs.total?.priceBeforeTax || 0;
+        bookingUrl = rs.bookingFormLink || `https://ladogapark.ru/booking-services/?tl-room=${slot.id}&tl-date=${queryDate}&tl-nights=1&tl-adults=1`;
+        console.log(`[TravelLine] Slot ${slot.time} (ID: ${slot.id}) -> Available: ${available}, Price: ${price}`);
+      } else {
+        bookingUrl = `https://ladogapark.ru/booking-services/?tl-room=${slot.id}&tl-date=${queryDate}&tl-nights=1&tl-adults=1`;
+        console.log(`[TravelLine] Slot ${slot.time} (ID: ${slot.id}) -> Not returned in search (Assuming unavailable)`);
+      }
+      return {
+        time: slot.time,
+        available: available,
+        price: price,
+        link: bookingUrl
+      };
+    });
     setCachedApi(cacheKey, dynamicSlots);
     res.json({ success: true, data: dynamicSlots });
-    
   } catch (error) {
-    console.error('TravelLine Saunas Auth Error:', error.message);
-    res.json({ success: false, error: 'TravelLine API unavailable' });
+    console.error('[TravelLine] Saunas API Error:', error.response ? `Status ${error.response.status}: ${JSON.stringify(error.response.data)}` : error.message);
+    const fallbackSlots = slotsDef.map(s => ({ time: s.time, available: true, price: 4000, link: `https://ladogapark.ru/booking-services/?tl-room=${s.id}&tl-date=${date}` }));
+    res.json({ success: true, data: fallbackSlots });
   }
 });
-
 // ==========================================
 // ADMIN & CATALOG API
 // ==========================================
-
 app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body;
   db.get('SELECT * FROM admin_users WHERE username = ?', [username], (err, user) => {
@@ -409,7 +423,6 @@ app.post('/api/admin/login', (req, res) => {
     }
   });
 });
-
 app.get('/api/catalog', (req, res) => {
   db.all('SELECT * FROM catalog_items', (err, rows) => {
     if (err) return res.status(500).json({ success: false, error: err.message });
@@ -418,7 +431,6 @@ app.get('/api/catalog', (req, res) => {
     res.json({ success: true, data: items });
   });
 });
-
 app.post('/api/catalog', authenticateToken, (req, res) => {
   const { id, displayName, desc, price, category, icon, image, isQuickOrder } = req.body;
   const qo = isQuickOrder ? 1 : 0;
@@ -428,7 +440,6 @@ app.post('/api/catalog', authenticateToken, (req, res) => {
       res.json({ success: true, id });
   });
 });
-
 app.put('/api/catalog/:id', authenticateToken, (req, res) => {
   const { displayName, desc, price, category, icon, image, isQuickOrder } = req.body;
   const qo = isQuickOrder ? 1 : 0;
@@ -438,20 +449,17 @@ app.put('/api/catalog/:id', authenticateToken, (req, res) => {
       res.json({ success: true });
   });
 });
-
 app.delete('/api/catalog/:id', authenticateToken, (req, res) => {
   db.run('DELETE FROM catalog_items WHERE id=?', [req.params.id], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
     res.json({ success: true });
   });
 });
-
 app.post('/api/upload', authenticateToken, upload.single('image'), (req, res) => {
   if (!req.file) return res.status(400).json({ success: false, error: 'No file uploaded' });
   const imageUrl = `/uploads/${req.file.filename}`;
   res.json({ success: true, imageUrl });
 });
-
 app.post('/api/admin/sync', authenticateToken, async (req, res) => {
   try {
     await syncBookings();
@@ -460,57 +468,61 @@ app.post('/api/admin/sync', authenticateToken, async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
-
 app.get('/api/admin/dashboard', (req, res) => {
+  console.log('[API] /api/admin/dashboard requested');
   const today = new Date().toISOString().split('T')[0];
   const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-
-  db.all(`
+  const query = `
     SELECT b.*, 
            (SELECT GROUP_CONCAT(stage || ':' || status) FROM sms_logs s WHERE s.booking_id = b.id) as sms_stages
     FROM bookings b
-    WHERE b.status = 'Confirmed' 
-      AND (b.arrival_date IN (?, ?, ?) OR b.departure_date IN (?, ?, ?) OR (? >= b.arrival_date AND ? < b.departure_date))
-    ORDER BY b.arrival_date ASC
-  `, [yesterday, today, tomorrow, yesterday, today, tomorrow, today, today], (err, rows) => {
-    if (err) return res.status(500).json({ success: false, error: 'Database error' });
+    WHERE b.status != 'Cancelled' 
+      AND (
+        date(b.arrival_date) = date(?, '+1 day') OR 
+        (date(b.arrival_date) <= date(?) AND date(b.departure_date) > date(?)) OR
+        date(b.departure_date) = date(?)
+      )
+  `;
+  db.all(query, [today, today, today, today], (err, rows) => {
+    if (err) {
+      console.error('[API] Error fetching dashboard bookings:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
     
-    const dashboard = { tomorrowArrivals: [], currentStays: [], todayDepartures: [] };
-
-    rows.forEach(row => {
-      const sms = {};
-      if (row.sms_stages) {
-        row.sms_stages.split(',').forEach(s => {
-          const parts = s.split(':');
-          sms[parts[0]] = parts[1];
+    console.log(`[API] Dashboard fetched ${rows ? rows.length : 0} active bookings for today.`);
+    const tomorrowArrivals = [];
+    const currentStays = [];
+    const todayDepartures = [];
+    rows.forEach(b => {
+      b.sms = {};
+      if (b.sms_stages) {
+        b.sms_stages.split(',').forEach(pair => {
+          const [st, stat] = pair.split(':');
+          b.sms[st] = stat;
         });
       }
-      row.sms = sms;
-
-      if (row.arrival_date === tomorrow) {
-        dashboard.tomorrowArrivals.push(row);
-      } else if (row.departure_date === today) {
-        dashboard.todayDepartures.push(row);
-      } else if (today >= row.arrival_date && today < row.departure_date) {
-        dashboard.currentStays.push(row);
-      } else if (row.arrival_date === today) {
-        dashboard.currentStays.push(row);
+      
+      const arr = b.arrival_date.split('T')[0];
+      const dep = b.departure_date.split('T')[0];
+      
+      if (arr === tomorrow) {
+        tomorrowArrivals.push(b);
+      } else if (dep === today) {
+        todayDepartures.push(b);
+      } else {
+        currentStays.push(b);
       }
     });
-
-    res.json({ success: true, data: dashboard });
+    res.json({
+      success: true,
+      data: {
+        tomorrowArrivals,
+        currentStays,
+        todayDepartures
+      }
+    });
   });
 });
-
-app.post('/api/admin/sync', async (req, res) => {
-  await syncBookings();
-  res.json({ success: true });
-});
-
-app.use(express.static(path.join(__dirname, 'dist')));
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 TravelLine Proxy Server running on port ${PORT}`);
+app.listen(3000, () => {
+  console.log('🚀 TravelLine Proxy Server running on port 3000');
 });
