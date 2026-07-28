@@ -23,6 +23,10 @@ function syncAndPush(changedFile) {
       execSync(`git commit -m "Auto-sync: ${timestamp} [${changedFile}]"`, { stdio: 'inherit' });
       execSync('git push origin main', { stdio: 'inherit' });
       console.log('✅ Successfully pushed changes to GitHub!');
+      
+      console.log('🚀 Deploying automatically to VPS...');
+      execSync('node deploy.js', { stdio: 'inherit' });
+      console.log('🎉 Live VPS deployment complete!');
     } else {
       console.log('ℹ️ No new git changes to commit.');
     }

@@ -21,12 +21,12 @@ async function deploy() {
     console.log('Installing Nginx, Node.js and PM2...');
     await ssh.execCommand('apt-get update && apt-get install -y nginx curl && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs && npm install -g pm2');
 
-    // 2. Prepare directory
-    console.log('Preparing web directory...');
-    await ssh.execCommand('mkdir -p /var/www/ladoga-park');
+    // 2. Prepare directory & Clean old build assets (prevents accumulation of old files!)
+    console.log('Cleaning old build assets on VPS...');
+    await ssh.execCommand('mkdir -p /var/www/ladoga-park && rm -rf /var/www/ladoga-park/assets');
 
-    // 3. Upload built files
-    console.log('Uploading files from dist to VPS...');
+    // 3. Upload built files (dist) & Raw Source Files for backup/mapping
+    console.log('Uploading clean dist & sourcemaps to VPS...');
     const distPath = path.join(__dirname, 'dist');
     const failed = [];
     const successful = [];
@@ -41,7 +41,14 @@ async function deploy() {
         }
       }
     });
-    console.log(`Uploaded ${successful.length} files. Failed: ${failed.length}`);
+    console.log(`Uploaded ${successful.length} dist files. Failed: ${failed.length}`);
+
+    // 3.1 Upload Raw Source directory to VPS for instant recovery/mapping
+    console.log('Uploading raw src/ folder for full VPS source mapping & recovery...');
+    const srcPath = path.join(__dirname, 'src');
+    await ssh.mkdir('/var/www/ladoga-park/src');
+    await ssh.putDirectory(srcPath, '/var/www/ladoga-park/src', { recursive: true, concurrency: 10 });
+    await ssh.putFile(path.join(__dirname, 'index.html'), '/var/www/ladoga-park/index.html');
 
     // 3.5 Upload Server scripts and start PM2
     console.log('Uploading server scripts...');
