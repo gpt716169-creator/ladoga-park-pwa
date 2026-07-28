@@ -597,6 +597,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Handled entirely inside initStage function now
 
   // FULL PAGE RELOAD ON STAGE CHANGE (Silent - No toast notification per user request!)
+  const stageSelector = document.getElementById("stageSelector");
   if (stageSelector) {
     stageSelector.addEventListener("change", () => {
       const newStage = stageSelector.value;
