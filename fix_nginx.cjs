@@ -1,5 +1,6 @@
-﻿const { Client } = require('ssh2');
+const { Client } = require('ssh2');
 const conn = new Client();
+
 conn.on('ready', () => {
   const conf = `
 server {
@@ -48,10 +49,13 @@ server {
     }
 }
 `;
-  conn.exec("cat << 'EOF' > /etc/nginx/sites-available/ladoga-park\n" + conf + "\nEOF\nsystemctl restart nginx", (err, stream) => {
+  conn.exec(`cat << 'EOF' > /etc/nginx/sites-available/ladoga-park\n${conf}\nEOF\nsystemctl restart nginx`, (err, stream) => {
     if (err) throw err;
     stream.on('data', d => process.stdout.write(d));
     stream.stderr.on('data', d => process.stderr.write(d));
-    stream.on('close', () => conn.end());
+    stream.on('close', () => {
+      console.log('✅ SSL Nginx configuration restored successfully on VPS!');
+      conn.end();
+    });
   });
 }).connect({ host: '132.243.17.20', port: 22, username: 'root', password: '@bh)/94\\q8o3xBOX' });

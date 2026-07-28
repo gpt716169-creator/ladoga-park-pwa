@@ -53,56 +53,8 @@ async function deploy() {
     console.log('Patching DB with saunas if missing...');
     await ssh.execCommand(`node -e "const sqlite3 = require('sqlite3'); const db = new sqlite3.Database('/var/www/ladoga-park/database.sqlite'); db.run(\\\"INSERT OR IGNORE INTO catalog_items (id, displayName, desc, price, category, icon, isQuickOrder) VALUES ('sauna-forest', 'Баня в лесу у поляны', 'Прогрев до 85°C', 4000, 'sauna', '🌲', 0), ('sauna-lake', 'Баня на берегу Ладоги', 'Спуск к воде', 4000, 'sauna', '🌊', 0), ('hottub-siberian', 'Сибирский банный чан', 'Теплый чан', 3500, 'sauna', '♨️', 0), ('aroma-tub', 'Арома-купель', 'На цитрусах', 3500, 'sauna', '🍋', 0)\\\");"`);
 
-    // 4. Configure Nginx
-    console.log('Configuring Nginx...');
-    const nginxConfig = `
-server {
-    listen 80;
-    server_name xn----btb2aqbl.xn--p1ai www.xn----btb2aqbl.xn--p1ai 132.243.17.20;
-    root /var/www/ladoga-park;
-    index index.html;
-
-    gzip on;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript font/woff2 image/svg+xml;
-    gzip_comp_level 6;
-    gzip_min_length 256;
-
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|mp4|webm|webp)$ {
-        expires 1y;
-        add_header Cache-Control "public, no-transform, immutable";
-        access_log off;
-    }
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-    
-    location /uploads/ {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-    }
-
-    location /api/ {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-`;
-    await ssh.execCommand('cat << \'EOF\' > /etc/nginx/sites-available/ladoga-park\n' + nginxConfig + '\nEOF');
-    await ssh.execCommand('ln -sf /etc/nginx/sites-available/ladoga-park /etc/nginx/sites-enabled/');
-    await ssh.execCommand('rm -f /etc/nginx/sites-enabled/default'); // Remove default Nginx page
-    
-    // Maintain SSL configuration
-    await ssh.execCommand('certbot --nginx -d xn----btb2aqbl.xn--p1ai --non-interactive --agree-tos -m admin@ladogapark.ru --redirect');
-
-    // 5. Test & Restart Nginx
-    const nginxTest = await ssh.execCommand('nginx -t');
-    console.log('Nginx test:', nginxTest.stderr);
-    await ssh.execCommand('systemctl restart nginx');
+    // 4. Configure Nginx (DISABLED PERMANENTLY TO PRESERVE MANUAL SSL CONFIG)
+    console.log('Skipping Nginx auto-config to preserve SSL certificates...');
     
     console.log('✅ Deployment successful! Your site is live at http://132.243.17.20');
     process.exit(0);
