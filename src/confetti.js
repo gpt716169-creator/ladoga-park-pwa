@@ -1,20 +1,24 @@
+/**
+ * Lightweight canvas confetti for celebration feedback
+ */
+
 export function triggerConfetti() {
-  const canvas = document.createElement("canvas");
-  canvas.style.position = "fixed";
-  canvas.style.top = "0";
-  canvas.style.left = "0";
-  canvas.style.width = "100vw";
-  canvas.style.height = "100vh";
-  canvas.style.pointerEvents = "none";
-  canvas.style.zIndex = "9999";
+  const canvas = document.createElement('canvas');
+  canvas.style.position = 'fixed';
+  canvas.style.top = '0';
+  canvas.style.left = '0';
+  canvas.style.width = '100vw';
+  canvas.style.height = '100vh';
+  canvas.style.pointerEvents = 'none';
+  canvas.style.zIndex = '9999';
   document.body.appendChild(canvas);
 
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext('2d');
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
   const particles = [];
-  const colors = ["#f4c478", "#e6a15c", "#34d399", "#60a5fa", "#f43f5e", "#a855f7"];
+  const colors = ['#f4c478', '#e6a15c', '#34d399', '#60a5fa', '#f43f5e', '#a855f7'];
 
   for (let i = 0; i < 100; i++) {
     particles.push({
@@ -30,20 +34,20 @@ export function triggerConfetti() {
     });
   }
 
-  let animationId;
-  function animate() {
+  let animationFrame;
+  function update() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    let active = false;
+    let alive = false;
 
     particles.forEach(p => {
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.4;
+      p.vy += 0.4; // gravity
       p.rotation += p.vRot;
       p.opacity -= 0.015;
 
       if (p.opacity > 0) {
-        active = true;
+        alive = true;
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate((p.rotation * Math.PI) / 180);
@@ -54,13 +58,13 @@ export function triggerConfetti() {
       }
     });
 
-    if (active) {
-      animationId = requestAnimationFrame(animate);
+    if (alive) {
+      animationFrame = requestAnimationFrame(update);
     } else {
-      cancelAnimationFrame(animationId);
+      cancelAnimationFrame(animationFrame);
       canvas.remove();
     }
   }
 
-  animate();
+  update();
 }

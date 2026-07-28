@@ -1,3 +1,8 @@
+/**
+ * Catalog items for Ладога Парк PWA ("Живой домик")
+ * Strict separation: Guest UI sees atmospheric descriptions; Accounting sees USN 6% compliance mapping.
+ */
+
 export const CATALOG_ITEMS = [
   {
     id: "firewood",
@@ -40,7 +45,7 @@ export const CATALOG_ITEMS = [
     displayName: "🌲 Баня в лесу у уединенной поляны",
     price: 4500,
     category: "sauna",
-    desc: "Традиционная русская парная на дровах в окружении соснового леса. Включает прогрев до 85°C, дубовые веники и зону отдыха.",
+    desc: "Традиционная русская парная на дровах в окружении соснового леса. Включает прогрев до 85°C, дубовые веники, карельский травяной чай с медом и зону отдыха.",
     icon: "🌲",
     fiscalName: "Услуги банного комплекса (лесная зона)"
   },
