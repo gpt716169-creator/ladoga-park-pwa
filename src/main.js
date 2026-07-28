@@ -732,6 +732,33 @@ document.addEventListener("DOMContentLoaded", async () => {
   const closeOrmBtn = document.getElementById("closeOrmBtn");
   if (closeOrmBtn) closeOrmBtn.addEventListener("click", () => closeModal("ormModal"));
 
+  // Resort Map Lightbox Modal Event Handlers
+  const openMapCard = document.getElementById("openMapCard");
+  const closeMapBtn = document.getElementById("closeMapBtn");
+  const mapFullImage = document.getElementById("mapFullImage");
+  
+  if (openMapCard) {
+    openMapCard.addEventListener("click", () => openModal("mapModal"));
+  }
+  if (closeMapBtn) {
+    closeMapBtn.addEventListener("click", () => {
+      if (mapFullImage) {
+        mapFullImage.style.transform = "scale(1)";
+        mapFullImage.style.cursor = "zoom-in";
+      }
+      closeModal("mapModal");
+    });
+  }
+  if (mapFullImage) {
+    let isZoomed = false;
+    mapFullImage.addEventListener("click", (e) => {
+      e.stopPropagation();
+      isZoomed = !isZoomed;
+      mapFullImage.style.transform = isZoomed ? "scale(1.6)" : "scale(1)";
+      mapFullImage.style.cursor = isZoomed ? "zoom-out" : "zoom-in";
+    });
+  }
+
   // Online Registration Form Submission
   const submitRegBtn = document.getElementById("submitRegBtn");
   if (submitRegBtn) {
