@@ -454,7 +454,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     if (name && name !== "Гость") {
       const heroTitle = document.getElementById("heroTitle");
-      if (heroTitle) heroTitle.innerText = `Добро пожаловать, ${name}!`;
+      if (heroTitle && !heroTitle.innerText.includes(name)) {
+        heroTitle.innerText = `Добро пожаловать, ${name}!`;
+      }
 
       const farewellTitle = document.getElementById("farewellTitle");
       if (farewellTitle) farewellTitle.innerText = `Благодарим за визит, ${name}!`;
@@ -469,10 +471,28 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (highRatingBanner) highRatingBanner.innerHTML = `<span>🎉</span> Спасибо за высокую оценку, ${name}! Вы сделали наш день!`;
     }
 
-    if (name || cabin) {
+    if (cabin) {
+      // Parse cabin number (e.g. "Барнхаус 4-местный № 5" or "Домик №3")
+      const numMatch = cabin.match(/(?:№|N|#|\bномер\b)?\s*(\d+)/i);
+      const cabinBadge = document.getElementById("cabinBadge");
+      const cabinBadgeText = document.getElementById("cabinBadgeText");
+      
+      let shortCabinName = "Домик";
+      if (numMatch && numMatch[1]) {
+        shortCabinName = `Домик № ${numMatch[1]}`;
+      } else {
+        shortCabinName = cabin.replace(/(?:4|2|6|8)\s*-?\s*местный/gi, '').trim() || "Домик";
+      }
+
+      if (cabinBadge && cabinBadgeText) {
+        cabinBadgeText.innerText = `🏡 Ваш ${shortCabinName}`;
+        cabinBadge.classList.remove("hidden");
+        cabinBadge.style.display = "inline-flex";
+      }
+
       const cartSubtext = document.getElementById("cartSubtext");
       if (cartSubtext) {
-        cartSubtext.innerText = `${name || 'Гость'} • «${cabin || 'Домик'}» • Доставка 15 мин`;
+        cartSubtext.innerText = `${name || 'Гость'} • «${shortCabinName}» • Доставка 15 мин`;
       }
     }
   }

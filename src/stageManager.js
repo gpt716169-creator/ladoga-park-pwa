@@ -60,9 +60,7 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
       config.title = config.title.replace("Ирина", guestName);
       config.subtitle = config.subtitle.replace("Ирина", guestName);
     }
-    if (cabinName) {
-      config.subtitle = config.subtitle.replace("Ваш домик", `Ваш ${cabinName}`);
-    }
+
   }
   // 1. Silky Smooth Cross-fade video logic (Zero Dual-Decoding / Freezing on load!)
   const video1 = document.getElementById("heroVideo1");
