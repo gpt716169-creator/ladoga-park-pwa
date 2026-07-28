@@ -1,11 +1,4 @@
-/**
- * Stage & Season Manager ("Живой домик" Mobile Atmospheric UX)
- * Contextual stage filtering: Stage 4 has ZERO menu/sauna, Stage 3 shows morning service, Stage 2 shows sightseeing/housekeeping, Stage 1 shows sauna swipable carousel
- */
-
-import { cart } from "./cartManager.js";
-
-export const STAGE_CONFIGS = {
+export const STAGE_CONFIG = {
   1: {
     stageName: "1. T-1 день до заезда (Предвкушение)",
     videoPath: "./assets/video/stage1.mp4",
@@ -50,88 +43,90 @@ export const STAGE_CONFIGS = {
 
 let activeVideoIndex = 1;
 
-export function switchStage(stageId, season = "summer", onActionClick, bookingData = null) {
-  const configTemplate = STAGE_CONFIGS[stageId];
-  if (!configTemplate) return;
-  
-  // Clone config to safely mutate text
-  const config = JSON.parse(JSON.stringify(configTemplate));
-  
+export function applyStageConfig(stageNumber, season = "summer", onBannerClick = null, bookingData = null) {
+  const config = STAGE_CONFIG[stageNumber];
+  if (!config) return;
+
+  const currentConfig = JSON.parse(JSON.stringify(config));
+
   if (bookingData) {
     const { guestName, cabinName } = bookingData;
-    // Replace placeholders/hardcoded names with dynamic data
     if (guestName) {
-      config.title = config.title.replace("Ирина", guestName);
-      config.subtitle = config.subtitle.replace("Ирина", guestName);
+      currentConfig.title = currentConfig.title.replace("Ирина", guestName);
+      currentConfig.subtitle = currentConfig.subtitle.replace("Ирина", guestName);
     }
     if (cabinName) {
-      config.subtitle = config.subtitle.replace("Ваш домик", `Ваш ${cabinName}`);
+      currentConfig.subtitle = currentConfig.subtitle.replace("Ваш домик", `Ваш ${cabinName}`);
     }
   }
 
-  // 1. Silky Smooth Cross-fade video logic (Zero Dual-Decoding / Freezing on load!)
+  // Dual Video Element Crossfade
   const video1 = document.getElementById("heroVideo1");
   const video2 = document.getElementById("heroVideo2");
 
   if (video1 && video2) {
-    const currentActive = activeVideoIndex === 1 ? video1 : video2;
-    const currentInactive = activeVideoIndex === 1 ? video2 : video1;
+    const currentVideo = activeVideoIndex === 1 ? video1 : video2;
+    const nextVideo = activeVideoIndex === 1 ? video2 : video1;
 
-    // Avoid dual decoding or reloading if the current active video is already playing this exact source!
-    const activeSrc = currentActive.getAttribute("src") || "";
-    if (activeSrc === config.videoPath || (currentActive.src && currentActive.src.endsWith(config.videoPath))) {
-      // The video is already loaded and playing smoothly on currentActive! Do not touch decoders!
-    } else {
-      currentInactive.src = config.videoPath;
-      currentInactive.load();
-      
-      const playPromise = currentInactive.play();
+    const currentSrc = currentVideo.getAttribute("src") || "";
+    if (!(currentSrc === currentConfig.videoPath || (currentVideo.src && currentVideo.src.endsWith(currentConfig.videoPath)))) {
+      nextVideo.src = currentConfig.videoPath;
+      nextVideo.load();
+      const playPromise = nextVideo.play();
       if (playPromise !== undefined) {
-        playPromise.then(() => {
-          currentInactive.classList.add("active");
-          currentActive.classList.remove("active");
-          activeVideoIndex = activeVideoIndex === 1 ? 2 : 1;
-        }).catch(e => {
-          console.log("Auto-play prevented or loading:", e);
-          currentInactive.classList.add("active");
-          currentActive.classList.remove("active");
-          activeVideoIndex = activeVideoIndex === 1 ? 2 : 1;
-        });
+        playPromise
+          .then(() => {
+            nextVideo.classList.add("active");
+            currentVideo.classList.remove("active");
+            activeVideoIndex = activeVideoIndex === 1 ? 2 : 1;
+          })
+          .catch(err => {
+            console.log("Auto-play prevented or loading:", err);
+            nextVideo.classList.add("active");
+            currentVideo.classList.remove("active");
+            activeVideoIndex = activeVideoIndex === 1 ? 2 : 1;
+          });
       } else {
-        currentInactive.classList.add("active");
-        currentActive.classList.remove("active");
+        nextVideo.classList.add("active");
+        currentVideo.classList.remove("active");
         activeVideoIndex = activeVideoIndex === 1 ? 2 : 1;
       }
     }
   }
 
-  // 2. Update Atmospheric Texts smoothly
-  const titleEl = document.getElementById("heroTitle");
-  const subtitleEl = document.getElementById("heroSubtitle");
+  const heroTitle = document.getElementById("heroTitle");
+  const heroSubtitle = document.getElementById("heroSubtitle");
 
-  if (titleEl) titleEl.innerText = config.title;
-  if (subtitleEl) subtitleEl.innerText = config.subtitle;
+  if (heroTitle) heroTitle.innerText = currentConfig.title;
+  if (heroSubtitle) heroSubtitle.innerText = currentConfig.subtitle;
 
-  // Render Early/Late Stay Badges
-  if (subtitleEl && bookingData && (bookingData.earlyArrival || bookingData.lateDeparture)) {
-    let badgeContainer = document.getElementById("extraStayBadgeContainer");
-    if (!badgeContainer) {
-      badgeContainer = document.createElement("div");
-      badgeContainer.id = "extraStayBadgeContainer";
-      badgeContainer.style.cssText = "margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.375rem; align-items: center;";
-      subtitleEl.parentNode.appendChild(badgeContainer);
+  // Extra stay badges for early arrival / late departure
+  if (heroSubtitle && bookingData && (bookingData.earlyArrival || bookingData.lateDeparture)) {
+    let container = document.getElementById("extraStayBadgeContainer");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "extraStayBadgeContainer";
+      container.style.cssText = `
+        margin-top: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+        align-items: center;
+      `;
+      heroSubtitle.parentNode.appendChild(container);
     }
-    badgeContainer.innerHTML = "";
-    
-    if (bookingData.earlyArrival && (stageId === "1" || stageId === "2")) {
-      badgeContainer.innerHTML += `
+    container.innerHTML = "";
+
+    if (bookingData.earlyArrival && (stageNumber === "1" || stageNumber === "2" || stageNumber === 1 || stageNumber === 2)) {
+      container.innerHTML += `
         <span style="background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.3); padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
           ✨ Ранний заезд подтвержден: с ${bookingData.earlyArrival}
         </span>
       `;
     }
-    if (bookingData.lateDeparture && (stageId === "2" || stageId === "3")) {
-      badgeContainer.innerHTML += `
+
+    if (bookingData.lateDeparture && (stageNumber === "2" || stageNumber === "3" || stageNumber === 2 || stageNumber === 3)) {
+      container.innerHTML += `
         <span style="background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
           ⏳ Поздний выезд подтвержден: до ${bookingData.lateDeparture}
         </span>
@@ -139,28 +134,25 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
     }
   }
 
-  // 3. Render Floating Luxury Action Button (Structure guarantees text & price never wrap!)
+  // Dynamic Trigger Banner
   const bannerContainer = document.getElementById("triggerBannerContainer");
   if (bannerContainer) {
     bannerContainer.innerHTML = `
       <button id="triggerActionBtn" class="btn-primary-gold" style="width: 100%; max-width: 20rem; margin: 0 auto; padding: 0.875rem 1.25rem; justify-content: center;">
-        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${config.banner.actionText}</span>
+        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${currentConfig.banner.actionText}</span>
       </button>
     `;
 
-    const actionBtn = document.getElementById("triggerActionBtn");
-    if (actionBtn) {
-      actionBtn.addEventListener("click", () => {
-        if (onActionClick) {
-          onActionClick(config.banner);
-        }
+    const btn = document.getElementById("triggerActionBtn");
+    if (btn) {
+      btn.addEventListener("click", () => {
+        if (onBannerClick) onBannerClick(currentConfig.banner);
       });
     }
   }
 
-  // 4. CONTEXTUAL STAGE CONTENT FILTERING
+  // Toggle Sections Visibility
   const saunaSection = document.getElementById("saunaSection");
-  const saunaBookedBanner = document.getElementById("saunaBookedBanner");
   const stage2GuideSection = document.getElementById("stage2GuideSection");
   const catalogueSection = document.getElementById("catalogueSection");
   const morningServiceSection = document.getElementById("morningServiceSection");
@@ -168,7 +160,6 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
   const saunaSectionHeader = document.getElementById("saunaSectionHeader");
   const scrollIndicator = document.getElementById("scrollIndicator");
 
-  // Reset all
   if (saunaSection) saunaSection.classList.add("hidden");
   if (stage2GuideSection) stage2GuideSection.classList.add("hidden");
   if (catalogueSection) catalogueSection.classList.add("hidden");
@@ -176,25 +167,18 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
   if (farewellSection) farewellSection.classList.add("hidden");
   if (scrollIndicator) scrollIndicator.style.display = "flex";
 
-  if (stageId === "1" || stageId == 1) {
-    // Stage 1: Pre-arrival -> Show Sauna swipable carousel for check-in, Catalogue
+  if (stageNumber === "1" || stageNumber === 1) {
     if (saunaSection) saunaSection.classList.remove("hidden");
     if (catalogueSection) catalogueSection.classList.remove("hidden");
     if (saunaSectionHeader) saunaSectionHeader.innerText = "Выберите баню к приезду (Свайп ➔)";
-  } 
-  else if (stageId === "2" || stageId == 2) {
-    // Stage 2: In-Stay -> Show Sightseeing Guide, Housekeeping rating, Catalogue
+  } else if (stageNumber === "2" || stageNumber === 2) {
     if (stage2GuideSection) stage2GuideSection.classList.remove("hidden");
     if (saunaSection) saunaSection.classList.remove("hidden");
     if (catalogueSection) catalogueSection.classList.remove("hidden");
     if (saunaSectionHeader) saunaSectionHeader.innerText = "Вечерняя растопка бани (Свайп ➔)";
-  } 
-  else if (stageId === "3" || stageId == 3) {
-    // Stage 3: Morning Departure 09:00 -> NO sauna, NO quick orders! Only morning coffee, late checkout, and taxi!
+  } else if (stageNumber === "3" || stageNumber === 3) {
     if (morningServiceSection) morningServiceSection.classList.remove("hidden");
-  } 
-  else if (stageId === "4" || stageId == 4) {
-    // Stage 4: After Departure -> ZERO MENU, ZERO SAUNA! Pure clean farewell card!
+  } else if (stageNumber === "4" || stageNumber === 4) {
     if (farewellSection) farewellSection.classList.remove("hidden");
     if (scrollIndicator) scrollIndicator.style.display = "none";
   }

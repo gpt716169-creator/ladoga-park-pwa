@@ -1,8 +1,3 @@
-/**
- * Catalog items for Ладога Парк PWA ("Живой домик")
- * Strict separation: Guest UI sees atmospheric descriptions; Accounting sees USN 6% compliance mapping.
- */
-
 export const CATALOG_ITEMS = [
   {
     id: "firewood",
