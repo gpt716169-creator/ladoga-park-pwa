@@ -1,5 +1,13 @@
+import '@fontsource/outfit/400.css';
+import '@fontsource/outfit/600.css';
+import '@fontsource/outfit/700.css';
+import '@fontsource/outfit/800.css';
+import '@fontsource/cormorant-garamond/700.css';
+import 'material-symbols/outlined.css';
 import { triggerConfetti } from "./confetti.js";
-import { CATALOG_ITEMS, LATE_CHECKOUT_ITEM } from "./catalogData.js";
+import { LATE_CHECKOUT_ITEM } from "./catalogData.js";
+
+let CATALOG_ITEMS = [];
 import { cart } from "./cartManager.js";
 import { switchStage } from "./stageManager.js";
 
@@ -7,7 +15,7 @@ let currentCategory = "all";
 let currentStage = "1";
 let currentSeason = "summer";
 
-// Robust Clipboard Copy (Works 100% even on HTTP / Local Wi-Fi on Mobile!)
+// Robust Clipboard Copy
 function copyToClipboard(text) {
   if (navigator.clipboard && window.isSecureContext) {
     return navigator.clipboard.writeText(text);
@@ -54,30 +62,34 @@ function showToast(message, title = "🔔 Уведомление") {
     toast.style.transform = "translateY(-10px)";
     toast.style.transition = "all 0.3s ease";
     setTimeout(() => toast.remove(), 300);
-  }, 3500);
+  }, 1500);
 }
 
-// Render Full Catalogue Items List
+// Render Full V1 Catalogue Items List
 function renderFullCatalogue(category = "all") {
   const listContainer = document.getElementById("fullCatalogueList");
   if (!listContainer) return;
   listContainer.innerHTML = "";
 
   const filtered = category === "all" 
-    ? CATALOG_ITEMS 
-    : CATALOG_ITEMS.filter(i => i.category === category);
+    ? CATALOG_ITEMS.filter(i => i.category !== "sauna") 
+    : CATALOG_ITEMS.filter(i => i.category === category && i.category !== "sauna");
 
   filtered.forEach(product => {
     const card = document.createElement("div");
     card.className = "glass-card p-4";
     card.style.cssText = "padding: 1rem; border-radius: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;";
+    
+    let mediaHtml = `<div style="width: 3rem; height: 3rem; border-radius: 1rem; background: rgba(232,165,88,0.1); border: 1px solid rgba(232,165,88,0.2); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">${product.icon || '📦'}</div>`;
+    if (product.image) {
+      mediaHtml = `<img src="${product.image}" style="width: 3rem; height: 3rem; border-radius: 1rem; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(232,165,88,0.2);" />`;
+    }
+
     card.innerHTML = `
       <div style="display: flex; align-items: center; gap: 0.875rem;">
-        <div style="width: 3rem; height: 3rem; border-radius: 1rem; background: rgba(232,165,88,0.1); border: 1px solid rgba(232,165,88,0.2); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
-          ${product.icon}
-        </div>
+        ${mediaHtml}
         <div>
-          <h4 style="font-weight: 700; font-size: 0.875rem; color: #f3f4f6; line-height: 1.3;">${product.displayName}</h4>
+          <h4 style="font-weight: 700; font-size: 0.875rem; line-height: 1.3;">${product.displayName}</h4>
           <p style="font-size: 11px; color: var(--text-muted); margin-top: 0.125rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${product.desc}</p>
         </div>
       </div>
@@ -95,9 +107,6 @@ function renderFullCatalogue(category = "all") {
     btn.addEventListener("click", () => {
       const item = CATALOG_ITEMS.find(i => i.id === btn.dataset.id);
       if (item) {
-        if (item.category === "sauna" || item.id.includes("sauna") || item.id.includes("hottub") || item.id.includes("aroma")) {
-          localStorage.setItem("hasBookedSauna", "true");
-        }
         cart.addItem(item);
         showToast(`«${item.displayName}» добавлен в ваш заказ`, "✨ Добавлено в корзину");
         switchStage(currentStage, currentSeason);
@@ -139,7 +148,7 @@ function updateCartUI() {
       row.style.cssText = "padding: 0.875rem; border-radius: 1rem; display: flex; align-items: center; justify-content: space-between; border-color: rgba(232,165,88,0.3); gap: 0.5rem;";
       row.innerHTML = `
         <div style="padding-right: 0.5rem; overflow: hidden;">
-          <strong style="font-size: 0.75rem; color: #f3f4f6; display: block; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.displayName}</strong>
+          <strong style="font-size: 0.75rem; display: block; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.displayName}</strong>
           <span style="font-size: 11px; color: var(--accent-gold); font-weight: 700; margin-top: 0.125rem; display: block;">${item.price.toLocaleString("ru-RU")} ₽ / шт.</span>
         </div>
         <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
@@ -154,10 +163,6 @@ function updateCartUI() {
     itemsList.querySelectorAll(".btn-minus").forEach(b => {
       b.addEventListener("click", () => {
         cart.removeItem(b.dataset.id);
-        const hasSaunaLeft = cart.getItems().some(i => i.category === "sauna" || i.id.includes("sauna") || i.id.includes("hottub") || i.id.includes("aroma"));
-        if (!hasSaunaLeft) {
-          localStorage.removeItem("hasBookedSauna");
-        }
         switchStage(currentStage, currentSeason);
       });
     });
@@ -170,14 +175,79 @@ function updateCartUI() {
   }
 }
 
+function renderQuickOrders() {
+  const container = document.getElementById("quickOrdersGrid");
+  if (!container) return;
+  container.innerHTML = "";
+  
+  const quickItems = CATALOG_ITEMS.filter(i => i.isQuickOrder);
+  quickItems.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "glass-card";
+    card.style.cssText = "padding: 1rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem;";
+    
+    let mediaHtml = `<span style="font-size: 28px;">${item.icon || '📦'}</span>`;
+    if (item.image) {
+      mediaHtml = `<img src="${item.image}" style="width: 2.25rem; height: 2.25rem; border-radius: 8px; object-fit: cover;" />`;
+    }
+
+    card.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        ${mediaHtml}
+        <button class="btn-quick-add btn-icon-round" style="width: 2.25rem; height: 2.25rem;" data-id="${item.id}" title="Добавить в заказ">
+          <span style="font-size: 18px; font-weight: 800;">+</span>
+        </button>
+      </div>
+      <div>
+        <p style="font-weight: 700; font-size: 0.75rem; color: #f3f4f6; line-height: 1.3;">${item.displayName}</p>
+        <p style="font-size: 11px; color: var(--accent-gold); font-weight: 600; margin-top: 0.125rem;">${item.price.toLocaleString("ru-RU")} ₽ <span style="color: var(--text-muted); font-weight: 400;">• ${item.desc}</span></p>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
 // Initialize Application
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const res = await fetch('/api/catalog');
+    const data = await res.json();
+    if (data.success) {
+      CATALOG_ITEMS = data.data;
+    }
+  } catch(err) {
+    console.error("Failed to fetch dynamic catalog");
+  }
+
   renderFullCatalogue("all");
+  renderQuickOrders();
 
   cart.subscribe(() => updateCartUI());
   updateCartUI();
 
-  // Quick Order Add Buttons
+  // URL Params & Saved Stage
+  const urlParams = new URLSearchParams(window.location.search);
+  const savedStage = urlParams.get("stage") || localStorage.getItem("demoStage") || "1";
+  currentStage = savedStage;
+
+  const stageSelector = document.getElementById("stageSelector");
+  if (stageSelector) stageSelector.value = currentStage;
+
+  const stageInd = document.getElementById("currentStageIndicator");
+  if (stageInd) stageInd.innerText = currentStage;
+
+  // Render V1 Stage
+  switchStage(currentStage, currentSeason);
+
+  // Developer Stage Switcher Listener (FULL PAGE RELOAD AS REQUESTED!)
+  if (stageSelector) {
+    stageSelector.addEventListener("change", () => {
+      localStorage.setItem("demoStage", stageSelector.value);
+      window.location.search = "?stage=" + stageSelector.value;
+    });
+  }
+
+  // Quick Order Add Buttons in V1
   document.querySelectorAll(".btn-quick-add").forEach(btn => {
     btn.addEventListener("click", () => {
       const id = btn.dataset.id;
@@ -193,20 +263,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
-
-  // Edit booked sauna button
-  const editSaunaBtn = document.getElementById("showSaunaCarouselBtn");
-  if (editSaunaBtn) {
-    editSaunaBtn.addEventListener("click", () => {
-      const saunaBookedBanner = document.getElementById("saunaBookedBanner");
-      const saunaSection = document.getElementById("saunaSection");
-      if (saunaBookedBanner) saunaBookedBanner.classList.add("hidden");
-      if (saunaSection) {
-        saunaSection.classList.remove("hidden");
-        saunaSection.scrollIntoView({ behavior: "smooth" });
-      }
-    });
-  }
 
   // Developer Menu Controls & Auto-Close
   const toggleDemoBtn = document.getElementById("toggleDemoMenuBtn");
@@ -226,58 +282,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Tap anywhere outside developer panel to close it!
   document.addEventListener("click", (e) => {
     if (demoPanel && !demoPanel.classList.contains("hidden")) {
       if (!demoPanel.contains(e.target) && e.target !== toggleDemoBtn) {
         demoPanel.classList.add("hidden");
       }
     }
-  });
-
-  // Read Stage from URL or localStorage
-  const urlParams = new URLSearchParams(window.location.search);
-  const savedStage = urlParams.get("stage") || localStorage.getItem("demoStage") || "1";
-
-  currentStage = savedStage;
-  const stageSelector = document.getElementById("stageSelector");
-  if (stageSelector) stageSelector.value = currentStage;
-
-  // Initial stage application
-  switchStage(currentStage, currentSeason, (bannerConfig) => {
-    if (bannerConfig.actionCategory) {
-      const catBtn = document.querySelector(`.tab-btn[data-cat="${bannerConfig.actionCategory}"]`);
-      if (catBtn) catBtn.click();
-      const catalogEl = document.getElementById("fullCatalogueList");
-      if (catalogEl) catalogEl.scrollIntoView({ behavior: "smooth" });
-    } else if (bannerConfig.actionModal) {
-      openModal(bannerConfig.actionModal);
-    } else if (bannerConfig.actionItem === "late-checkout-16") {
-      cart.addItem(LATE_CHECKOUT_ITEM);
-      openDrawer("cartDrawer");
-      showToast("Поздний выезд до 16:00 добавлен в корзину", "⏳ Продление проживания");
-    }
-  });
-
-  // FULL PAGE RELOAD ON STAGE CHANGE (Silent - No toast notification per user request!)
-  if (stageSelector) {
-    stageSelector.addEventListener("change", () => {
-      const newStage = stageSelector.value;
-      localStorage.setItem("demoStage", newStage);
-      if (demoPanel) demoPanel.classList.add("hidden");
-      stageSelector.blur();
-      window.location.href = `?stage=${newStage}`;
-    });
-  }
-
-  // Category Tabs Filter
-  document.querySelectorAll(".tab-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      currentCategory = btn.dataset.cat;
-      renderFullCatalogue(currentCategory);
-    });
   });
 
   // Drawers & Modals Control
@@ -299,17 +309,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 250);
   };
 
-  const openModal = (id) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.classList.remove("opacity-0", "pointer-events-none");
-    const child = el.querySelector(".glass-modal");
-    if (child) child.style.transform = "scale(1)";
-  };
-
   const closeModal = (id) => {
     const el = document.getElementById(id);
     if (!el) return;
+    el.classList.remove("opacity-0", "pointer-events-none");
     const child = el.querySelector(".glass-modal");
     if (child) child.style.transform = "scale(0.95)";
     setTimeout(() => {
@@ -317,7 +320,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 200);
   };
 
-  // Background Tap-to-Close for Modals
+  // Overlay Click to Close
   document.querySelectorAll(".modal-overlay, .drawer-overlay").forEach(overlay => {
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) {
@@ -355,21 +358,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeOrmBtn = document.getElementById("closeOrmBtn");
   if (closeOrmBtn) closeOrmBtn.addEventListener("click", () => closeModal("ormModal"));
 
-  // Online Registration Form Submission
-  const submitRegBtn = document.getElementById("submitRegBtn");
-  if (submitRegBtn) {
-    submitRegBtn.addEventListener("click", () => {
-      const phone = document.getElementById("regPhone")?.value;
-      if (!phone || phone.trim() === "") {
-        showToast("Укажите ваш контактный телефон для связи", "⚠️ Внимание");
-        return;
-      }
-      showToast("✅ Онлайн-регистрация завершена, Ирина! Пропуск на въезд для вашего автомобиля оформлен.", "📋 Добро пожаловать");
-      closeModal("regModal");
-    });
-  }
-
-  // ROBUST Wi-Fi Copy Button (Password: 11111111 - Works 100% on HTTP / Mobile Wi-Fi!)
+  // ROBUST Wi-Fi Copy Button
   const copyWifiBtn = document.getElementById("copyWifiBtn");
   if (copyWifiBtn) {
     copyWifiBtn.addEventListener("click", () => {
@@ -381,95 +370,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Housekeeping Rating Stars
-  const hkStars = document.querySelectorAll(".hk-star");
-  const hkFeedbackBox = document.getElementById("hkFeedbackBox");
-  const submitHkBtn = document.getElementById("submitHkBtn");
-
-  hkStars.forEach(star => {
-    star.addEventListener("click", () => {
-      const rating = parseInt(star.dataset.star, 10);
-      hkStars.forEach(s => {
-        if (parseInt(s.dataset.star, 10) <= rating) {
-          s.style.color = "var(--accent-gold)";
-          s.style.transform = "scale(1.15)";
-        } else {
-          s.style.color = "#4b5563";
-          s.style.transform = "scale(1)";
-        }
-      });
-      if (rating >= 4) {
-        if (hkFeedbackBox) hkFeedbackBox.classList.add("hidden");
-        triggerConfetti();
-        showToast("🎉 Спасибо за высокую оценку чистоты! Передали благодарность нашей горничной Ладога Парк.", "✨ Отличная уборка");
-      } else {
-        if (hkFeedbackBox) hkFeedbackBox.classList.remove("hidden");
-      }
-    });
-  });
-
-  if (submitHkBtn) {
-    submitHkBtn.addEventListener("click", () => {
-      const text = document.getElementById("hkText")?.value;
-      if (!text || text.trim() === "") {
-        showToast("Напишите, что нам исправить в номере", "⚠️ Внимание");
-        return;
-      }
-      showToast("Ваше замечание по уборке отправлено лично управляющему. Сейчас всё исправим!", "🙏 Спасибо за сигнал");
-      if (hkFeedbackBox) hkFeedbackBox.classList.add("hidden");
-    });
-  }
-
-  // ORM Interactive Rating Stars
-  const stars = document.querySelectorAll(".star-btn");
-  const lowForm = document.getElementById("lowRatingForm");
-  const highCard = document.getElementById("highRatingCard");
-
-  stars.forEach(star => {
-    star.addEventListener("click", () => {
-      const rating = parseInt(star.dataset.star, 10);
-      stars.forEach(s => {
-        if (parseInt(s.dataset.star, 10) <= rating) {
-          s.style.color = "var(--accent-gold)";
-          s.style.transform = "scale(1.15)";
-        } else {
-          s.style.color = "#4b5563";
-          s.style.transform = "scale(1)";
-        }
-      });
-
-      if (rating >= 4) {
-        if (lowForm) lowForm.classList.add("hidden");
-        if (highCard) {
-          highCard.classList.remove("hidden");
-          highCard.classList.add("animate-fade-in");
-        }
-        triggerConfetti();
-        showToast("Спасибо за вашу высокую оценку!", "🎉 Ладога Парк");
-      } else {
-        if (highCard) highCard.classList.add("hidden");
-        if (lowForm) {
-          lowForm.classList.remove("hidden");
-          lowForm.classList.add("animate-fade-in");
-        }
-      }
-    });
-  });
-
-  // Submit Feedback Button
-  const submitFeedbackBtn = document.getElementById("submitFeedbackBtn");
-  if (submitFeedbackBtn) {
-    submitFeedbackBtn.addEventListener("click", () => {
-      const text = document.getElementById("feedbackText")?.value;
-      if (!text || text.trim() === "") {
-        showToast("Пожалуйста, напишите пару слов о вашем впечатлении", "⚠️ Внимание");
-        return;
-      }
-      showToast("Отзыв отправлен лично управляющему парком. Мы свяжемся с вами!", "🙏 Спасибо за помощь");
-      closeModal("ormModal");
-    });
-  }
-
   // Order Submission
   const submitOrderBtn = document.getElementById("submitOrderBtn");
   if (submitOrderBtn) {
@@ -478,13 +378,8 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast("Сначала добавьте услуги в корзину", "🛒 Корзина пуста");
         return;
       }
-      const payType = document.querySelector('input[name="payType"]:checked')?.value;
       const total = cart.getTotalPrice();
-      if (payType === "sbp") {
-        showToast(`Инициирована оплата СБП на сумму ${total.toLocaleString("ru-RU")} ₽. Электронный чек ОФД сформирован.`, "⚡ Оплата СБП");
-      } else {
-        showToast(`Заказ на сумму ${total.toLocaleString("ru-RU")} ₽ добавлен в ваш фолио TravelLine. Оплата при выезде.`, "🏨 Фолио обновлено");
-      }
+      showToast(`Инициирована оплата на сумму ${total.toLocaleString("ru-RU")} ₽. Чек ОФД сформирован.`, "⚡ Оплата успешна");
       cart.clearCart();
       closeDrawer("cartDrawer");
     });
