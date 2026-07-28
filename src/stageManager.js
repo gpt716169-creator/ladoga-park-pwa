@@ -54,13 +54,20 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
   const config = JSON.parse(JSON.stringify(configTemplate));
   
   if (bookingData) {
-    const { guestName, cabinName } = bookingData;
+    const { guestName } = bookingData;
     // Replace placeholders/hardcoded names with dynamic data
     if (guestName) {
       config.title = config.title.replace("Ирина", guestName);
       config.subtitle = config.subtitle.replace("Ирина", guestName);
     }
-
+    // Handle unavailable late checkout extension for Stage 3
+    if (bookingData.canExtend === false && (stageId === "3" || stageId == 3)) {
+      config.subtitle = "Выезд из домика сегодня до 12:00. На сегодня в ваш домик заезжают следующие гости, поэтому продление проживания не получится.";
+      config.banner = {
+        actionText: "❌ Продление недоступно",
+        actionDisabled: true
+      };
+    }
   }
   // 1. Silky Smooth Cross-fade video logic (Zero Dual-Decoding / Freezing on load!)
   const video1 = document.getElementById("heroVideo1");
@@ -94,31 +101,24 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
         activeVideoIndex = activeVideoIndex === 1 ? 2 : 1;
       }
     }
-  }
   // 2. Update Atmospheric Texts smoothly
   const titleEl = document.getElementById("heroTitle");
   const subtitleEl = document.getElementById("heroSubtitle");
   if (titleEl) titleEl.innerText = config.title;
   if (subtitleEl) subtitleEl.innerText = config.subtitle;
-  // Render Early/Late Stay Badges
-  if (subtitleEl && bookingData && (bookingData.earlyArrival || bookingData.lateDeparture)) {
-    let badgeContainer = document.getElementById("extraStayBadgeContainer");
-    if (!badgeContainer) {
-      badgeContainer = document.createElement("div");
-      badgeContainer.id = "extraStayBadgeContainer";
-      badgeContainer.style.cssText = "margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.375rem; align-items: center;";
-      subtitleEl.parentNode.appendChild(badgeContainer);
-    }
+
+  // Dynamic Guest Personalization Badges
+  const badgeContainer = document.getElementById("guestBadgeContainer");
+  if (badgeContainer) {
     badgeContainer.innerHTML = "";
-    
-    if (bookingData.earlyArrival && (stageId === "1" || stageId === "2")) {
+    if (bookingData && bookingData.cabinName && stageId === "2") {
       badgeContainer.innerHTML += `
-        <span style="background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.3); padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
-          ✨ Ранний заезд подтвержден: с ${bookingData.earlyArrival}
+        <span style="background: rgba(232,165,88,0.15); color: var(--accent-gold); border: 1px solid rgba(232,165,88,0.3); padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
+          🏡 Забронирован: ${bookingData.cabinName}
         </span>
       `;
     }
-    if (bookingData.lateDeparture && (stageId === "2" || stageId === "3")) {
+    if (bookingData && bookingData.lateDeparture && (stageId === "2" || stageId === "3")) {
       badgeContainer.innerHTML += `
         <span style="background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
           ⏳ Поздний выезд подтвержден: до ${bookingData.lateDeparture}
@@ -129,8 +129,9 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
   // 3. Render Floating Luxury Action Button (Structure guarantees text & price never wrap!)
   const bannerContainer = document.getElementById("triggerBannerContainer");
   if (bannerContainer) {
+    const isBtnDisabled = config.banner.actionDisabled;
     bannerContainer.innerHTML = `
-      <button id="triggerActionBtn" class="btn-primary-gold" style="width: 100%; max-width: 20rem; margin: 0 auto; padding: 0.875rem 1.25rem; justify-content: center;">
+      <button id="triggerActionBtn" class="btn-primary-gold" style="width: 100%; max-width: 20rem; margin: 0 auto; padding: 0.875rem 1.25rem; justify-content: center; ${isBtnDisabled ? 'opacity: 0.6; cursor: not-allowed; background: rgba(50,50,50,0.8); border-color: rgba(255,255,255,0.2); color: #9ca3af;' : ''}">
         <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${config.banner.actionText}</span>
       </button>
     `;
