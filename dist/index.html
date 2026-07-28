@@ -11,13 +11,30 @@
 
   <!-- Hardware Accelerated Pure CSS -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-  <style>
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-      display: inline-block;
-      font-display: swap;
-    }
-  </style>
+  <script>
+    (function() {
+      try {
+        const u = new URLSearchParams(window.location.search);
+        const s = u.get("stage") || localStorage.getItem("demoStage") || "1";
+        const c = JSON.parse(localStorage.getItem("bookingData") || "null");
+        const name = c && c.guestName ? c.guestName : "Ирина";
+        const cabin = c && c.cabinName ? c.cabinName : "домик";
+        const map = {
+          "1": { t: name + ", ждём вас завтра!", sub: "Ваш " + cabin + " на берегу озера готовится к приёму. Пройдите онлайн-регистрацию заранее, чтобы получить пропуск на территорию." },
+          "2": { t: "Добро пожаловать, " + name + "!", sub: "Ваш " + cabin + " на берегу озера наполнен теплом. Уютный мангал разжжен и ждёт вашего вечера у огня." },
+          "3": { t: "Доброе утро, " + name + "!", sub: "Начните день с ароматного зернового кофе в панорамном кафе у озера." },
+          "4": { t: "Благодарим за визит, " + name + "!", sub: "Будем рады видеть вас снова в эко-курорте Ладога Парк!" }
+        };
+        const res = map[s] || map["1"];
+        document.addEventListener("DOMContentLoaded", function() {
+          const ht = document.getElementById("heroTitle");
+          const hs = document.getElementById("heroSubtitle");
+          if (ht) ht.innerText = res.t;
+          if (hs) hs.innerText = res.sub;
+        });
+      } catch(e) {}
+    })();
+  </script>
   <script type="module" crossorigin src="/assets/main-D0lKmuMR.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/style-CpQqyAzX.js">
   <link rel="stylesheet" crossorigin href="/assets/style-Cqskr6Cc.css">
@@ -90,10 +107,10 @@
       <div id="heroTextContainer" style="max-width: 28rem; margin: 0 auto; text-align: center; padding-bottom: 2rem;">
         <div style="margin-bottom: 0.75rem;">
           <h1 id="heroTitle" style="font-family: var(--font-serif); font-size: 2.25rem; font-weight: 700; color: #ffffff; line-height: 1.15; text-shadow: 0 4px 12px rgba(0,0,0,0.8); letter-spacing: 0.02em; margin-bottom: 0.375rem;">
-            Добро пожаловать!
+            Ирина, ждём вас завтра!
           </h1>
           <p id="heroSubtitle" style="font-size: 0.8rem; color: var(--text-muted); max-width: 20rem; margin: 0 auto; text-shadow: 0 2px 4px rgba(0,0,0,0.8); line-height: 1.4;">
-            Ваш «Домик рыбака» наполнен теплом. Уютный мангал разжжен и ждёт вашего вечера у огня.
+            Ваш домик на берегу озера готовится к приёму. Пройдите онлайн-регистрацию заранее, чтобы получить пропуск на территорию.
           </p>
         </div>
 
