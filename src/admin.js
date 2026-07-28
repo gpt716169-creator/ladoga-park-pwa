@@ -115,10 +115,11 @@ async function loadBookingsDashboard() {
     const res = await fetch(`${API_BASE}/admin/dashboard`);
     const data = await res.json();
     if (data.success) {
-      const { tomorrowArrivals, currentStays, todayDepartures } = data.data;
+      const { tomorrowArrivals, currentStays, todayDepartures, upcomingBookings } = data.data;
       renderBookingsTable('tomorrowArrivalsBody', tomorrowArrivals || []);
       renderBookingsTable('currentStaysBody', currentStays || []);
       renderBookingsTable('todayDeparturesBody', todayDepartures || []);
+      renderBookingsTable('upcomingBookingsBody', upcomingBookings || []);
     }
   } catch (err) {
     console.error('Failed to load bookings dashboard', err);

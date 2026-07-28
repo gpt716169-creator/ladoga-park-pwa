@@ -32,7 +32,7 @@
     .modal.active { display: flex; }
     .modal-content { max-width: 500px; width: 100%; }
   </style>
-  <script type="module" crossorigin src="/assets/admin-DpO7nRPF.js"></script>
+  <script type="module" crossorigin src="/assets/admin-CF-IBgDy.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/style-CpQqyAzX.js">
   <link rel="stylesheet" crossorigin href="/assets/style-Cqskr6Cc.css">
 </head>
@@ -127,6 +127,17 @@
             <table>
               <thead><tr><th>ID</th><th>Гость</th><th>Телефон</th><th>Объект</th><th>Даты</th><th>Ссылка</th></tr></thead>
               <tbody id="todayDeparturesBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Upcoming Bookings (Future) -->
+        <div class="glass-card">
+          <h3 style="color: #c084fc; margin-bottom: 1rem;">📅 Предстоящие заезды (Февраль, Март, Апрель...)</h3>
+          <div class="table-container" style="margin-top: 0;">
+            <table>
+              <thead><tr><th>ID</th><th>Гость</th><th>Телефон</th><th>Объект / Баня</th><th>Даты</th><th>Ссылка</th></tr></thead>
+              <tbody id="upcomingBookingsBody"></tbody>
             </table>
           </div>
         </div>

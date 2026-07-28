@@ -490,6 +490,7 @@ app.get('/api/admin/dashboard', (req, res) => {
     const tomorrowArrivals = [];
     const currentStays = [];
     const todayDepartures = [];
+    const upcomingBookings = [];
     const allBookings = [];
 
     (rows || []).forEach(b => {
@@ -508,8 +509,10 @@ app.get('/api/admin/dashboard', (req, res) => {
         tomorrowArrivals.push(b);
       } else if (dep === today) {
         todayDepartures.push(b);
-      } else {
-        currentStays.push(b);
+      } else if (arr <= today && dep >= today) {
+        currentStays.push(b); // Currently staying or active today
+      } else if (arr > tomorrow) {
+        upcomingBookings.push(b); // Future bookings (Feb, March, etc.)
       }
       allBookings.push(b);
     });
@@ -520,6 +523,7 @@ app.get('/api/admin/dashboard', (req, res) => {
         tomorrowArrivals,
         currentStays,
         todayDepartures,
+        upcomingBookings,
         allBookings
       }
     });
