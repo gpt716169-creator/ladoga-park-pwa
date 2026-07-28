@@ -48,7 +48,7 @@ async function deploy() {
     const srcPath = path.join(__dirname, 'src');
     await ssh.mkdir('/var/www/ladoga-park/src');
     await ssh.putDirectory(srcPath, '/var/www/ladoga-park/src', { recursive: true, concurrency: 10 });
-    await ssh.putFile(path.join(__dirname, 'index.html'), '/var/www/ladoga-park/index.html');
+    await ssh.putFile(path.join(__dirname, 'index.html'), '/var/www/ladoga-park/src/index.html.raw');
 
     // 3.5 Upload Server scripts and start PM2
     console.log('Uploading server scripts...');
