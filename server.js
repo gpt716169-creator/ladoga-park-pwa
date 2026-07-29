@@ -310,10 +310,11 @@ async function syncPropertyBookings(config, defaultName = "Домик") {
     }
     
     const activeSummaries = allSummaries.filter(s => s.status !== 'Cancelled');
-    for (let i = activeSummaries.length - 1; i >= Math.max(0, activeSummaries.length - 100); i--) {
+    for (let i = activeSummaries.length - 1; i >= Math.max(0, activeSummaries.length - 200); i--) {
+      const summary = activeSummaries[i];
       const existing = await new Promise((resolve) => db.get('SELECT modified_at, status, guest_name FROM bookings WHERE id = ?', [summary.number], (err, row) => resolve(row)));
       
-      if (!existing || existing.modified_at !== summary.modifiedDateTime || existing.status !== summary.status || !existing.guest_name || !existing.guest_name.includes(' ')) {
+      if (!existing || existing.modified_at !== summary.modifiedDateTime || existing.status !== summary.status || !existing.guest_name) {
         try {
           const detailRes = await axios.get(`${config.apiUrl}/properties/${config.propertyId}/bookings/${summary.number}`, {
              headers: { 'Authorization': `Bearer ${token}` }
