@@ -668,13 +668,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Handled entirely inside initStage function now
 
-  // FULL PAGE RELOAD ON STAGE CHANGE (Silent - No toast notification per user request!)
-  const stageSelector = document.getElementById("stageSelector");
+  // FULL PAGE RELOAD ON STAGE CHANGE
+  const stageSelector = document.getElementById("stageSelect") || document.getElementById("stageSelector");
   if (stageSelector) {
+    stageSelector.value = currentStage;
     stageSelector.addEventListener("change", () => {
       const newStage = stageSelector.value;
       localStorage.setItem("demoStage", newStage);
-      if (demoPanel) demoPanel.classList.add("hidden");
+      const demoDrawer = document.getElementById("demoMenuDrawer");
+      if (demoDrawer) demoDrawer.classList.add("hidden");
       stageSelector.blur();
       window.location.href = `?stage=${newStage}`;
     });

@@ -146,6 +146,7 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
     }
   }
   // 4. CONTEXTUAL STAGE CONTENT FILTERING
+  const giftsShowcaseSection = document.getElementById("giftsShowcaseSection");
   const saunaSection = document.getElementById("saunaSection");
   const saunaBookedBanner = document.getElementById("saunaBookedBanner");
   const stage2GuideSection = document.getElementById("stage2GuideSection");
@@ -155,7 +156,9 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
   const farewellSection = document.getElementById("farewellSection");
   const saunaSectionHeader = document.getElementById("saunaSectionHeader");
   const scrollIndicator = document.getElementById("scrollIndicator");
+
   // Reset all
+  if (giftsShowcaseSection) giftsShowcaseSection.classList.add("hidden");
   if (saunaSection) saunaSection.classList.add("hidden");
   if (stage2GuideSection) stage2GuideSection.classList.add("hidden");
   if (quickOrdersSection) quickOrdersSection.classList.add("hidden");
@@ -163,15 +166,18 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
   if (morningServiceSection) morningServiceSection.classList.add("hidden");
   if (farewellSection) farewellSection.classList.add("hidden");
   if (scrollIndicator) scrollIndicator.style.display = "flex";
+
   if (stageId === "1" || stageId == 1) {
-    // Stage 1: Pre-arrival -> Show Sauna swipable carousel for check-in, Quick Orders, Catalogue
+    // Stage 1: Pre-arrival -> Show Gifts Showcase (only Stage 1 & 2!), Sauna, Quick Orders, Catalogue
+    if (giftsShowcaseSection) giftsShowcaseSection.classList.remove("hidden");
     if (saunaSection) saunaSection.classList.remove("hidden");
     if (quickOrdersSection) quickOrdersSection.classList.remove("hidden");
     if (catalogueSection) catalogueSection.classList.remove("hidden");
     if (saunaSectionHeader) saunaSectionHeader.innerText = "Выберите баню к приезду (Свайп ➔)";
   } 
   else if (stageId === "2" || stageId == 2) {
-    // Stage 2: In-Stay -> Show Sightseeing Guide, Housekeeping rating, Catalogue
+    // Stage 2: In-Stay -> Show Gifts Showcase, Sightseeing Guide, Sauna, Quick Orders, Catalogue
+    if (giftsShowcaseSection) giftsShowcaseSection.classList.remove("hidden");
     if (stage2GuideSection) stage2GuideSection.classList.remove("hidden");
     if (saunaSection) saunaSection.classList.remove("hidden");
     if (quickOrdersSection) quickOrdersSection.classList.remove("hidden");
@@ -179,11 +185,11 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
     if (saunaSectionHeader) saunaSectionHeader.innerText = "Вечерняя растопка бани (Свайп ➔)";
   } 
   else if (stageId === "3" || stageId == 3) {
-    // Stage 3: Morning Departure 09:00 -> NO sauna, NO quick orders! Only morning coffee, late checkout, and taxi!
+    // Stage 3: Morning Departure 09:00 -> NO gifts, NO sauna, NO quick orders! Only morning service and taxi!
     if (morningServiceSection) morningServiceSection.classList.remove("hidden");
   } 
   else if (stageId === "4" || stageId == 4) {
-    // Stage 4: After Departure -> ZERO MENU, ZERO SAUNA! Pure clean farewell card!
+    // Stage 4: After Departure -> ZERO GIFTS, ZERO MENU, ZERO SAUNA! Pure clean farewell card!
     if (farewellSection) farewellSection.classList.remove("hidden");
     if (scrollIndicator) scrollIndicator.style.display = "none";
   }
