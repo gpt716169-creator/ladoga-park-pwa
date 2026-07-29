@@ -443,6 +443,87 @@ body {
   color: #94a3b8 !important;
 }
 
+/* Stage 2 Guide Modal Inner Rule Cards */
+[data-theme="light"] #guideModal div[style*="background: #14221c"],
+[data-theme="light"] #guideModal div[style*="background:#14221c"],
+[data-theme="light"] div[style*="background: #14221c"],
+[data-theme="light"] div[style*="background:#14221c"] {
+  background: #f0f9ff !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] #guideModal strong,
+[data-theme="light"] div[style*="background: #14221c"] strong,
+[data-theme="light"] div[style*="background:#14221c"] strong {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] #guideModal p,
+[data-theme="light"] div[style*="background: #14221c"] p,
+[data-theme="light"] div[style*="background:#14221c"] p {
+  color: #334155 !important;
+}
+
+/* Map Card & Lightbox Modal */
+[data-theme="light"] #openMapCard {
+  background: #ffffff !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.12) !important;
+}
+
+[data-theme="light"] #openMapCard span {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] #mapModal {
+  background: rgba(240, 249, 255, 0.97) !important;
+}
+
+[data-theme="light"] #mapModal div[style*="background: rgba(18, 28, 23"],
+[data-theme="light"] #mapModal div[style*="background:rgba(18, 28, 23"] {
+  background: #ffffff !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.15) !important;
+}
+
+[data-theme="light"] #closeMapBtn {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+}
+
+[data-theme="light"] #mapModal a[target="_blank"] {
+  background: #e0f2fe !important;
+  color: #0284c7 !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+}
+
+/* Toast Notifications */
+[data-theme="light"] #toastContainer > div {
+  background: #ffffff !important;
+  border-color: rgba(56, 189, 248, 0.45) !important;
+  color: #0f172a !important;
+  box-shadow: 0 10px 30px rgba(56, 189, 248, 0.2) !important;
+}
+
+[data-theme="light"] #toastContainer strong {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] #toastContainer p {
+  color: #334155 !important;
+}
+
+/* Scroll Indicator */
+[data-theme="light"] #scrollIndicator,
+[data-theme="light"] #scrollIndicator span {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 6px rgba(255, 255, 255, 0.95), 0 0 12px rgba(240, 249, 255, 0.95) !important;
+}
+
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined' !important;
   font-weight: normal;
