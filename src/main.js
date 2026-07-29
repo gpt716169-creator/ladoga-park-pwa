@@ -703,19 +703,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
   // Drawers & Modals Control
+  let savedScrollY = 0;
+
   const checkActiveOverlays = () => {
     const active = document.querySelectorAll(".modal-overlay:not(.opacity-0), .drawer-panel[style*='translateX(0)']");
-    if (active.length > 0) {
-      document.body.classList.add("modal-open");
-    } else {
+    if (active.length === 0) {
       document.body.classList.remove("modal-open");
+      document.body.style.top = "";
+      window.scrollTo(0, savedScrollY);
     }
   };
 
   const openDrawer = (id) => {
     const el = document.getElementById(id);
     if (!el) return;
-    document.body.classList.add("modal-open");
+    if (!document.body.classList.contains("modal-open")) {
+      savedScrollY = window.scrollY || window.pageYOffset;
+      document.body.style.top = `-${savedScrollY}px`;
+      document.body.classList.add("modal-open");
+    }
     el.classList.remove("opacity-0", "pointer-events-none");
     const child = el.querySelector(".drawer-panel");
     if (child) child.style.transform = "translateX(0)";
@@ -735,7 +741,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const openModal = (id) => {
     const el = document.getElementById(id);
     if (!el) return;
-    document.body.classList.add("modal-open");
+    if (!document.body.classList.contains("modal-open")) {
+      savedScrollY = window.scrollY || window.pageYOffset;
+      document.body.style.top = `-${savedScrollY}px`;
+      document.body.classList.add("modal-open");
+    }
     el.classList.remove("opacity-0", "pointer-events-none");
     const child = el.querySelector(".glass-modal");
     if (child) child.style.transform = "scale(1)";
