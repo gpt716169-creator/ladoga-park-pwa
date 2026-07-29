@@ -541,15 +541,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Pre-load from cache if available for instant render without flash
-  const cachedInitialData = JSON.parse(localStorage.getItem("bookingData") || "null");
-  if (cachedInitialData) {
-    applyGuestPersonalization(cachedInitialData);
-  }
-
   // Read Booking ID from URL
   const urlParams = new URLSearchParams(window.location.search);
   const bookingId = urlParams.get("booking");
+
+  // Only restore cached booking data if bookingId parameter is present in URL
+  if (bookingId) {
+    const cachedInitialData = JSON.parse(localStorage.getItem("bookingData") || "null");
+    if (cachedInitialData) {
+      applyGuestPersonalization(cachedInitialData);
+    }
+  } else {
+    // Direct visit without booking parameter: clear stale cached test data
+    localStorage.removeItem("bookingData");
+  }
   
   if (bookingId) {
     // Fetch personalized data from server

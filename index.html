@@ -17,7 +17,8 @@
       try {
         const u = new URLSearchParams(window.location.search);
         const s = u.get("stage") || localStorage.getItem("demoStage") || "1";
-        const c = JSON.parse(localStorage.getItem("bookingData") || "null");
+        const b = u.get("booking");
+        const c = b ? JSON.parse(localStorage.getItem("bookingData") || "null") : null;
         const name = c && c.guestName && c.guestName !== "Гость" ? c.guestName : "";
         const cabin = c && c.cabinName ? c.cabinName : "домик";
         const map = {
