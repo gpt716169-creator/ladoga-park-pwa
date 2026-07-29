@@ -151,8 +151,15 @@ async function loadBookingsDashboard() {
     const res = await fetch(`${API_BASE}/admin/dashboard`);
     const data = await res.json();
     if (data.success) {
-      const { allBookings } = data.data;
-      renderMasterBookingsTable(allBookings || []);
+      const { tomorrowArrivals, currentStays, todayDepartures, upcomingBookings } = data.data;
+      
+      const activeList = [...(currentStays || []), ...(tomorrowArrivals || []), ...(todayDepartures || [])];
+      const activeUniqueMap = new Map();
+      activeList.forEach(item => activeUniqueMap.set(item.id, item));
+      const activeUnique = Array.from(activeUniqueMap.values());
+
+      renderMasterBookingsTable('activeBookingsTableBody', 'activeGuestsCountBadge', activeUnique, '🔥 0 активных гостей');
+      renderMasterBookingsTable('futureBookingsTableBody', 'futureBookingsBadge', upcomingBookings || [], '(0 броней)');
     }
   } catch (err) {
     console.error('Failed to load bookings dashboard', err);
@@ -178,13 +185,13 @@ function formatGuestInitials(name) {
   }
 }
 
-function renderMasterBookingsTable(bookings) {
-  const tbody = document.getElementById('masterBookingsTableBody');
-  const badge = document.getElementById('allBookingsCountBadge');
+function renderMasterBookingsTable(tbodyId, badgeId, bookings, emptyBadgeText) {
+  const tbody = document.getElementById(tbodyId);
+  const badge = document.getElementById(badgeId);
   if (!tbody) return;
 
   if (badge) {
-    badge.innerText = `👥 ${bookings.length} броней`;
+    badge.innerText = bookings.length > 0 ? (badgeId === 'futureBookingsBadge' ? `(${bookings.length} броней)` : `🔥 ${bookings.length} активных гостей`) : emptyBadgeText;
   }
 
   if (!bookings || bookings.length === 0) {

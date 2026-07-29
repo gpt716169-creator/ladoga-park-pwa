@@ -79,7 +79,7 @@
     .modal.active { display: flex; }
     .modal-content { max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; background: #14221c !important; border: 1px solid var(--admin-border) !important; color: #ffffff !important; }
   </style>
-  <script type="module" crossorigin src="/assets/admin-DV7QLpHW.js"></script>
+  <script type="module" crossorigin src="/assets/admin-Bt9af-Ld.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/style-CTAUnyPs.js">
   <link rel="stylesheet" crossorigin href="/assets/style-Czw1w1HG.css">
 </head>
@@ -146,13 +146,14 @@
         <button class="btn btn-edit" id="forceSyncBtn">🔄 Синхронизировать (TL)</button>
       </div>
       
-      <div class="glass-card" style="border: 1px solid rgba(232,165,88,0.3);">
+      <!-- Primary Active Section: In-House Stays & Tomorrow Arrivals -->
+      <div class="glass-card" style="border: 1px solid rgba(232,165,88,0.4); margin-bottom: 1.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
           <div>
-            <h3 style="color: var(--accent-gold); margin: 0;">👥 Все Бронирования и Назначение Номеров Домиков</h3>
-            <p style="font-size: 0.8125rem; color: #a1a1aa; margin: 0.25rem 0 0 0;">Привязывайте номера домиков (101–121) к заездам и текущим проживаниям. Номер сохраняется мгновенно при выборе!</p>
+            <h3 style="color: var(--accent-gold); margin: 0;">🔥 Проживающие Сегодня и Заезжающие Завтра</h3>
+            <p style="font-size: 0.8125rem; color: #a1a1aa; margin: 0.25rem 0 0 0;">Привязка номеров домиков (101–121) к текущим и завтрашним гостям. Номер сохраняется мгновенно при выборе!</p>
           </div>
-          <span id="allBookingsCountBadge" style="background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 0.4rem 0.85rem; border-radius: 9999px; font-weight: 700; font-size: 0.8125rem; border: 1px solid rgba(52, 211, 153, 0.3);">👥 0 броней</span>
+          <span id="activeGuestsCountBadge" style="background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 0.4rem 0.85rem; border-radius: 9999px; font-weight: 700; font-size: 0.8125rem; border: 1px solid rgba(52, 211, 153, 0.3);">🔥 0 активных гостей</span>
         </div>
 
         <div style="overflow-x: auto;">
@@ -169,12 +170,38 @@
                 <th style="padding: 0.6rem 0.5rem;">СМС</th>
               </tr>
             </thead>
-            <tbody id="masterBookingsTableBody">
-              <!-- Rendered dynamically by src/admin.js -->
+            <tbody id="activeBookingsTableBody">
+              <!-- Current stays + Tomorrow arrivals -->
             </tbody>
           </table>
         </div>
       </div>
+
+      <!-- Collapsible Secondary Section: Future & Upcoming Bookings -->
+      <details class="glass-card" style="border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3);">
+        <summary style="cursor: pointer; padding: 0.5rem 0; font-weight: 700; color: #c084fc; font-size: 0.9375rem; user-select: none;">
+          ▶ 📅 Предстоящие заезды на будущие даты (Нажмите, чтобы развернуть список) <span id="futureBookingsBadge" style="font-size: 0.8125rem; color: #a1a1aa; font-weight: 400;">(0 броней)</span>
+        </summary>
+        <div style="overflow-x: auto; margin-top: 1rem;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+            <thead>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #a1a1aa; text-align: left;">
+                <th style="padding: 0.6rem 0.5rem;">Бронь</th>
+                <th style="padding: 0.6rem 0.5rem;">Гость</th>
+                <th style="padding: 0.6rem 0.5rem;">Телефон</th>
+                <th style="padding: 0.6rem 0.5rem;">Категория</th>
+                <th style="padding: 0.6rem 0.5rem;">Даты</th>
+                <th style="padding: 0.6rem 0.5rem;">№ Домика</th>
+                <th style="padding: 0.6rem 0.5rem;">ПВА</th>
+                <th style="padding: 0.6rem 0.5rem;">СМС</th>
+              </tr>
+            </thead>
+            <tbody id="futureBookingsTableBody">
+              <!-- Future bookings -->
+            </tbody>
+          </table>
+        </div>
+      </details>
     </div>
 
     <!-- WAREHOUSE & GIFTS VIEW -->
