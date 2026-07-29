@@ -410,22 +410,34 @@ app.get('/api/booking/:id', async (req, res) => {
       console.log('Error checking extendability:', e.message);
     }
     
-    // Inspect payment method for 4% TravelLine commission saving
-    const paymentMethodRaw = booking.paymentType || booking.billingType || (booking.payments && booking.payments[0]?.paymentType) || (booking.payments && booking.payments[0]?.paymentMethod) || "";
-    const pLower = String(paymentMethodRaw).toLowerCase();
-    
-    // Show gifts ONLY IF paid via direct bank transfer / invoice / cash / direct call
-    const isDirectPayment = pLower.includes("перевод") || 
-                              pLower.includes("банковский") || 
-                              pLower.includes("физ") || 
-                              pLower.includes("bank") || 
-                              pLower.includes("wire") || 
-                              pLower.includes("cash") || 
-                              pLower.includes("счет") || 
-                              pLower.includes("счёт") ||
-                              !paymentMethodRaw;
-                              
-    const showGifts = isDirectPayment;
+    // Inspect payment method from TravelLine guaranteeInfo
+    let paymentMethodsArr = [];
+    if (booking.guaranteeInfo && booking.guaranteeInfo.guarantees && booking.guaranteeInfo.guarantees.length > 0) {
+      paymentMethodsArr = booking.guaranteeInfo.guarantees.map(g => g.paymentMethod);
+    }
+    if (booking.paymentType) paymentMethodsArr.push(booking.paymentType);
+    if (booking.billingType) paymentMethodsArr.push(booking.billingType);
+
+    const paymentRaw = paymentMethodsArr.join(', ');
+    const pLower = paymentRaw.toLowerCase();
+
+    // Determine readable payment name
+    let readablePayment = "Банковский перевод для физ. лиц";
+    let isOnlineCard = false;
+
+    if (pLower.includes('bankcard') || pLower.includes('externalsystem') || pLower.includes('карта') || pLower.includes('card')) {
+      readablePayment = "Банковская карта онлайн (Эквайринг сайта)";
+      isOnlineCard = true;
+    } else if (pLower.includes('banktransfer') || pLower.includes('перевод') || pLower.includes('физ') || pLower.includes('счет')) {
+      readablePayment = "Банковский перевод для физ. лиц (Прямой звонок)";
+      isOnlineCard = false;
+    } else if (pLower.includes('cash') || pLower.includes('onarrival')) {
+      readablePayment = "Оплата при заезде (Наличные / Терминал)";
+      isOnlineCard = false;
+    }
+
+    // Show gifts ONLY IF NOT paid online via card (i.e. paid direct/by phone/bank transfer)
+    const showGifts = !isOnlineCard;
 
     const responseData = {
       success: true,
@@ -439,7 +451,8 @@ app.get('/api/booking/:id', async (req, res) => {
         earlyArrival,
         lateDeparture,
         canExtend,
-        paymentType: paymentMethodRaw || "Банковский перевод для физ. лиц",
+        paymentType: readablePayment,
+        rawPaymentMethod: paymentRaw,
         showGifts
       }
     };
