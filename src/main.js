@@ -454,8 +454,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     if (name && name !== "Гость") {
       const heroTitle = document.getElementById("heroTitle");
-      if (heroTitle && !heroTitle.innerText.includes(name)) {
-        heroTitle.innerText = `Добро пожаловать, ${name}!`;
+      if (heroTitle) {
+        const stage = currentStage || "1";
+        if (stage === "1" || stage == 1) {
+          heroTitle.innerText = `${name}, ждём вас завтра!`;
+        } else if (stage === "2" || stage == 2) {
+          heroTitle.innerText = `Добро пожаловать, ${name}!`;
+        } else if (stage === "3" || stage == 3) {
+          heroTitle.innerText = `${name}, доброе утро!`;
+        } else if (stage === "4" || stage == 4) {
+          heroTitle.innerText = `Благодарим за визит, ${name}!`;
+        }
       }
 
       const farewellTitle = document.getElementById("farewellTitle");
@@ -469,6 +478,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const highRatingBanner = document.getElementById("highRatingBanner");
       if (highRatingBanner) highRatingBanner.innerHTML = `<span>🎉</span> Спасибо за высокую оценку, ${name}! Вы сделали наш день!`;
+    }
+
+    const heroTextContainer = document.getElementById("heroTextContainer");
+    if (heroTextContainer) {
+      heroTextContainer.style.opacity = "1";
     }
 
     if (cabin) {
@@ -640,6 +654,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         showToast("Поздний выезд до 16:00 добавлен в корзину", "⏳ Продление проживания");
       }
     }, bookingData);
+
+    const heroTextContainer = document.getElementById("heroTextContainer");
+    if (heroTextContainer) {
+      heroTextContainer.style.opacity = "1";
+    }
   }
 
   // Handled entirely inside initStage function now
@@ -860,7 +879,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         showToast("Укажите ваш контактный телефон для связи", "⚠️ Внимание");
         return;
       }
-      showToast("✅ Онлайн-регистрация завершена, Ирина! Пропуск на въезд для вашего автомобиля оформлен.", "📋 Добро пожаловать");
+      const currentGuestName = currentBookingData?.guestName;
+      const guestGreet = currentGuestName && currentGuestName !== "Гость" ? `, ${currentGuestName}` : "";
+      showToast(`✅ Онлайн-регистрация завершена${guestGreet}! Пропуск на въезд для вашего автомобиля оформлен.`, "📋 Добро пожаловать");
       closeModal("regModal");
     });
   }

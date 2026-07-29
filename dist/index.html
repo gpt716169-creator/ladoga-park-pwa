@@ -17,13 +17,13 @@
         const u = new URLSearchParams(window.location.search);
         const s = u.get("stage") || localStorage.getItem("demoStage") || "1";
         const c = JSON.parse(localStorage.getItem("bookingData") || "null");
-        const name = c && c.guestName ? c.guestName : "Ирина";
+        const name = c && c.guestName && c.guestName !== "Гость" ? c.guestName : "";
         const cabin = c && c.cabinName ? c.cabinName : "домик";
         const map = {
-          "1": { t: name + ", ждём вас завтра!", sub: "Ваш " + cabin + " на берегу озера готовится к приёму. Пройдите онлайн-регистрацию заранее, чтобы получить пропуск на территорию." },
-          "2": { t: "Добро пожаловать, " + name + "!", sub: "Ваш " + cabin + " на берегу озера наполнен теплом. Уютный мангал разжжен и ждёт вашего вечера у огня." },
-          "3": { t: "Доброе утро, " + name + "!", sub: "Начните день с ароматного зернового кофе в панорамном кафе у озера." },
-          "4": { t: "Благодарим за визит, " + name + "!", sub: "Будем рады видеть вас снова в эко-курорте Ладога Парк!" }
+          "1": { t: name ? name + ", ждём вас завтра!" : "Ждём вас завтра!", sub: "Ваш " + cabin + " на берегу озера готовится к приёму. Пройдите онлайн-регистрацию заранее, чтобы получить пропуск на территорию." },
+          "2": { t: name ? "Добро пожаловать, " + name + "!" : "Добро пожаловать!", sub: "Ваш " + cabin + " на берегу озера наполнен теплом. Уютный мангал разжжен и ждёт вашего вечера у огня." },
+          "3": { t: name ? name + ", доброе утро!" : "Доброе утро!", sub: "Ваш домик свободен до вечера! Вы можете продлить проживание до 16:00 и провести день без спешки и суеты." },
+          "4": { t: name ? "Благодарим за визит, " + name + "!" : "Благодарим за визит!", sub: "Будем рады видеть вас снова в эко-курорте Ладога Парк!" }
         };
         const res = map[s] || map["1"];
         document.addEventListener("DOMContentLoaded", function() {
@@ -35,7 +35,7 @@
       } catch(e) {}
     })();
   </script>
-  <script type="module" crossorigin src="/assets/main-CZrgR9_l.js"></script>
+  <script type="module" crossorigin src="/assets/main-FllgeJ-Z.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/style-CpQqyAzX.js">
   <link rel="stylesheet" crossorigin href="/assets/style-Cqskr6Cc.css">
   <link rel="stylesheet" crossorigin href="/assets/main-BOh_MsgK.css">
@@ -104,13 +104,13 @@
       <div></div>
 
       <!-- SMOOTH ATMOSPHERIC GREETING -->
-      <div id="heroTextContainer" style="max-width: 28rem; margin: 0 auto; text-align: center; padding-bottom: 2rem;">
+      <div id="heroTextContainer" style="max-width: 28rem; margin: 0 auto; text-align: center; padding-bottom: 2rem; opacity: 0; transition: opacity 0.4s ease;">
         <div style="margin-bottom: 0.75rem;">
           <div id="cabinBadge" class="hidden" style="margin: 0 auto 0.625rem; display: inline-flex; align-items: center; gap: 0.375rem; background: rgba(18, 28, 23, 0.9); border: 1px solid rgba(232, 165, 88, 0.45); padding: 0.25rem 0.875rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: var(--accent-gold); box-shadow: 0 4px 12px rgba(0,0,0,0.6);">
-            <span id="cabinBadgeText">🏡 Ваш домик № 5</span>
+            <span id="cabinBadgeText">🏡 Ваш домик</span>
           </div>
           <h1 id="heroTitle" style="font-family: var(--font-serif); font-size: 2.25rem; font-weight: 700; color: #ffffff; line-height: 1.15; text-shadow: 0 4px 12px rgba(0,0,0,0.8); letter-spacing: 0.02em; margin-bottom: 0.375rem;">
-            Ирина, ждём вас завтра!
+            Ждём вас на отдых!
           </h1>
           <p id="heroSubtitle" style="font-size: 0.8rem; color: var(--text-muted); max-width: 20rem; margin: 0 auto; text-shadow: 0 2px 4px rgba(0,0,0,0.8); line-height: 1.4;">
             Ваш домик на берегу озера готовится к приёму. Пройдите онлайн-регистрацию заранее, чтобы получить пропуск на территорию.

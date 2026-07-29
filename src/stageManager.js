@@ -7,7 +7,7 @@ export const STAGE_CONFIGS = {
   1: {
     stageName: "1. T-1 день до заезда (Предвкушение)",
     videoPath: "./assets/video/stage1.mp4",
-    title: "Ирина, ждём вас завтра!",
+    title: "Ждём вас завтра!",
     subtitle: "Ваш домик на берегу озера готовится к приёму. Пройдите онлайн-регистрацию заранее, чтобы получить пропуск на территорию.",
     banner: {
       actionText: "📋 Пройти онлайн-регистрацию",
@@ -17,7 +17,7 @@ export const STAGE_CONFIGS = {
   2: {
     stageName: "2. В день заезда & Проживание (Обжитой уют)",
     videoPath: "./assets/video/stage2.mp4",
-    title: "Добро пожаловать, Ирина!",
+    title: "Добро пожаловать!",
     subtitle: "Мы рады, что вы с нами. Приятного отдыха.",
     banner: {
       actionText: "📜 5 правил проживания, Wi-Fi & Гид",
@@ -27,7 +27,7 @@ export const STAGE_CONFIGS = {
   3: {
     stageName: "3. Утро выезда 09:00 (Остывающий очаг)",
     videoPath: "./assets/video/stage3.mp4",
-    title: "Ирина, доброе утро!",
+    title: "Доброе утро!",
     subtitle: "Ваш домик свободен до вечера! Вы можете продлить проживание до 16:00 и провести день без спешки и суеты.",
     banner: {
       actionText: "⏳ Продлить домик до 16:00 (2 500 ₽)",
@@ -37,7 +37,7 @@ export const STAGE_CONFIGS = {
   4: {
     stageName: "4. После выезда +2h (ORM & Прощание)",
     videoPath: "./assets/video/stage4.mp4",
-    title: "Ирина, спасибо за отдых!",
+    title: "Спасибо за отдых!",
     subtitle: "Мы уже скучаем по вам в Ладога Парк! Оцените ваше пребывание и заберите персональный подарок на следующий сезон.",
     banner: {
       actionText: "🌟 Оценить отдых & Забрать подарок",
@@ -55,10 +55,11 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
   
   if (bookingData) {
     const { guestName } = bookingData;
-    // Replace placeholders/hardcoded names with dynamic data
-    if (guestName) {
-      config.title = config.title.replace("Ирина", guestName);
-      config.subtitle = config.subtitle.replace("Ирина", guestName);
+    if (guestName && guestName !== "Гость") {
+      if (stageId == 1) config.title = `${guestName}, ждём вас завтра!`;
+      else if (stageId == 2) config.title = `Добро пожаловать, ${guestName}!`;
+      else if (stageId == 3) config.title = `${guestName}, доброе утро!`;
+      else if (stageId == 4) config.title = `Благодарим за визит, ${guestName}!`;
     }
     // Handle unavailable late checkout extension for Stage 3
     if (bookingData.canExtend === false && (stageId === "3" || stageId == 3)) {
