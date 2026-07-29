@@ -109,6 +109,7 @@ if (tabCatalogBtn) tabCatalogBtn.addEventListener('click', () => setActiveTab(ta
 if (tabBookingsBtn) tabBookingsBtn.addEventListener('click', async () => {
   setActiveTab(tabBookingsBtn, viewBookings);
   await loadBookingsDashboard();
+  await loadBroadcastDashboard();
 });
 if (tabWarehouseBtn) tabWarehouseBtn.addEventListener('click', async () => {
   setActiveTab(tabWarehouseBtn, viewWarehouse);
@@ -618,43 +619,79 @@ window.renderInHouseGuestsTable = (guests) => {
     tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #a1a1aa; padding: 1rem;">Нет текущих проживающих гостей</td></tr>';
     return;
   }
-  tbody.innerHTML = guests.map(g => `
-    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-      <td style="padding: 0.75rem 0.5rem;">
-        <strong style="color: white;">${g.guest_name || 'Гость'}</strong><br>
-        <span style="font-size: 11px; color: #94a3b8;">${g.phone || g.id}</span>
-      </td>
-      <td style="padding: 0.75rem 0.5rem; color: #e4e4e7;">${g.cabin_name || 'Домик'}</td>
-      <td style="padding: 0.75rem 0.5rem; font-size: 11px; color: #a1a1aa;">${g.arrival_date ? g.arrival_date.slice(0, 10) : ''} – ${g.departure_date ? g.departure_date.slice(0, 10) : ''}</td>
-      <td style="padding: 0.75rem 0.5rem;">
-        <input type="text" id="houseInput_${g.id}" value="${g.house_number || ''}" placeholder="№ 105" style="width: 85px; margin-bottom: 0; padding: 0.375rem 0.5rem; font-size: 0.8125rem; font-weight: 700; text-align: center; color: #facc15; background: rgba(0,0,0,0.4); border: 1px solid rgba(250,204,21,0.4); border-radius: 0.375rem;" />
-      </td>
-      <td style="padding: 0.75rem 0.5rem;">
-        <button class="btn" style="background: rgba(52, 211, 153, 0.2); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.4); padding: 0.375rem 0.75rem; font-size: 0.8125rem; font-weight: 700;" onclick="window.saveHouseNumber('${g.id}')">💾 Сохранить</button>
-      </td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = guests.map(g => {
+    const cur = String(g.house_number || '');
+    return `
+      <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <td style="padding: 0.75rem 0.5rem;">
+          <strong style="color: white; font-size: 0.875rem;">${g.guest_name || 'Гость'}</strong><br>
+          <span style="font-size: 11px; color: #94a3b8;">ID: ${g.id}</span>
+        </td>
+        <td style="padding: 0.75rem 0.5rem;">
+          <span style="color: #34d399; font-weight: 700; font-size: 0.8125rem;">📞 ${g.phone || 'Нет телефона'}</span>
+        </td>
+        <td style="padding: 0.75rem 0.5rem; color: #e4e4e7; font-size: 0.8125rem;">
+          ${g.cabin_name || 'Домик'}
+        </td>
+        <td style="padding: 0.75rem 0.5rem; font-size: 11px; color: #a1a1aa;">
+          ${g.arrival_date ? g.arrival_date.slice(0, 10) : ''} – ${g.departure_date ? g.departure_date.slice(0, 10) : ''}
+        </td>
+        <td style="padding: 0.75rem 0.5rem;">
+          <select style="margin-bottom: 0; padding: 0.4rem 0.6rem; font-size: 0.8125rem; font-weight: 700; color: #facc15; background: #0f172a; border: 1px solid rgba(250,204,21,0.5); border-radius: 0.5rem; cursor: pointer;" onchange="window.autoSaveHouseNumber('${g.id}', this.value)">
+            <option value="">-- Без номера --</option>
+            <optgroup label="Дом в лесу 7-местный (101-103)">
+              <option value="101" ${cur === '101' ? 'selected' : ''}>№ 101 (7-местный)</option>
+              <option value="102" ${cur === '102' ? 'selected' : ''}>№ 102 (7-местный)</option>
+              <option value="103" ${cur === '103' ? 'selected' : ''}>№ 103 (7-местный)</option>
+            </optgroup>
+            <optgroup label="Мини 2-местный (104-109)">
+              <option value="104" ${cur === '104' ? 'selected' : ''}>№ 104 (Мини 2-местный)</option>
+              <option value="105" ${cur === '105' ? 'selected' : ''}>№ 105 (Мини 2-местный)</option>
+              <option value="106" ${cur === '106' ? 'selected' : ''}>№ 106 (Мини 2-местный)</option>
+              <option value="107" ${cur === '107' ? 'selected' : ''}>№ 107 (Мини 2-местный)</option>
+              <option value="108" ${cur === '108' ? 'selected' : ''}>№ 108 (Мини 2-местный)</option>
+              <option value="109" ${cur === '109' ? 'selected' : ''}>№ 109 (Мини 2-местный)</option>
+            </optgroup>
+            <optgroup label="Мини 4-местный (110-111)">
+              <option value="110" ${cur === '110' ? 'selected' : ''}>№ 110 (Мини 4-местный)</option>
+              <option value="111" ${cur === '111' ? 'selected' : ''}>№ 111 (Мини 4-местный)</option>
+            </optgroup>
+            <optgroup label="Барнхаус 4-местный (112-119)">
+              <option value="112" ${cur === '112' ? 'selected' : ''}>№ 112 (Барнхаус 4-местный)</option>
+              <option value="113" ${cur === '113' ? 'selected' : ''}>№ 113 (Барнхаус 4-местный)</option>
+              <option value="114" ${cur === '114' ? 'selected' : ''}>№ 114 (Барнхаус 4-местный)</option>
+              <option value="115" ${cur === '115' ? 'selected' : ''}>№ 115 (Барнхаус 4-местный)</option>
+              <option value="116" ${cur === '116' ? 'selected' : ''}>№ 116 (Барнхаус 4-местный)</option>
+              <option value="117" ${cur === '117' ? 'selected' : ''}>№ 117 (Барнхаус 4-местный)</option>
+              <option value="118" ${cur === '118' ? 'selected' : ''}>№ 118 (Барнхаус 4-местный)</option>
+              <option value="119" ${cur === '119' ? 'selected' : ''}>№ 119 (Барнхаус 4-местный)</option>
+            </optgroup>
+            <optgroup label="Барнхаус 2-местный (120-121)">
+              <option value="120" ${cur === '120' ? 'selected' : ''}>№ 120 (Барнхаус 2-местный)</option>
+              <option value="121" ${cur === '121' ? 'selected' : ''}>№ 121 (Барнхаус 2-местный)</option>
+            </optgroup>
+          </select>
+        </td>
+      </tr>
+    `;
+  }).join('');
 };
 
-window.saveHouseNumber = async (bookingId) => {
-  const input = document.getElementById(`houseInput_${bookingId}`);
-  if (!input) return;
-  const num = input.value.trim();
+window.autoSaveHouseNumber = async (bookingId, houseNumber) => {
   try {
     const res = await fetchAdmin(`${API_BASE}/admin/assign-house`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bookingId, houseNumber: num })
+      body: JSON.stringify({ bookingId, houseNumber })
     });
     const data = await res.json();
     if (data.success) {
-      alert(`✅ Домик № ${num || '[Сброшено]'} успешно привязан к брони ${bookingId}!`);
-      await loadBroadcastDashboard();
+      console.log(`[House Assigned] ${bookingId} -> ${houseNumber}`);
     } else {
       alert('Ошибка привязки домика: ' + (data.error || ''));
     }
   } catch (err) {
-    alert('Ошибка сети при привязке домика');
+    alert('Ошибка сети при сохранении номера домика');
   }
 };
 
