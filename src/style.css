@@ -435,8 +435,8 @@ html[data-theme="light"] .brand-circle-badge,
 body[data-theme="light"] .brand-circle-badge,
 header .brand-circle-badge,
 span.brand-circle-badge {
-  background: #374151 !important;
-  color: #ffcc00 !important;
+  background: #ffcc00 !important;
+  color: #111827 !important;
 }
 
 /* Hero Section & Vignette - Clear Video Backdrop */

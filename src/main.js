@@ -609,9 +609,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function initDefaultStage() {
+    const urlParams = new URLSearchParams(window.location.search);
     const savedStage = urlParams.get("stage") || localStorage.getItem("demoStage") || "1";
     currentStage = savedStage;
-    const stageSelector = document.getElementById("stageSelector");
+    const stageSelector = document.getElementById("stageSelect") || document.getElementById("stageSelector");
     if (stageSelector) stageSelector.value = currentStage;
     
     // Try to load cached booking data if exists
