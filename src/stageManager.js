@@ -171,7 +171,6 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
   if (catalogueSection) catalogueSection.classList.add("hidden");
   if (morningServiceSection) morningServiceSection.classList.add("hidden");
   if (farewellSection) farewellSection.classList.add("hidden");
-  if (scrollIndicator) scrollIndicator.style.display = "flex";
 
   if (stageId === "1" || stageId == 1) {
     // Stage 1: Pre-arrival -> Show Gifts Showcase (only Stage 1 & 2!), Sauna, Quick Orders, Catalogue
@@ -179,7 +178,7 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
     if (saunaSection) saunaSection.classList.remove("hidden");
     if (quickOrdersSection) quickOrdersSection.classList.remove("hidden");
     if (catalogueSection) catalogueSection.classList.remove("hidden");
-    if (saunaSectionHeader) saunaSectionHeader.innerText = "Выберите баню к приезду (Свайп ➔)";
+    if (saunaSectionHeader) saunaSectionHeader.innerText = "🔥 Выберите баню к приезду";
   } 
   else if (stageId === "2" || stageId == 2) {
     // Stage 2: In-Stay -> Show Gifts Showcase, Sightseeing Guide, Sauna, Quick Orders, Catalogue
@@ -188,7 +187,7 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
     if (saunaSection) saunaSection.classList.remove("hidden");
     if (quickOrdersSection) quickOrdersSection.classList.remove("hidden");
     if (catalogueSection) catalogueSection.classList.remove("hidden");
-    if (saunaSectionHeader) saunaSectionHeader.innerText = "Вечерняя растопка бани (Свайп ➔)";
+    if (saunaSectionHeader) saunaSectionHeader.innerText = "🔥 Вечерняя растопка бани";
   } 
   else if (stageId === "3" || stageId == 3) {
     // Stage 3: Morning Departure 09:00 -> NO gifts, NO sauna, NO quick orders! Only morning service and taxi!
@@ -197,6 +196,5 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
   else if (stageId === "4" || stageId == 4) {
     // Stage 4: After Departure -> ZERO GIFTS, ZERO MENU, ZERO SAUNA! Pure clean farewell card!
     if (farewellSection) farewellSection.classList.remove("hidden");
-    if (scrollIndicator) scrollIndicator.style.display = "none";
   }
 }

@@ -496,9 +496,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         shortCabinName = `Домик № ${numMatch[1]}`;
       } else {
         const lower = cabin.toLowerCase();
-        if (lower.includes("рыбак")) {
-          shortCabinName = "Домик рыбака";
-        } else if (lower.includes("в лесу") || lower.includes("лесу")) {
+        if (lower.includes("лесу")) {
           shortCabinName = "Дом в лесу";
         } else {
           let clean = cabin
@@ -513,7 +511,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           if (clean && clean.toLowerCase() !== 'домик' && clean.toLowerCase() !== 'дом') {
             shortCabinName = `Домик «${clean}»`;
           } else {
-            shortCabinName = "Домик";
+            shortCabinName = "Домик у озера";
           }
         }
       }
@@ -522,8 +520,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         let badgeLabel = "";
         if (shortCabinName === "Дом в лесу") {
           badgeLabel = "Ваш дом в лесу";
-        } else if (shortCabinName === "Домик рыбака") {
-          badgeLabel = "Ваш домик рыбака";
         } else if (shortCabinName.startsWith("Домик №")) {
           badgeLabel = `Ваш ${shortCabinName.toLowerCase()}`;
         } else {
