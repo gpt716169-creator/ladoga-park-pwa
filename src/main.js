@@ -412,7 +412,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const saunaSection = document.getElementById("saunaSection");
       if (saunaSection) {
         saunaSection.classList.remove("hidden");
-        saunaSection.scrollIntoView({ behavior: "smooth" });
       }
     });
   }
@@ -657,8 +656,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (bannerConfig.actionCategory) {
         const catBtn = document.querySelector(`.tab-btn[data-cat="${bannerConfig.actionCategory}"]`);
         if (catBtn) catBtn.click();
-        const catalogEl = document.getElementById("fullCatalogueList");
-        if (catalogEl) catalogEl.scrollIntoView({ behavior: "smooth" });
       } else if (bannerConfig.actionModal) {
         openModal(bannerConfig.actionModal);
       } else if (bannerConfig.actionItem === "late-checkout-16") {
