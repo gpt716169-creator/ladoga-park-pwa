@@ -341,11 +341,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function renderTimeSlots(slots, dateStr) {
     const slotsContainer = document.getElementById("saunaTimeSlots");
+    if (!slotsContainer) return;
     slotsContainer.innerHTML = "";
     slots.forEach(slot => {
       const btn = document.createElement("button");
-      btn.innerHTML = `${slot.time}<br><span style="font-size: 10px; opacity: 0.8;">${slot.price.toLocaleString("ru-RU")} ₽</span>`;
-      if (slot.available) {
+      if (slot.available !== false) {
+        btn.innerHTML = `${slot.time}<br><span style="font-size: 10px; opacity: 0.8;">${(slot.price || 4000).toLocaleString("ru-RU")} ₽</span>`;
         btn.style.cssText = "background: rgba(232,165,88,0.1); border: 1px solid rgba(232,165,88,0.3); color: var(--accent-gold); padding: 0.5rem; border-radius: 0.75rem; font-weight: 700; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.125rem;";
         btn.onclick = () => {
 
@@ -354,7 +355,7 @@ document.addEventListener("DOMContentLoaded", async () => {
              ...pendingSaunaItem, 
              displayName: `${pendingSaunaItem.displayName} (${dateFormatted ? dateFormatted + ' ' : ''}${slot.time})`, 
              id: `${pendingSaunaItem.id}-${dateStr}-${slot.time}`,
-             price: slot.price
+             price: slot.price || 4000
            };
            cart.addItem(timeItem);
            
@@ -364,32 +365,28 @@ document.addEventListener("DOMContentLoaded", async () => {
            const chanCb = document.getElementById("saunaOptChan");
            const aromaCb = document.getElementById("saunaOptAroma");
            
-           if (birchCb && birchCb.checked) cart.addItem({ id: "extra-birch-" + Date.now(), displayName: "Веник березовый (к бане)", price: 700, category: "service", icon: "🌿" });
-           if (oakCb && oakCb.checked) cart.addItem({ id: "extra-oak-" + Date.now(), displayName: "Веник дубовый (к бане)", price: 700, category: "service", icon: "🌿" });
+           if (birchCb && birchCb.checked) {
+             cart.addItem({ id: "opt-birch", displayName: "Березовый веник", price: 450 });
+           }
+           if (oakCb && oakCb.checked) {
+             cart.addItem({ id: "opt-oak", displayName: "Дубовый веник", price: 550 });
+           }
            if (chanCb && chanCb.checked) {
-              const isLakeSauna = pendingSaunaItem.id.includes("lake") || pendingSaunaItem.displayName.toLowerCase().includes("берегу");
-              cart.addItem({ 
-                id: "extra-chan-" + Date.now(), 
-                displayName: isLakeSauna ? "Купель на берегу (к бане)" : "Сибирский чан (к бане)", 
-                price: 7000, 
-                category: "sauna", 
-                icon: "♨️" 
-              });
-            }
-           if (aromaCb && aromaCb.checked) cart.addItem({ id: "extra-aroma-" + Date.now(), displayName: "Арома-масла (к бане)", price: 500, category: "service", icon: "🍋" });
-
-           // Uncheck them for next time
-           if (birchCb) birchCb.checked = false;
-           if (oakCb) oakCb.checked = false;
-           if (chanCb) chanCb.checked = false;
-           if (aromaCb) aromaCb.checked = false;
+             const isLakeSauna = pendingSaunaItem.id.includes("lake") || pendingSaunaItem.displayName.toLowerCase().includes("берегу");
+             cart.addItem({
+               id: isLakeSauna ? "opt-aroma" : "opt-chan",
+               displayName: isLakeSauna ? "Арома-купель" : "Сибирский банный чан",
+               price: 3500
+             });
+           }
            
-           showToast(`Баня и выбранные услуги добавлены`, "✨ Забронировано");
-           switchStage(currentStage, currentSeason);
            closeSaunaModal();
+           showToast(`Баня (${slot.time}) добавлена в корзину`, "🔥 Слоты забронированы");
+           openDrawer("cartDrawer");
         };
       } else {
-        btn.style.cssText = "background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); padding: 0.5rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; cursor: not-allowed; opacity: 0.5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.125rem;";
+        btn.innerHTML = `${slot.time}<br><span style="font-size: 10px; color: #f87171; font-weight: 700;">✕ Занято</span>`;
+        btn.style.cssText = "background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.35); padding: 0.5rem; border-radius: 0.75rem; font-size: 0.875rem; cursor: not-allowed; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.125rem;";
         btn.disabled = true;
       }
       slotsContainer.appendChild(btn);
@@ -813,6 +810,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   };
 
+  // Preload all sauna photos into browser memory for 0ms instant switching
+  Object.values(SAUNA_GALLERIES).forEach(g => {
+    g.photos.forEach(url => {
+      const img = new Image();
+      img.src = url;
+    });
+  });
+
+  // Strict mobile background touchmove prevention when modals are open
+  document.addEventListener("touchmove", (e) => {
+    if (document.body.classList.contains("modal-open")) {
+      const isInsideScrollable = e.target.closest("#saunaGalleryModal, #giftModal, #cartDrawer, #guideModal, #saunaTimeModal, .glass-modal, .drawer-panel");
+      if (!isInsideScrollable) {
+        e.preventDefault();
+      }
+    }
+  }, { passive: false });
+
   let currentGalleryKey = "forest";
   let currentPhotoIndex = 0;
 
@@ -823,13 +838,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function updateSaunaGalleryView() {
     const gallery = SAUNA_GALLERIES[currentGalleryKey];
-    if (!gallery) return;
+    if (!gallery || !saunaGalleryImage) return;
     saunaGalleryTitle.innerText = gallery.title;
-    saunaGalleryImage.style.opacity = "0.3";
-    setTimeout(() => {
-      saunaGalleryImage.src = gallery.photos[currentPhotoIndex];
-      saunaGalleryImage.style.opacity = "1";
-    }, 120);
+    // Set src instantly without artificial delays
+    saunaGalleryImage.src = gallery.photos[currentPhotoIndex];
 
     saunaGalleryDots.innerHTML = "";
     gallery.photos.forEach((_, idx) => {
