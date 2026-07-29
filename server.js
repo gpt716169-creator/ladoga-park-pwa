@@ -644,10 +644,15 @@ app.post('/api/admin/sync', authenticateToken, async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
-app.get('/api/admin/dashboard', (req, res) => {
+function getMSKDate(offsetDays = 0) {
+  const d = new Date(Date.now() + offsetDays * 86400000);
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+}
+
+app.get('/api/admin/dashboard', authenticateToken, (req, res) => {
   console.log('[API] /api/admin/dashboard requested');
-  const today = new Date().toISOString().split('T')[0];
-  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+  const today = getMSKDate(0);
+  const tomorrow = getMSKDate(1);
   const query = `
     SELECT b.*, 
            (SELECT GROUP_CONCAT(stage || ':' || status) FROM sms_logs s WHERE s.booking_id = b.id) as sms_stages
@@ -825,7 +830,7 @@ app.post('/api/admin/warehouse/update', authenticateToken, (req, res) => {
 // LIVE IN-HOUSE GUEST SMS BROADCAST API
 // ==========================================
 app.get('/api/admin/in-house-guests', authenticateToken, (req, res) => {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getMSKDate(0);
   const query = `
     SELECT id, guest_name, cabin_name, phone, arrival_date, departure_date, house_number 
     FROM bookings 

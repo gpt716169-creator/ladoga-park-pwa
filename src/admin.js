@@ -169,9 +169,13 @@ function formatGuestInitials(name) {
   
   const p1 = parts[0];
   const p2 = parts[1];
+
+  if (p2.length <= 2) {
+    return `${p1} ${p2.toUpperCase()}${p2.endsWith('.') ? '' : '.'}`;
+  }
   
-  const isP2Surname = /(?:ов|ова|ев|ева|ин|ина|ский|ская|ый|ая)$/i.test(p2);
-  const isP1Surname = /(?:ов|ова|ев|ева|ин|ина|ский|ская|ый|ая)$/i.test(p1);
+  const isP2Surname = /(?:ов|ова|ев|ева|ин|ина|ский|ская|ый|ая|их|ых)$/i.test(p2);
+  const isP1Surname = /(?:ов|ова|ев|ева|ин|ина|ский|ская|ый|ая|их|ых)$/i.test(p1);
 
   if (isP2Surname && !isP1Surname) {
     return `${p2} ${p1[0].toUpperCase()}.`;
