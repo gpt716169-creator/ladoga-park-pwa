@@ -679,15 +679,26 @@ app.get('/api/admin/dashboard', (req, res) => {
       
       const arr = b.arrival_date ? b.arrival_date.split('T')[0] : '';
       const dep = b.departure_date ? b.departure_date.split('T')[0] : '';
+      const cabinLower = (b.cabin_name || '').toLowerCase();
+      const guestLower = (b.guest_name || '').toLowerCase();
+
+      // 1. Exclude Technical Cards / Technical Bookings
+      if (cabinLower.includes('техн') || guestLower.includes('техн')) {
+        return;
+      }
       
       if (arr === tomorrow) {
         tomorrowArrivals.push(b);
-      } else if (dep === today) {
-        todayDepartures.push(b);
-      } else if (arr <= today && dep >= today) {
-        currentStays.push(b); // Currently staying or active today
+      }
+      
+      // 2. Full current stays (anyone in-house today: arr <= today AND dep >= today)
+      if (arr <= today && dep >= today) {
+        currentStays.push(b);
+        if (dep === today) {
+          todayDepartures.push(b);
+        }
       } else if (arr > tomorrow) {
-        upcomingBookings.push(b); // Future bookings (Feb, March, etc.)
+        upcomingBookings.push(b);
       }
       allBookings.push(b);
     });
