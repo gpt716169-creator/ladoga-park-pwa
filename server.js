@@ -694,8 +694,8 @@ app.get('/api/admin/dashboard', authenticateToken, (req, res) => {
       const cabinLower = (b.cabin_name || '').toLowerCase();
       const guestLower = (b.guest_name || '').toLowerCase();
 
-      // 1. Exclude Technical Cards / Technical Bookings
-      if (cabinLower.includes('техн') || guestLower.includes('техн')) {
+      // 1. Exclude Technical Cards / Technical Bookings / Category Cards
+      if (cabinLower.includes('техн') || guestLower.includes('техн') || cabinLower.includes('категория') || guestLower.includes('категория')) {
         return;
       }
       
