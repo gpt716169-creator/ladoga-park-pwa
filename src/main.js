@@ -699,7 +699,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       localStorage.setItem("demoStage", newStage);
       if (demoMenuDrawer) demoMenuDrawer.classList.add("hidden");
       stageSelector.blur();
-      window.location.href = `?stage=${newStage}`;
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.set("stage", newStage);
+      window.location.href = currentUrl.toString();
     });
   }
 

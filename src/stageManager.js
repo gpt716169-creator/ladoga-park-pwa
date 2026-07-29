@@ -164,7 +164,10 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
   const scrollIndicator = document.getElementById("scrollIndicator");
 
   // Reset all
-  if (giftsShowcaseSection) giftsShowcaseSection.classList.add("hidden");
+  if (giftsShowcaseSection) {
+    giftsShowcaseSection.classList.add("hidden");
+    giftsShowcaseSection.style.display = "none";
+  }
   if (saunaSection) saunaSection.classList.add("hidden");
   if (stage2GuideSection) stage2GuideSection.classList.add("hidden");
   if (quickOrdersSection) quickOrdersSection.classList.add("hidden");
@@ -172,17 +175,25 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
   if (morningServiceSection) morningServiceSection.classList.add("hidden");
   if (farewellSection) farewellSection.classList.add("hidden");
 
+  const shouldHideGifts = bookingData && bookingData.showGifts === false;
+
   if (stageId === "1" || stageId == 1) {
-    // Stage 1: Pre-arrival -> Show Gifts Showcase (only Stage 1 & 2!), Sauna, Quick Orders, Catalogue
-    if (giftsShowcaseSection) giftsShowcaseSection.classList.remove("hidden");
+    // Stage 1: Pre-arrival -> Show Gifts Showcase (only if showGifts != false!), Sauna, Quick Orders, Catalogue
+    if (giftsShowcaseSection && !shouldHideGifts) {
+      giftsShowcaseSection.classList.remove("hidden");
+      giftsShowcaseSection.style.display = "flex";
+    }
     if (saunaSection) saunaSection.classList.remove("hidden");
     if (quickOrdersSection) quickOrdersSection.classList.remove("hidden");
     if (catalogueSection) catalogueSection.classList.remove("hidden");
     if (saunaSectionHeader) saunaSectionHeader.innerText = "🔥 Выберите баню к приезду";
   } 
   else if (stageId === "2" || stageId == 2) {
-    // Stage 2: In-Stay -> Show Gifts Showcase, Sightseeing Guide, Sauna, Quick Orders, Catalogue
-    if (giftsShowcaseSection) giftsShowcaseSection.classList.remove("hidden");
+    // Stage 2: In-Stay -> Show Gifts Showcase (only if showGifts != false!), Sightseeing Guide, Sauna, Quick Orders, Catalogue
+    if (giftsShowcaseSection && !shouldHideGifts) {
+      giftsShowcaseSection.classList.remove("hidden");
+      giftsShowcaseSection.style.display = "flex";
+    }
     if (stage2GuideSection) stage2GuideSection.classList.remove("hidden");
     if (saunaSection) saunaSection.classList.remove("hidden");
     if (quickOrdersSection) quickOrdersSection.classList.remove("hidden");
