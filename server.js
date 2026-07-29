@@ -289,28 +289,24 @@ async function syncPropertyBookings(config, defaultName = "Домик") {
   try {
     const isSauna = config.propertyId === TL_SAUNAS.propertyId;
     const token = isSauna ? await getTlSaunaAccessToken() : await getTlAccessToken();
-    const now = new Date();
-    const updatedAfter = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000).toISOString();
-    
-    let page = 1;
+    let continueToken = null;
     let hasMore = true;
     const allSummaries = [];
     
-    while (hasMore && page <= 20) {
-      const url = `${config.apiUrl}/properties/${config.propertyId}/bookings?updatedAfter=${updatedAfter}&page=${page}&pageSize=100`;
+    while (hasMore) {
+      let url = `${config.apiUrl}/properties/${config.propertyId}/bookings`;
+      if (continueToken) {
+        url += `?continueToken=${encodeURIComponent(continueToken)}`;
+      }
       const res = await axios.get(url, { headers: { 'Authorization': `Bearer ${token}` } });
       const summaries = res.data.bookingSummaries || [];
       allSummaries.push(...summaries);
-      
-      if (summaries.length < 100) {
-        hasMore = false;
-      } else {
-        page++;
-      }
+      continueToken = res.data.continueToken;
+      hasMore = !!(res.data.hasMoreData && continueToken);
     }
     
     const activeSummaries = allSummaries.filter(s => s.status !== 'Cancelled');
-    for (let i = activeSummaries.length - 1; i >= Math.max(0, activeSummaries.length - 200); i--) {
+    for (let i = activeSummaries.length - 1; i >= Math.max(0, activeSummaries.length - 300); i--) {
       const summary = activeSummaries[i];
       const existing = await new Promise((resolve) => db.get('SELECT modified_at, status, guest_name FROM bookings WHERE id = ?', [summary.number], (err, row) => resolve(row)));
       
