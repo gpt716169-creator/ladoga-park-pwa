@@ -193,7 +193,7 @@ function renderTable() {
     }
 
     tr.innerHTML = `
-      <td style="color: var(--text-muted);">${item.id}</td>
+      <td style="color: #9ca3af; font-weight: 600;">${item.id}</td>
       <td>${mediaHtml}</td>
       <td style="font-weight: 700;">${item.displayName}</td>
       <td>${item.category === 'service' ? 'Услуга' : 'Баня'}</td>
