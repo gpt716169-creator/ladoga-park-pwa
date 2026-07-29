@@ -839,7 +839,10 @@ app.get('/api/admin/in-house-guests', authenticateToken, (req, res) => {
   const query = `
     SELECT id, guest_name, cabin_name, phone, arrival_date, departure_date, house_number 
     FROM bookings 
-    WHERE status != 'Cancelled' AND substr(arrival_date, 1, 10) <= ? AND substr(departure_date, 1, 10) >= ?
+    WHERE status != 'Cancelled' 
+      AND substr(arrival_date, 1, 4) >= '2025'
+      AND substr(arrival_date, 1, 10) <= ? AND substr(departure_date, 1, 10) >= ?
+      AND LOWER(cabin_name) NOT LIKE '%техн%' AND LOWER(guest_name) NOT LIKE '%техн%'
   `;
   db.all(query, [today, today], (err, rows) => {
     if (err) return res.status(500).json({ success: false, error: err.message });

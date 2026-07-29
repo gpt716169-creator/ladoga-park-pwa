@@ -153,6 +153,7 @@ async function loadBookingsDashboard() {
     if (data.success) {
       const { tomorrowArrivals, currentStays, upcomingBookings } = data.data;
 
+      window._currentStays = currentStays || [];
       renderActiveGroupedBookingsTable(tomorrowArrivals || [], currentStays || []);
       renderMasterBookingsTable('futureBookingsTableBody', 'futureBookingsBadge', upcomingBookings || [], '(0 броней)');
       
