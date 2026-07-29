@@ -306,7 +306,7 @@ async function syncPropertyBookings(config, defaultName = "Домик") {
         allSummaries.push(...summaries);
         continueToken = res.data.continueToken;
         hasMore = !!(res.data.hasMoreData && continueToken);
-        await sleep(200);
+        await sleep(1200);
       } catch (pageErr) {
         if (pageErr.response && pageErr.response.status === 429) {
           console.warn('[Sync] 429 Rate limited on page fetch, retrying in 1.5s...');
@@ -366,7 +366,7 @@ async function syncPropertyBookings(config, defaultName = "Домик") {
                 [summary.number, guestName, cabin, arr, dep, summary.status, phone, summary.modifiedDateTime]);
             }
             success = true;
-            await sleep(100);
+            await sleep(1200);
           } catch (detailErr) {
             attempts++;
             if (detailErr.response && detailErr.response.status === 429) {
