@@ -667,17 +667,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Handled entirely inside initStage function now
+  // Developer Pill Drawer Toggle & Stage Change Listener
+  const toggleDemoMenuBtn = document.getElementById("toggleDemoMenuBtn");
+  const demoMenuDrawer = document.getElementById("demoMenuDrawer");
+  if (toggleDemoMenuBtn && demoMenuDrawer) {
+    toggleDemoMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      demoMenuDrawer.classList.toggle("hidden");
+    });
+    document.addEventListener("click", (e) => {
+      if (!toggleDemoMenuBtn.contains(e.target) && !demoMenuDrawer.contains(e.target)) {
+        demoMenuDrawer.classList.add("hidden");
+      }
+    });
+  }
 
-  // FULL PAGE RELOAD ON STAGE CHANGE
   const stageSelector = document.getElementById("stageSelect") || document.getElementById("stageSelector");
   if (stageSelector) {
     stageSelector.value = currentStage;
     stageSelector.addEventListener("change", () => {
       const newStage = stageSelector.value;
       localStorage.setItem("demoStage", newStage);
-      const demoDrawer = document.getElementById("demoMenuDrawer");
-      if (demoDrawer) demoDrawer.classList.add("hidden");
+      if (demoMenuDrawer) demoMenuDrawer.classList.add("hidden");
       stageSelector.blur();
       window.location.href = `?stage=${newStage}`;
     });
