@@ -1,15 +1,26 @@
 :root {
-  --bg-dark: #0b110e;
-  --bg-card: rgba(18, 28, 23, 0.85);
-  --bg-pine: #121c17;
-  --bg-pine-light: #1a2820;
-  --primary-ember: #e8a558;
-  --accent-gold: #f3bc7a;
-  --text-main: #f3f4f6;
-  --text-muted: #9ca3af;
-  --border-ember: rgba(232, 165, 88, 0.25);
-  --font-sans: "Outfit", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-serif: "Cormorant Garamond", Georgia, serif;
+  /* Brandbook Official Colors */
+  --brand-cyan: #00adea;      /* CMYK 71 13 0 0 | RGB 0 173 234 */
+  --brand-blue: #1e94d2;      /* CMYK 76 29 0 0 | RGB 30 148 210 */
+  --brand-yellow: #ffcc04;    /* CMYK 0 20 100 0 | RGB 255 204 4 */
+  --brand-amber: #eaa60c;     /* CMYK 8 37 100 0 | RGB 234 166 12 */
+  --brand-gold: #f2b504;      /* CMYK 5 30 100 0 | RGB 242 181 4 */
+  --brand-charcoal: #231f20;  /* CMYK 0 0 0 100 | RGB 35 31 32 */
+  --brand-olive: #99a134;     /* CMYK 44 24 100 3 | RGB 153 161 52 */
+
+  --bg-dark: #f0f9ff;
+  --bg-card: #ffffff;
+  --bg-pine: #ffffff;
+  --bg-pine-light: #f8fafc;
+  --primary-ember: #00adea;
+  --accent-gold: #ffcc04;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border-ember: rgba(0, 173, 234, 0.2);
+
+  --font-sans: "Manrope", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: "Roboto", "Manrope", sans-serif;
+  --font-heading: "Comfortaa", "Manrope", sans-serif;
 }
 
 * {
@@ -20,9 +31,9 @@
 }
 
 body {
-  background-color: var(--bg-dark);
+  background-color: #f0f9ff;
   color: var(--text-main);
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   overflow-x: hidden;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
