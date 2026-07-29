@@ -338,6 +338,11 @@ async function syncPropertyBookings(config, defaultName = "Домик") {
             const arr = rs.stayDates.arrivalDateTime.split('T')[0];
             const dep = rs.stayDates.departureDateTime.split('T')[0];
             
+            const arrYear = parseInt(arr.substring(0, 4), 10);
+            if (isNaN(arrYear) || arrYear < 2025) {
+              return;
+            }
+            
             db.run(`INSERT INTO bookings (id, guest_name, cabin_name, arrival_date, departure_date, status, phone, modified_at)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(id) DO UPDATE SET 
@@ -657,7 +662,7 @@ app.get('/api/admin/dashboard', authenticateToken, (req, res) => {
     SELECT b.*, 
            (SELECT GROUP_CONCAT(stage || ':' || status) FROM sms_logs s WHERE s.booking_id = b.id) as sms_stages
     FROM bookings b
-    WHERE b.status != 'Cancelled' 
+    WHERE b.status != 'Cancelled' AND substr(b.arrival_date, 1, 4) >= '2025'
     ORDER BY b.arrival_date DESC
   `;
   db.all(query, [], (err, rows) => {
