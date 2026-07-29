@@ -673,6 +673,7 @@ app.get('/api/admin/dashboard', authenticateToken, (req, res) => {
     
     console.log(`[API] Dashboard fetched ${rows ? rows.length : 0} total active bookings/saunas.`);
     const tomorrowArrivals = [];
+    const todayArrivals = [];
     const currentStays = [];
     const todayDepartures = [];
     const upcomingBookings = [];
@@ -699,16 +700,16 @@ app.get('/api/admin/dashboard', authenticateToken, (req, res) => {
       
       if (arr === tomorrow) {
         tomorrowArrivals.push(b);
-      }
-      
-      // 2. Full current stays (anyone in-house today: arr <= today AND dep >= today)
-      if (arr <= today && dep >= today) {
-        currentStays.push(b);
-        if (dep === today) {
-          todayDepartures.push(b);
-        }
+      } else if (arr === today) {
+        todayArrivals.push(b); // Arriving today (check-in at 15:00)
+      } else if (arr < today && dep >= today) {
+        currentStays.push(b); // Currently in-house (arrived before today)
       } else if (arr > tomorrow) {
         upcomingBookings.push(b);
+      }
+
+      if (dep === today) {
+        todayDepartures.push(b);
       }
       allBookings.push(b);
     });
@@ -717,6 +718,7 @@ app.get('/api/admin/dashboard', authenticateToken, (req, res) => {
       success: true,
       data: {
         tomorrowArrivals,
+        todayArrivals,
         currentStays,
         todayDepartures,
         upcomingBookings,

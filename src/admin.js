@@ -151,10 +151,10 @@ async function loadBookingsDashboard() {
     const res = await fetchAdmin(`${API_BASE}/admin/dashboard`);
     const data = await res.json();
     if (data.success) {
-      const { tomorrowArrivals, currentStays, upcomingBookings } = data.data;
+      const { tomorrowArrivals, todayArrivals, currentStays, upcomingBookings } = data.data;
 
       window._currentStays = currentStays || [];
-      renderActiveGroupedBookingsTable(tomorrowArrivals || [], currentStays || []);
+      renderActiveGroupedBookingsTable(tomorrowArrivals || [], todayArrivals || [], currentStays || []);
       renderMasterBookingsTable('futureBookingsTableBody', 'futureBookingsBadge', upcomingBookings || [], '(0 броней)');
       
       // Auto-sync broadcast dashboard as well
@@ -244,18 +244,21 @@ window.autoSavePhone = async (bookingId, phone) => {
   }
 };
 
-function renderActiveGroupedBookingsTable(tomorrowArrivals, currentStays) {
+function renderActiveGroupedBookingsTable(tomorrowArrivals, todayArrivals, currentStays) {
   const tbody = document.getElementById('activeBookingsTableBody');
   const badge = document.getElementById('activeGuestsCountBadge');
   if (!tbody) return;
 
-  const totalCount = (tomorrowArrivals ? tomorrowArrivals.length : 0) + (currentStays ? currentStays.length : 0);
+  const totalCount = (tomorrowArrivals ? tomorrowArrivals.length : 0) + 
+                     (todayArrivals ? todayArrivals.length : 0) + 
+                     (currentStays ? currentStays.length : 0);
+
   if (badge) {
-    badge.innerText = `🔥 ${totalCount} гостей (Завтра: ${tomorrowArrivals.length}, Живут: ${currentStays.length})`;
+    badge.innerText = `🔥 ${totalCount} активных гостей (Завтра: ${tomorrowArrivals ? tomorrowArrivals.length : 0}, Сегодня: ${todayArrivals ? todayArrivals.length : 0}, Живут: ${currentStays ? currentStays.length : 0})`;
   }
 
   if (totalCount === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #a1a1aa; padding: 1.5rem;">Активных проживаний и заездов на завтра не найдено</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #a1a1aa; padding: 1.5rem;">Активных заездов и проживаний не найдено</td></tr>';
     return;
   }
 
@@ -273,12 +276,24 @@ function renderActiveGroupedBookingsTable(tomorrowArrivals, currentStays) {
     html += tomorrowArrivals.map(b => renderBookingRow(b, '🟢 Заезд завтра')).join('');
   }
 
-  // 2. CURRENT STAYS SECOND
+  // 2. TODAY ARRIVALS SECOND (Check-in at 15:00)
+  if (todayArrivals && todayArrivals.length > 0) {
+    html += `
+      <tr style="background: rgba(56, 189, 248, 0.15); border-left: 4px solid #38bdf8;">
+        <td colspan="8" style="padding: 0.65rem 0.75rem; font-weight: 800; color: #38bdf8; font-size: 0.8125rem; letter-spacing: 0.05em;">
+          🌟 ЗАЕЗЖАЮТ СЕГОДНЯ (Заезд с 15:00) (${todayArrivals.length})
+        </td>
+      </tr>
+    `;
+    html += todayArrivals.map(b => renderBookingRow(b, '🔵 Заезд сегодня')).join('');
+  }
+
+  // 3. CURRENT STAYS THIRD (In-House)
   if (currentStays && currentStays.length > 0) {
     html += `
       <tr style="background: rgba(232, 165, 88, 0.15); border-left: 4px solid var(--accent-gold);">
         <td colspan="8" style="padding: 0.65rem 0.75rem; font-weight: 800; color: var(--accent-gold); font-size: 0.8125rem; letter-spacing: 0.05em;">
-          🏡 УЖЕ ПРОЖИВАЮТ В ПАРКЕ СЕГОДНЯ (${currentStays.length})
+          🏡 УЖЕ ПРОЖИВАЮТ В ПАРКЕ (${currentStays.length})
         </td>
       </tr>
     `;
@@ -302,10 +317,21 @@ function renderBookingRow(b, tagText) {
     : `<span style="background: rgba(148, 163, 184, 0.12); color: #94a3b8; padding: 0.2rem 0.45rem; border-radius: 0.375rem; font-size: 11px; font-weight: 600;">⏳ Ожидает</span>`;
 
   const isTomorrow = tagText && tagText.includes('завтра');
-  const tagBadge = tagText ? `<span style="font-size: 10px; font-weight: 700; padding: 0.15rem 0.35rem; border-radius: 0.25rem; margin-left: 0.35rem; ${isTomorrow ? 'background: rgba(52, 211, 153, 0.2); color: #34d399;' : 'background: rgba(232, 165, 88, 0.2); color: #facc15;'}">${tagText}</span>` : '';
+  const isToday = tagText && tagText.includes('сегодня');
+  let tagStyle = 'background: rgba(232, 165, 88, 0.2); color: #facc15;';
+  let rowBg = '';
+  if (isTomorrow) {
+    tagStyle = 'background: rgba(52, 211, 153, 0.2); color: #34d399;';
+    rowBg = 'background: rgba(52, 211, 153, 0.03);';
+  } else if (isToday) {
+    tagStyle = 'background: rgba(56, 189, 248, 0.2); color: #38bdf8;';
+    rowBg = 'background: rgba(56, 189, 248, 0.03);';
+  }
+
+  const tagBadge = tagText ? `<span style="font-size: 10px; font-weight: 700; padding: 0.15rem 0.35rem; border-radius: 0.25rem; margin-left: 0.35rem; ${tagStyle}">${tagText}</span>` : '';
 
   return `
-    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); ${isTomorrow ? 'background: rgba(52, 211, 153, 0.03);' : ''}">
+    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); ${rowBg}">
       <td style="padding: 0.6rem 0.5rem;">
         <button class="btn" style="background: rgba(255,255,255,0.08); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); padding: 0.25rem 0.5rem; font-size: 11px; font-weight: 600;" onclick="navigator.clipboard.writeText('${b.id}'); this.innerText='✓ Скопировано'; setTimeout(() => this.innerText='📋 ID', 1500);" title="Скопировать номер брони (${b.id})">📋 ID</button>
       </td>
