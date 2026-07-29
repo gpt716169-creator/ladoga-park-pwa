@@ -148,13 +148,16 @@ if (forceSyncBtn) {
 
 async function loadBookingsDashboard() {
   try {
-    const res = await fetch(`${API_BASE}/admin/dashboard`);
+    const res = await fetchAdmin(`${API_BASE}/admin/dashboard`);
     const data = await res.json();
     if (data.success) {
       const { tomorrowArrivals, currentStays, upcomingBookings } = data.data;
 
       renderActiveGroupedBookingsTable(tomorrowArrivals || [], currentStays || []);
       renderMasterBookingsTable('futureBookingsTableBody', 'futureBookingsBadge', upcomingBookings || [], '(0 броней)');
+      
+      // Auto-sync broadcast dashboard as well
+      loadBroadcastDashboard();
     }
   } catch (err) {
     console.error('Failed to load bookings dashboard', err);
@@ -231,6 +234,7 @@ window.autoSavePhone = async (bookingId, phone) => {
     const data = await res.json();
     if (data.success) {
       console.log(`[Phone Updated] ${bookingId} -> ${phone}`);
+      loadBroadcastDashboard();
     } else {
       alert('Ошибка обновления телефона: ' + (data.error || ''));
     }
