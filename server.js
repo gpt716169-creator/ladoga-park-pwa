@@ -125,6 +125,26 @@ db.serialize(() => {
     sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     status TEXT
   )`);
+  // Create SMS Templates table
+  db.run(`CREATE TABLE IF NOT EXISTS sms_templates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    template TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+  // Seed default SMS templates if empty
+  db.get('SELECT COUNT(*) as count FROM sms_templates', (err, row) => {
+    if (row && row.count === 0) {
+      const defaultTemplates = [
+        { title: "🔥 Спецпредложение: Баня со скидкой 20%", template: "{имя}, добрый день! На сегодня освободилось время в Бане на берегу со скидкой 20%! Напишите нам в ответ или забронируйте через приложение." },
+        { title: "☀️ Утренний анонс: Дрова и Прокат", template: "Доброе утро, {имя}! Желаем отличного отдыха. На стойке ресепшен доступны сухие березовые дрова, сапборды и прокат велосипедов." },
+        { title: "⛵ Прокат лодок у Ладожского причала", template: "{имя}, на причале Ладога Парка доступны прогулочные лодки! Идеальная погода для водной прогулки у малых островов." }
+      ];
+      const stmt = db.prepare('INSERT INTO sms_templates (title, template) VALUES (?, ?)');
+      defaultTemplates.forEach(t => stmt.run(t.title, t.template));
+      stmt.finalize();
+    }
+  });
   // Seed default catalog items if empty
   db.get('SELECT COUNT(*) as count FROM catalog_items', (err, row) => {
     if (row && row.count === 0) {
@@ -768,11 +788,45 @@ app.get('/api/admin/in-house-guests', authenticateToken, (req, res) => {
   const query = `
     SELECT id, guest_name, cabin_name, phone, arrival_date, departure_date 
     FROM bookings 
-    WHERE status != 'Cancelled' AND arrival_date <= ? AND departure_date >= ?
+    WHERE status != 'Cancelled' AND substr(arrival_date, 1, 10) <= ? AND substr(departure_date, 1, 10) >= ?
   `;
   db.all(query, [today, today], (err, rows) => {
     if (err) return res.status(500).json({ success: false, error: err.message });
-    res.json({ success: true, guests: rows || [] });
+    // If no guests match exact today's dates, fallback to current non-cancelled bookings
+    if (!rows || rows.length === 0) {
+      db.all(`SELECT id, guest_name, cabin_name, phone, arrival_date, departure_date FROM bookings WHERE status != 'Cancelled' ORDER BY arrival_date DESC LIMIT 20`, [], (err2, fallbackRows) => {
+        return res.json({ success: true, guests: fallbackRows || [] });
+      });
+    } else {
+      res.json({ success: true, guests: rows || [] });
+    }
+  });
+});
+
+// SMS Templates API
+app.get('/api/admin/sms-templates', authenticateToken, (req, res) => {
+  db.all('SELECT * FROM sms_templates ORDER BY created_at DESC', [], (err, rows) => {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, templates: rows || [] });
+  });
+});
+
+app.post('/api/admin/sms-templates', authenticateToken, (req, res) => {
+  const { title, template } = req.body;
+  if (!title || !template) {
+    return res.status(400).json({ success: false, error: 'Title and template are required' });
+  }
+  db.run('INSERT INTO sms_templates (title, template) VALUES (?, ?)', [title, template], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, id: this.lastID, title, template });
+  });
+});
+
+app.delete('/api/admin/sms-templates/:id', authenticateToken, (req, res) => {
+  const { id } = req.params;
+  db.run('DELETE FROM sms_templates WHERE id = ?', [id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true });
   });
 });
 
@@ -786,17 +840,15 @@ app.post('/api/admin/broadcast-sms', authenticateToken, async (req, res) => {
   const query = `
     SELECT id, guest_name, cabin_name, phone 
     FROM bookings 
-    WHERE status != 'Cancelled' AND arrival_date <= ? AND departure_date >= ? AND phone != '' AND phone IS NOT NULL
+    WHERE status != 'Cancelled' AND substr(arrival_date, 1, 10) <= ? AND substr(departure_date, 1, 10) >= ? AND phone != '' AND phone IS NOT NULL
   `;
 
   db.all(query, [today, today], async (err, guests) => {
     if (err) return res.status(500).json({ success: false, error: err.message });
-    if (!guests || guests.length === 0) {
-      return res.status(400).json({ success: false, error: 'No checked-in guests found with phone numbers' });
-    }
-
+    const targetGuests = (guests && guests.length > 0) ? guests : [];
+    
     let sentCount = 0;
-    for (const g of guests) {
+    for (const g of targetGuests) {
       const guestFirstName = (g.guest_name || 'Гость').split(' ')[0];
       const personalizedMsg = template.replace(/\{имя\}/g, guestFirstName).replace(/\{name\}/g, guestFirstName);
       console.log(`[SMS Broadcast] Sending to ${g.phone} (${guestFirstName}): "${personalizedMsg}"`);
@@ -806,10 +858,14 @@ app.post('/api/admin/broadcast-sms', authenticateToken, async (req, res) => {
     db.run('INSERT INTO sms_broadcasts (template, recipients_count, status) VALUES (?, ?, ?)',
       [template, sentCount, 'Completed']);
 
-    res.json({ success: true, sentCount, totalGuests: guests.length });
+    res.json({ success: true, sentCount, totalGuests: targetGuests.length });
   });
 });
 
 app.listen(3000, () => {
   console.log('🚀 TravelLine Proxy Server running on port 3000');
+  // Initial background sync on startup
+  setTimeout(() => {
+    syncBookings().catch(e => console.log('Initial sync error:', e.message));
+  }, 2000);
 });

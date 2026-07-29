@@ -11,6 +11,25 @@ const currentImagePreview = document.getElementById('currentImagePreview');
 let currentToken = localStorage.getItem('adminToken');
 let catalogItems = [];
 
+async function fetchAdmin(url, options = {}) {
+  options.headers = options.headers || {};
+  if (currentToken) {
+    options.headers['Authorization'] = `Bearer ${currentToken}`;
+  }
+  const res = await fetch(url, options);
+  if (res.status === 401 || res.status === 403) {
+    console.warn('[Admin API] 401/403 response. Session expired.');
+    currentToken = null;
+    localStorage.removeItem('adminToken');
+    if (loginScreen) loginScreen.style.display = 'flex';
+    if (dashboardScreen) dashboardScreen.style.display = 'none';
+    const loginError = document.getElementById('loginError');
+    if (loginError) loginError.innerText = 'Сессия истекла или неверный токен. Войдите снова.';
+    throw new Error('Unauthorized/Forbidden');
+  }
+  return res;
+}
+
 // App Init
 if (currentToken) {
   showDashboard();
@@ -344,9 +363,7 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
 async function loadWarehouseDashboard() {
   if (!currentToken) return;
   try {
-    const res = await fetch(`${API_BASE}/admin/warehouse`, {
-      headers: { 'Authorization': `Bearer ${currentToken}` }
-    });
+    const res = await fetchAdmin(`${API_BASE}/admin/warehouse`);
     const result = await res.json();
     if (!result.success) return;
 
@@ -440,12 +457,9 @@ async function loadWarehouseDashboard() {
 window.updateStock = async (itemType, id, newStock, min_threshold, unit_cost, reason = 'Быстрая корректировка остатка') => {
   if (newStock < 0) return;
   try {
-    const res = await fetch(`${API_BASE}/admin/warehouse/update`, {
+    const res = await fetchAdmin(`${API_BASE}/admin/warehouse/update`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${currentToken}`
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ itemType, id, stock: newStock, min_threshold, unit_cost, reason })
     });
     const data = await res.json();
@@ -512,9 +526,8 @@ window.editGift = (id) => {
 window.deleteGift = async (id) => {
   if (!confirm('Вы уверены, что хотите удалить этот подарок?')) return;
   try {
-    const res = await fetch(`${API_BASE}/admin/gifts/${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${currentToken}` }
+    const res = await fetchAdmin(`${API_BASE}/admin/gifts/${id}`, {
+      method: 'DELETE'
     });
     if (res.ok) {
       await loadWarehouseDashboard();
@@ -542,9 +555,8 @@ if (giftFormAdmin) {
       const formData = new FormData();
       formData.append('image', fileInput.files[0]);
       try {
-        const uploadRes = await fetch(`${API_BASE}/upload`, {
+        const uploadRes = await fetchAdmin(`${API_BASE}/upload`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${currentToken}` },
           body: formData
         });
         const uploadData = await uploadRes.json();
@@ -558,12 +570,9 @@ if (giftFormAdmin) {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/admin/gifts`, {
+      const res = await fetchAdmin(`${API_BASE}/admin/gifts`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${currentToken}`
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, title, subtitle, badge, image_url, stock, min_threshold, unit_cost, is_active })
       });
       const data = await res.json();
@@ -585,9 +594,7 @@ if (giftFormAdmin) {
 async function loadBroadcastDashboard() {
   if (!currentToken) return;
   try {
-    const res = await fetch(`${API_BASE}/admin/in-house-guests`, {
-      headers: { 'Authorization': `Bearer ${currentToken}` }
-    });
+    const res = await fetchAdmin(`${API_BASE}/admin/in-house-guests`);
     const data = await res.json();
     if (data.success) {
       const badge = document.getElementById('inHouseGuestsCountBadge');
@@ -599,12 +606,102 @@ async function loadBroadcastDashboard() {
   } catch (err) {
     console.error('Error loading in-house guests for broadcast:', err);
   }
+
+  await loadSmsTemplates();
 }
 
+async function loadSmsTemplates() {
+  if (!currentToken) return;
+  try {
+    const res = await fetchAdmin(`${API_BASE}/admin/sms-templates`);
+    const data = await res.json();
+    if (data.success && data.templates) {
+      window._smsTemplates = data.templates;
+      const select = document.getElementById('templateSelect');
+      if (select) {
+        select.innerHTML = '<option value="">-- Выберите шаблон для вставки --</option>' +
+          data.templates.map(t => `<option value="${t.id}">${t.title}</option>`).join('');
+      }
+    }
+  } catch (err) {
+    console.error('Error loading SMS templates:', err);
+  }
+}
+
+const templateSelect = document.getElementById('templateSelect');
+const deleteTemplateBtn = document.getElementById('deleteTemplateBtn');
+const saveTemplateBtn = document.getElementById('saveTemplateBtn');
 const broadcastTextarea = document.getElementById('broadcastTextarea');
 const broadcastPreviewText = document.getElementById('broadcastPreviewText');
 const insertNameTagBtn = document.getElementById('insertNameTagBtn');
 const sendBroadcastBtn = document.getElementById('sendBroadcastBtn');
+
+if (templateSelect) {
+  templateSelect.addEventListener('change', () => {
+    const id = templateSelect.value;
+    const t = (window._smsTemplates || []).find(x => String(x.id) === String(id));
+    if (t) {
+      if (broadcastTextarea) {
+        broadcastTextarea.value = t.template;
+        broadcastTextarea.dispatchEvent(new Event('input'));
+      }
+      if (deleteTemplateBtn) deleteTemplateBtn.style.display = 'inline-block';
+    } else {
+      if (deleteTemplateBtn) deleteTemplateBtn.style.display = 'none';
+    }
+  });
+}
+
+if (saveTemplateBtn) {
+  saveTemplateBtn.addEventListener('click', async () => {
+    const text = broadcastTextarea ? broadcastTextarea.value.trim() : '';
+    if (!text) return alert('Введите текст сообщения в поле слева перед сохранением шаблона!');
+
+    const title = prompt('Введите название шаблона (например: "Акция на Бани -20%"):');
+    if (!title || !title.trim()) return;
+
+    try {
+      const res = await fetchAdmin(`${API_BASE}/admin/sms-templates`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title.trim(), template: text })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('✅ Шаблон рассылки успешно сохранен!');
+        await loadSmsTemplates();
+      } else {
+        alert('Ошибка сохранения шаблона');
+      }
+    } catch (err) {
+      alert('Ошибка сети при сохранении шаблона');
+    }
+  });
+}
+
+if (deleteTemplateBtn) {
+  deleteTemplateBtn.addEventListener('click', async () => {
+    const id = templateSelect ? templateSelect.value : null;
+    if (!id) return;
+    if (!confirm('Вы действительно хотите удалить этот шаблон рассылки?')) return;
+
+    try {
+      const res = await fetchAdmin(`${API_BASE}/admin/sms-templates/${id}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('✅ Шаблон удален');
+        if (broadcastTextarea) broadcastTextarea.value = '';
+        if (broadcastPreviewText) broadcastPreviewText.innerText = '[Введите текст слева]';
+        deleteTemplateBtn.style.display = 'none';
+        await loadSmsTemplates();
+      }
+    } catch (err) {
+      alert('Ошибка удаления шаблона');
+    }
+  });
+}
 
 if (broadcastTextarea && broadcastPreviewText) {
   broadcastTextarea.addEventListener('input', () => {
@@ -633,12 +730,9 @@ if (sendBroadcastBtn) {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/admin/broadcast-sms`, {
+      const res = await fetchAdmin(`${API_BASE}/admin/broadcast-sms`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${currentToken}`
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ template: text })
       });
       const data = await res.json();
