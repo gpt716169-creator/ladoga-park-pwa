@@ -602,6 +602,7 @@ async function loadBroadcastDashboard() {
         badge.innerText = `👥 ${data.guests.length} гостей сейчас в парке`;
       }
       window._inHouseGuests = data.guests || [];
+      renderInHouseGuestsTable(data.guests || []);
     }
   } catch (err) {
     console.error('Error loading in-house guests for broadcast:', err);
@@ -609,6 +610,53 @@ async function loadBroadcastDashboard() {
 
   await loadSmsTemplates();
 }
+
+window.renderInHouseGuestsTable = (guests) => {
+  const tbody = document.getElementById('inHouseGuestsTableBody');
+  if (!tbody) return;
+  if (!guests || guests.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #a1a1aa; padding: 1rem;">Нет текущих проживающих гостей</td></tr>';
+    return;
+  }
+  tbody.innerHTML = guests.map(g => `
+    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+      <td style="padding: 0.75rem 0.5rem;">
+        <strong style="color: white;">${g.guest_name || 'Гость'}</strong><br>
+        <span style="font-size: 11px; color: #94a3b8;">${g.phone || g.id}</span>
+      </td>
+      <td style="padding: 0.75rem 0.5rem; color: #e4e4e7;">${g.cabin_name || 'Домик'}</td>
+      <td style="padding: 0.75rem 0.5rem; font-size: 11px; color: #a1a1aa;">${g.arrival_date ? g.arrival_date.slice(0, 10) : ''} – ${g.departure_date ? g.departure_date.slice(0, 10) : ''}</td>
+      <td style="padding: 0.75rem 0.5rem;">
+        <input type="text" id="houseInput_${g.id}" value="${g.house_number || ''}" placeholder="№ 105" style="width: 85px; margin-bottom: 0; padding: 0.375rem 0.5rem; font-size: 0.8125rem; font-weight: 700; text-align: center; color: #facc15; background: rgba(0,0,0,0.4); border: 1px solid rgba(250,204,21,0.4); border-radius: 0.375rem;" />
+      </td>
+      <td style="padding: 0.75rem 0.5rem;">
+        <button class="btn" style="background: rgba(52, 211, 153, 0.2); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.4); padding: 0.375rem 0.75rem; font-size: 0.8125rem; font-weight: 700;" onclick="window.saveHouseNumber('${g.id}')">💾 Сохранить</button>
+      </td>
+    </tr>
+  `).join('');
+};
+
+window.saveHouseNumber = async (bookingId) => {
+  const input = document.getElementById(`houseInput_${bookingId}`);
+  if (!input) return;
+  const num = input.value.trim();
+  try {
+    const res = await fetchAdmin(`${API_BASE}/admin/assign-house`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookingId, houseNumber: num })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(`✅ Домик № ${num || '[Сброшено]'} успешно привязан к брони ${bookingId}!`);
+      await loadBroadcastDashboard();
+    } else {
+      alert('Ошибка привязки домика: ' + (data.error || ''));
+    }
+  } catch (err) {
+    alert('Ошибка сети при привязке домика');
+  }
+};
 
 async function loadSmsTemplates() {
   if (!currentToken) return;

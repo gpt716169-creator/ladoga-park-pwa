@@ -82,8 +82,10 @@ db.serialize(() => {
     departure_date TEXT,
     status TEXT,
     phone TEXT,
-    modified_at TEXT
+    modified_at TEXT,
+    house_number TEXT
   )`);
+  db.run(`ALTER TABLE bookings ADD COLUMN house_number TEXT`, () => {});
   // Create Gifts table (Dynamic management)
   db.run(`CREATE TABLE IF NOT EXISTS gifts (
     id TEXT PRIMARY KEY,
@@ -439,12 +441,18 @@ app.get('/api/booking/:id', async (req, res) => {
     // Show gifts ONLY IF NOT paid online via card (i.e. paid direct/by phone/bank transfer)
     const showGifts = !isOnlineCard;
 
+    // Check if house_number is assigned in DB
+    const dbRow = await new Promise((resolve) => db.get('SELECT house_number FROM bookings WHERE id = ?', [id], (err, row) => resolve(row)));
+    const houseNumber = dbRow?.house_number || "";
+    const finalCabinName = houseNumber ? `Домик № ${houseNumber}` : cabinName;
+
     const responseData = {
       success: true,
       data: {
         bookingId: id,
         guestName,
-        cabinName,
+        cabinName: finalCabinName,
+        houseNumber,
         arrivalDate,
         departureDate,
         status: booking.status,
@@ -799,7 +807,7 @@ app.post('/api/admin/warehouse/update', authenticateToken, (req, res) => {
 app.get('/api/admin/in-house-guests', authenticateToken, (req, res) => {
   const today = new Date().toISOString().split('T')[0];
   const query = `
-    SELECT id, guest_name, cabin_name, phone, arrival_date, departure_date 
+    SELECT id, guest_name, cabin_name, phone, arrival_date, departure_date, house_number 
     FROM bookings 
     WHERE status != 'Cancelled' AND substr(arrival_date, 1, 10) <= ? AND substr(departure_date, 1, 10) >= ?
   `;
@@ -807,13 +815,31 @@ app.get('/api/admin/in-house-guests', authenticateToken, (req, res) => {
     if (err) return res.status(500).json({ success: false, error: err.message });
     // If no guests match exact today's dates, fallback to current non-cancelled bookings
     if (!rows || rows.length === 0) {
-      db.all(`SELECT id, guest_name, cabin_name, phone, arrival_date, departure_date FROM bookings WHERE status != 'Cancelled' ORDER BY arrival_date DESC LIMIT 20`, [], (err2, fallbackRows) => {
+      db.all(`SELECT id, guest_name, cabin_name, phone, arrival_date, departure_date, house_number FROM bookings WHERE status != 'Cancelled' ORDER BY arrival_date DESC LIMIT 20`, [], (err2, fallbackRows) => {
         return res.json({ success: true, guests: fallbackRows || [] });
       });
     } else {
       res.json({ success: true, guests: rows || [] });
     }
   });
+});
+
+app.post('/api/admin/assign-house', authenticateToken, (req, res) => {
+  const { bookingId, houseNumber } = req.body;
+  if (!bookingId) {
+    return res.status(400).json({ success: false, error: 'bookingId is required' });
+  }
+
+  const numClean = (houseNumber || '').trim();
+
+  db.run(`INSERT INTO bookings (id, house_number) VALUES (?, ?)
+          ON CONFLICT(id) DO UPDATE SET house_number = excluded.house_number`,
+    [bookingId, numClean],
+    function(err) {
+      if (err) return res.status(500).json({ success: false, error: err.message });
+      res.json({ success: true, bookingId, houseNumber: numClean });
+    }
+  );
 });
 
 // SMS Templates API

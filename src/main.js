@@ -501,7 +501,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       const cabinBadgeText = document.getElementById("cabinBadgeText");
       
       let shortCabinName = "Домик";
-      if (numMatch && numMatch[1]) {
+      if (data && data.houseNumber) {
+        shortCabinName = `Домик № ${data.houseNumber}`;
+      } else if (numMatch && numMatch[1]) {
         shortCabinName = `Домик № ${numMatch[1]}`;
       } else {
         const lower = cabin.toLowerCase();
