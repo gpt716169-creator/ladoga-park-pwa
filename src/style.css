@@ -406,8 +406,26 @@ body {
   border-bottom: 1px solid rgba(0, 150, 217, 0.25) !important;
 }
 
-[data-theme="light"] header span {
+[data-theme="light"] header span:not(.brand-logo-text):not(.brand-circle-badge) {
   color: #0f172a !important;
+}
+
+/* Brand Logo Typography - ALWAYS Official Colors in BOTH Light & Dark Themes */
+.brand-logo-text,
+html[data-theme="light"] .brand-logo-text,
+body[data-theme="light"] .brand-logo-text,
+header .brand-logo-text,
+span.brand-logo-text {
+  color: #0096d9 !important;
+}
+
+.brand-circle-badge,
+html[data-theme="light"] .brand-circle-badge,
+body[data-theme="light"] .brand-circle-badge,
+header .brand-circle-badge,
+span.brand-circle-badge {
+  background: #ffcc00 !important;
+  color: #111827 !important;
 }
 
 /* Hero Section & Vignette */
