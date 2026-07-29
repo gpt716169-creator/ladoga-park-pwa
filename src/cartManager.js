@@ -89,16 +89,20 @@ export function renderCartUI(cartInstance, showToast) {
     cartInstance.getItems().forEach(item => {
       const row = document.createElement("div");
       row.className = "cart-item-row";
+      const isZeroPrice = item.price === 0 || item.isGift;
+      const priceText = isZeroPrice ? '<span style="color:#34d399; font-weight:800;">🎁 0 ₽ (Подарок)</span>' : `${(item.price * item.quantity).toLocaleString("ru-RU")} ₽`;
+      const subTitle = item.fiscalName ? `<span>Фискально: ${item.fiscalName}</span>` : '<span style="color:#00adea; font-weight:700;">Приветственный подарок при заезде</span>';
+      
       row.innerHTML = `
         <div class="cart-item-info">
           <strong>${item.displayName}</strong>
-          <span>Фискально: ${item.fiscalName}</span>
+          ${subTitle}
         </div>
         <div class="qty-controls">
           <button class="btn-qty btn-minus" data-id="${item.id}">-</button>
           <span>${item.quantity}</span>
           <button class="btn-qty btn-plus" data-id="${item.id}">+</button>
-          <strong class="ml-2">${(item.price * item.quantity).toLocaleString("ru-RU")} ₽</strong>
+          <strong class="ml-2">${priceText}</strong>
         </div>
       `;
       itemsList.appendChild(row);
@@ -127,7 +131,8 @@ export function renderCartUI(cartInstance, showToast) {
     fiscalSummary.forEach(f => {
       const div = document.createElement("div");
       div.className = "mb-1";
-      div.innerHTML = `• <strong>${f.fiscalName}</strong> = <strong>${f.totalPrice.toLocaleString("ru-RU")} ₽</strong><br>
+      const fiscalPriceText = f.totalPrice === 0 ? '<span style="color:#34d399;">🎁 0 ₽ (Комплимент)</span>' : `<strong>${f.totalPrice.toLocaleString("ru-RU")} ₽</strong>`;
+      div.innerHTML = `• <strong>${f.fiscalName}</strong> = ${fiscalPriceText}<br>
         <span style="font-size:0.7rem; color:#9ca3af;">(Состав: ${f.itemNames.join(", ")})</span>`;
       fiscalContainer.appendChild(div);
     });

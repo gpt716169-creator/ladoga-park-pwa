@@ -710,9 +710,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
   // Drawers & Modals Control
+  const checkActiveOverlays = () => {
+    const active = document.querySelectorAll(".modal-overlay:not(.opacity-0), .drawer-panel[style*='translateX(0)']");
+    if (active.length > 0) {
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
+    }
+  };
+
   const openDrawer = (id) => {
     const el = document.getElementById(id);
     if (!el) return;
+    document.body.classList.add("modal-open");
     el.classList.remove("opacity-0", "pointer-events-none");
     const child = el.querySelector(".drawer-panel");
     if (child) child.style.transform = "translateX(0)";
@@ -725,12 +735,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (child) child.style.transform = "translateX(100%)";
     setTimeout(() => {
       el.classList.add("opacity-0", "pointer-events-none");
+      checkActiveOverlays();
     }, 250);
   };
 
   const openModal = (id) => {
     const el = document.getElementById(id);
     if (!el) return;
+    document.body.classList.add("modal-open");
     el.classList.remove("opacity-0", "pointer-events-none");
     const child = el.querySelector(".glass-modal");
     if (child) child.style.transform = "scale(1)";
@@ -743,6 +755,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (child) child.style.transform = "scale(0.95)";
     setTimeout(() => {
       el.classList.add("opacity-0", "pointer-events-none");
+      checkActiveOverlays();
     }, 200);
   };
 
@@ -777,6 +790,173 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Top X Close Buttons
   const closeGuideBtn = document.getElementById("closeGuideBtn");
   if (closeGuideBtn) closeGuideBtn.addEventListener("click", () => closeModal("guideModal"));
+
+  // ==========================================
+  // SAUNA 5-PHOTO LIGHTBOX GALLERY SLIDER
+  // ==========================================
+  const SAUNA_GALLERIES = {
+    forest: {
+      title: "🌲 Баня в лесу у поляны (5 фото интерьера)",
+      photos: [
+        "./assets/images/saunas/sauna_forest_1.webp",
+        "./assets/images/saunas/sauna_forest_2.webp",
+        "./assets/images/saunas/sauna_forest_3.webp",
+        "./assets/images/saunas/sauna_forest_4.webp",
+        "./assets/images/saunas/sauna_forest_5.webp"
+      ]
+    },
+    lake: {
+      title: "🌊 Баня на берегу Ладоги (5 фото интерьера)",
+      photos: [
+        "./assets/images/saunas/sauna_lake_1.webp",
+        "./assets/images/saunas/sauna_lake_2.webp",
+        "./assets/images/saunas/sauna_lake_3.webp",
+        "./assets/images/saunas/sauna_lake_4.webp",
+        "./assets/images/saunas/sauna_lake_5.webp"
+      ]
+    }
+  };
+
+  let currentGalleryKey = "forest";
+  let currentPhotoIndex = 0;
+
+  const saunaGalleryModal = document.getElementById("saunaGalleryModal");
+  const saunaGalleryImage = document.getElementById("saunaGalleryImage");
+  const saunaGalleryTitle = document.getElementById("saunaGalleryTitle");
+  const saunaGalleryDots = document.getElementById("saunaGalleryDots");
+
+  function updateSaunaGalleryView() {
+    const gallery = SAUNA_GALLERIES[currentGalleryKey];
+    if (!gallery) return;
+    saunaGalleryTitle.innerText = gallery.title;
+    saunaGalleryImage.style.opacity = "0.3";
+    setTimeout(() => {
+      saunaGalleryImage.src = gallery.photos[currentPhotoIndex];
+      saunaGalleryImage.style.opacity = "1";
+    }, 120);
+
+    saunaGalleryDots.innerHTML = "";
+    gallery.photos.forEach((_, idx) => {
+      const dot = document.createElement("div");
+      dot.style.cssText = `width: ${idx === currentPhotoIndex ? '1.5rem' : '0.5rem'}; height: 0.5rem; border-radius: 9999px; background: ${idx === currentPhotoIndex ? '#ffcc00' : 'rgba(255,255,255,0.4)'}; transition: all 0.25s ease; cursor: pointer;`;
+      dot.addEventListener("click", () => {
+        currentPhotoIndex = idx;
+        updateSaunaGalleryView();
+      });
+      saunaGalleryDots.appendChild(dot);
+    });
+  }
+
+  function openSaunaGallery(key, index = 0) {
+    if (!SAUNA_GALLERIES[key]) return;
+    currentGalleryKey = key;
+    currentPhotoIndex = index;
+    updateSaunaGalleryView();
+    openModal("saunaGalleryModal");
+  }
+
+  const closeSaunaGalleryBtn = document.getElementById("closeSaunaGalleryBtn");
+  if (closeSaunaGalleryBtn) {
+    closeSaunaGalleryBtn.addEventListener("click", () => closeModal("saunaGalleryModal"));
+  }
+
+  const saunaPrevBtn = document.getElementById("saunaPrevBtn");
+  const saunaNextBtn = document.getElementById("saunaNextBtn");
+
+  if (saunaPrevBtn) {
+    saunaPrevBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const photos = SAUNA_GALLERIES[currentGalleryKey].photos;
+      currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+      updateSaunaGalleryView();
+    });
+  }
+
+  if (saunaNextBtn) {
+    saunaNextBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const photos = SAUNA_GALLERIES[currentGalleryKey].photos;
+      currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+      updateSaunaGalleryView();
+    });
+  }
+
+  // Attach gallery click triggers on sauna cards & images
+  document.querySelectorAll("[data-sauna-gallery]").forEach(el => {
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openSaunaGallery(el.dataset.saunaGallery, 0);
+    });
+  });
+
+  // ==========================================
+  // GIFT PREVIEW LIGHTBOX & 0 ₽ GIFT CART MECHANICS
+  // ==========================================
+  let selectedGiftData = null;
+
+  const giftModal = document.getElementById("giftModal");
+  const giftModalImage = document.getElementById("giftModalImage");
+  const giftModalTitle = document.getElementById("giftModalTitle");
+  const giftModalDesc = document.getElementById("giftModalDesc");
+  const claimGiftBtn = document.getElementById("claimGiftBtn");
+  const closeGiftBtn = document.getElementById("closeGiftBtn");
+
+  if (closeGiftBtn) {
+    closeGiftBtn.addEventListener("click", () => closeModal("giftModal"));
+  }
+
+  // Make all gift cards interactive
+  document.querySelectorAll(".gift-card").forEach(card => {
+    card.style.cursor = "pointer";
+    card.addEventListener("click", () => {
+      const img = card.querySelector("img");
+      const title = card.querySelector("h4");
+      const desc = card.querySelector("p");
+      
+      selectedGiftData = {
+        id: "gift-" + (title ? title.innerText.replace(/[^\wа-яА-Я0-9]/g, '_').toLowerCase() : Date.now()),
+        displayName: title ? title.innerText : "Приветственный подарок",
+        desc: desc ? desc.innerText : "Подарок заезда в парке",
+        image: img ? img.src : "",
+        price: 0,
+        isGift: true
+      };
+
+      if (giftModalImage && img) giftModalImage.src = img.src;
+      if (giftModalTitle && title) giftModalTitle.innerText = title.innerText;
+      if (giftModalDesc && desc) giftModalDesc.innerText = desc.innerText;
+
+      openModal("giftModal");
+    });
+  });
+
+  if (claimGiftBtn) {
+    claimGiftBtn.addEventListener("click", () => {
+      if (selectedGiftData) {
+        cart.addItem({
+          id: selectedGiftData.id,
+          displayName: "🎁 " + selectedGiftData.displayName,
+          price: 0,
+          isGift: true
+        });
+        closeModal("giftModal");
+        showToast(`«${selectedGiftData.displayName}» добавлен в ваш заезд бесплатно (0 ₽)`, "🎁 Подарок добавлен!");
+        openDrawer("cartDrawer");
+      }
+    });
+  }
+
+  // Universal Taxi Concierge Modal Button Trigger
+  const openTaxiModalBtn = document.getElementById("openTaxiModalBtn");
+  const openTaxiModalBtn3 = document.getElementById("openTaxiModalBtn3");
+
+  const handleTaxiCall = (e) => {
+    e.preventDefault();
+    showToast("Наш администратор уже вызывает для вас проверенное такси парка. Ожидайте звонка от водителя!", "🚖 Вызов такси парка");
+  };
+
+  if (openTaxiModalBtn) openTaxiModalBtn.addEventListener("click", handleTaxiCall);
+  if (openTaxiModalBtn3) openTaxiModalBtn3.addEventListener("click", handleTaxiCall);
 
   const closeRegBtn = document.getElementById("closeRegBtn");
   if (closeRegBtn) closeRegBtn.addEventListener("click", () => closeModal("regModal"));

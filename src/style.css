@@ -40,6 +40,12 @@ body {
   text-rendering: optimizeSpeed;
 }
 
+body.modal-open {
+  overflow: hidden !important;
+  touch-action: none !important;
+  height: 100vh !important;
+}
+
 header {
   will-change: transform;
   transform: translateZ(0);
