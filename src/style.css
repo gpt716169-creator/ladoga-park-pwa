@@ -304,32 +304,44 @@ body {
 }
 
 /* ==========================================
-   LIGHT THEME: "Summer Refresh" High-Contrast Typography & Palette
+   LIGHT THEME: Official Logo Palette & Typography
+   - Font: 'Comfortaa', 'Rubik', sans-serif
+   - Azure Ladoga Blue: #0096d9
+   - Sunny Park Yellow: #ffcc00
    ========================================== */
 [data-theme="light"] {
   --bg-dark: #f0f9ff;
   --bg-card: #ffffff;
   --bg-pine: #e0f2fe;
   --bg-pine-light: #bae6fd;
-  --primary-ember: #f59e0b;
-  --accent-gold: #d97706;
+  --primary-ember: #0096d9;
+  --accent-gold: #0096d9;
+  --accent-yellow: #ffcc00;
   --text-main: #0f172a;
   --text-muted: #334155;
-  --border-ember: rgba(56, 189, 248, 0.25);
+  --border-ember: rgba(0, 150, 217, 0.25);
+  --font-serif: "Comfortaa", "Rubik", sans-serif;
+  --font-sans: "Rubik", "Outfit", sans-serif;
 }
 
 [data-theme="light"] body {
   background-color: #f0f9ff;
   color: #0f172a;
+  font-family: var(--font-sans);
 }
 
-/* Headings & Text Overrides */
+/* Headings & Brand Font Overrides */
 [data-theme="light"] h1,
 [data-theme="light"] h2,
 [data-theme="light"] h3,
 [data-theme="light"] h4,
 [data-theme="light"] h5,
-[data-theme="light"] h6,
+[data-theme="light"] h6 {
+  color: #0f172a !important;
+  font-family: 'Comfortaa', 'Rubik', sans-serif !important;
+  letter-spacing: -0.02em;
+}
+
 [data-theme="light"] .font-bold {
   color: #0f172a !important;
 }
@@ -343,51 +355,55 @@ body {
 /* Cards & Glass Containers */
 [data-theme="light"] .glass-card {
   background: #ffffff;
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  box-shadow: 0 4px 20px rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(0, 150, 217, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 150, 217, 0.08);
 }
 
 [data-theme="light"] .glass-card:hover {
-  border-color: rgba(56, 189, 248, 0.45);
+  border-color: rgba(0, 150, 217, 0.45);
 }
 
-/* Category Filter Tabs */
+/* Category Filter Tabs with Logo Colors */
 [data-theme="light"] .tab-btn {
   background: #e0f2fe;
-  color: #0369a1 !important;
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #0096d9 !important;
+  border: 1px solid rgba(0, 150, 217, 0.3);
   font-weight: 700;
+  font-family: 'Rubik', sans-serif;
 }
 
 [data-theme="light"] .tab-btn.active {
-  background: #f59e0b;
+  background: linear-gradient(135deg, #0096d9, #0284c7);
   color: #ffffff !important;
-  box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.39);
+  box-shadow: 0 4px 14px 0 rgba(0, 150, 217, 0.39);
 }
 
 /* Primary Action Buttons */
 [data-theme="light"] .btn-primary-gold {
-  background: #f59e0b;
+  background: linear-gradient(135deg, #0096d9, #0284c7);
   color: #ffffff !important;
-  box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.39);
+  font-family: 'Rubik', sans-serif;
+  box-shadow: 0 4px 14px 0 rgba(0, 150, 217, 0.35);
 }
 
 [data-theme="light"] .btn-icon-round {
-  background: #e0f2fe;
-  color: #0284c7 !important;
-  border-color: rgba(56, 189, 248, 0.35);
+  background: #ffcc00;
+  color: #111827 !important;
+  border-color: rgba(255, 204, 0, 0.6);
+  font-family: 'Rubik', sans-serif;
+  box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
 }
 
 [data-theme="light"] .btn-taxi {
   background: #e0f2fe;
-  border-color: rgba(56, 189, 248, 0.4);
-  color: #0284c7 !important;
+  border-color: rgba(0, 150, 217, 0.4);
+  color: #0096d9 !important;
 }
 
 /* Header & Navigation Bar */
 [data-theme="light"] header {
   background: rgba(240, 249, 255, 0.95) !important;
-  border-bottom: 1px solid rgba(56, 189, 248, 0.25) !important;
+  border-bottom: 1px solid rgba(0, 150, 217, 0.25) !important;
 }
 
 [data-theme="light"] header span {
