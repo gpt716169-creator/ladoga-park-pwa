@@ -828,6 +828,18 @@ if (giftFormAdmin) {
 // ----------------------------------------------------
 async function loadBroadcastDashboard() {
   if (!currentToken) return;
+
+  if (window._currentStays && window._currentStays.length > 0) {
+    const badge = document.getElementById('inHouseGuestsCountBadge');
+    if (badge) {
+      badge.innerText = `👥 ${window._currentStays.length} гостей сейчас в парке`;
+    }
+    window._inHouseGuests = window._currentStays;
+    renderInHouseGuestsTable(window._currentStays);
+    await loadSmsTemplates();
+    return;
+  }
+
   try {
     const res = await fetchAdmin(`${API_BASE}/admin/in-house-guests`);
     const data = await res.json();
@@ -945,6 +957,17 @@ async function loadSmsTemplates() {
   } catch (err) {
     console.error('Error loading SMS templates:', err);
   }
+}
+
+const refreshBroadcastBtn = document.getElementById('refreshBroadcastBtn');
+if (refreshBroadcastBtn) {
+  refreshBroadcastBtn.addEventListener('click', async () => {
+    refreshBroadcastBtn.innerText = '🔄 Обновление...';
+    window._currentStays = null;
+    await loadBookingsDashboard();
+    await loadBroadcastDashboard();
+    refreshBroadcastBtn.innerText = '🔄 Обновить список';
+  });
 }
 
 const templateSelect = document.getElementById('templateSelect');
