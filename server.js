@@ -290,13 +290,13 @@ async function syncPropertyBookings(config, defaultName = "Домик") {
     const isSauna = config.propertyId === TL_SAUNAS.propertyId;
     const token = isSauna ? await getTlSaunaAccessToken() : await getTlAccessToken();
     const now = new Date();
-    const updatedAfter = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
+    const updatedAfter = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000).toISOString();
     
     let page = 1;
     let hasMore = true;
     const allSummaries = [];
     
-    while (hasMore && page <= 5) {
+    while (hasMore && page <= 20) {
       const url = `${config.apiUrl}/properties/${config.propertyId}/bookings?updatedAfter=${updatedAfter}&page=${page}&pageSize=100`;
       const res = await axios.get(url, { headers: { 'Authorization': `Bearer ${token}` } });
       const summaries = res.data.bookingSummaries || [];
