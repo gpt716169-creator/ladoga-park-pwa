@@ -53,36 +53,52 @@ async function showDashboard() {
   dashboardScreen.style.display = 'block';
   await loadCatalog();
   await loadBookingsDashboard();
+  await loadWarehouseDashboard();
+  await loadBroadcastDashboard();
 }
 
 // ----------------------------------------------------
-// TABS & BOOKINGS DASHBOARD
+// TABS & VIEW SWITCHING
 // ----------------------------------------------------
 const tabCatalogBtn = document.getElementById('tabCatalogBtn');
 const tabBookingsBtn = document.getElementById('tabBookingsBtn');
+const tabWarehouseBtn = document.getElementById('tabWarehouseBtn');
+const tabBroadcastBtn = document.getElementById('tabBroadcastBtn');
+
 const viewCatalog = document.getElementById('viewCatalog');
 const viewBookings = document.getElementById('viewBookings');
+const viewWarehouse = document.getElementById('viewWarehouse');
+const viewBroadcast = document.getElementById('viewBroadcast');
 
-if (tabCatalogBtn && tabBookingsBtn) {
-  tabCatalogBtn.addEventListener('click', () => {
-    tabCatalogBtn.className = 'btn btn-primary';
-    tabBookingsBtn.className = 'btn';
-    tabBookingsBtn.style.background = 'rgba(255,255,255,0.1)';
-    tabBookingsBtn.style.color = 'white';
-    viewCatalog.style.display = 'block';
-    viewBookings.style.display = 'none';
+function setActiveTab(activeBtn, activeView) {
+  [tabCatalogBtn, tabBookingsBtn, tabWarehouseBtn, tabBroadcastBtn].forEach(btn => {
+    if (btn) {
+      btn.className = 'btn';
+      btn.style.background = 'rgba(255,255,255,0.1)';
+      btn.style.color = 'white';
+    }
+  });
+  [viewCatalog, viewBookings, viewWarehouse, viewBroadcast].forEach(v => {
+    if (v) v.style.display = 'none';
   });
 
-  tabBookingsBtn.addEventListener('click', async () => {
-    tabBookingsBtn.className = 'btn btn-primary';
-    tabCatalogBtn.className = 'btn';
-    tabCatalogBtn.style.background = 'rgba(255,255,255,0.1)';
-    tabCatalogBtn.style.color = 'white';
-    viewCatalog.style.display = 'none';
-    viewBookings.style.display = 'block';
-    await loadBookingsDashboard();
-  });
+  if (activeBtn) activeBtn.className = 'btn btn-primary';
+  if (activeView) activeView.style.display = 'block';
 }
+
+if (tabCatalogBtn) tabCatalogBtn.addEventListener('click', () => setActiveTab(tabCatalogBtn, viewCatalog));
+if (tabBookingsBtn) tabBookingsBtn.addEventListener('click', async () => {
+  setActiveTab(tabBookingsBtn, viewBookings);
+  await loadBookingsDashboard();
+});
+if (tabWarehouseBtn) tabWarehouseBtn.addEventListener('click', async () => {
+  setActiveTab(tabWarehouseBtn, viewWarehouse);
+  await loadWarehouseDashboard();
+});
+if (tabBroadcastBtn) tabBroadcastBtn.addEventListener('click', async () => {
+  setActiveTab(tabBroadcastBtn, viewBroadcast);
+  await loadBroadcastDashboard();
+});
 
 const forceSyncBtn = document.getElementById('forceSyncBtn');
 if (forceSyncBtn) {
@@ -321,3 +337,320 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
     alert('Ошибка сети');
   }
 });
+
+// ----------------------------------------------------
+// WAREHOUSE & GIFTS DASHBOARD (CRUD & ANALYTICS)
+// ----------------------------------------------------
+async function loadWarehouseDashboard() {
+  if (!currentToken) return;
+  try {
+    const res = await fetch(`${API_BASE}/admin/warehouse`, {
+      headers: { 'Authorization': `Bearer ${currentToken}` }
+    });
+    const result = await res.json();
+    if (!result.success) return;
+
+    const { totalValuation, lowStockCount, gifts, products, logs } = result.data;
+
+    // KPI Cards
+    const kpiTotalValuation = document.getElementById('kpiTotalValuation');
+    const kpiLowStockCount = document.getElementById('kpiLowStockCount');
+    const kpiTotalGifts = document.getElementById('kpiTotalGifts');
+
+    if (kpiTotalValuation) kpiTotalValuation.innerText = `${(totalValuation || 0).toLocaleString('ru-RU')} ₽`;
+    if (kpiLowStockCount) kpiLowStockCount.innerText = `${lowStockCount || 0} позиций`;
+    if (kpiTotalGifts) kpiTotalGifts.innerText = `${(gifts || []).length} видов`;
+
+    // Gifts Table Body
+    const giftsBody = document.getElementById('giftsTableBody');
+    if (giftsBody) {
+      giftsBody.innerHTML = (gifts || []).map(g => {
+        const isLow = g.stock <= g.min_threshold;
+        return `
+          <tr>
+            <td><img src="${g.image_url}" style="width: 40px; height: 40px; object-fit: contain; background: white; border-radius: 6px; padding: 2px;" /></td>
+            <td><strong>${g.title}</strong><br><span style="font-size: 11px; color: #a1a1aa;">${g.subtitle || ''}</span></td>
+            <td><span style="background: rgba(0,150,217,0.2); color: #0096d9; padding: 2px 8px; border-radius: 999px; font-weight: 700; font-size: 11px;">${g.badge || 'Подарок'}</span></td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <button class="btn" style="padding: 2px 8px;" onclick="window.updateStock('gift', '${g.id}', ${g.stock - 1}, ${g.min_threshold}, ${g.unit_cost})">-</button>
+                <strong style="color: ${isLow ? '#f87171' : '#34d399'};">${g.stock} шт.</strong>
+                <button class="btn" style="padding: 2px 8px;" onclick="window.updateStock('gift', '${g.id}', ${g.stock + 1}, ${g.min_threshold}, ${g.unit_cost})">+</button>
+              </div>
+            </td>
+            <td>${g.min_threshold} шт.</td>
+            <td>${(g.unit_cost || 0).toLocaleString('ru-RU')} ₽</td>
+            <td><span style="color: ${g.is_active ? '#34d399' : '#f87171'}; font-weight: 700;">${g.is_active ? 'Активен' : 'Скрыт'}</span></td>
+            <td>
+              <div style="display: flex; gap: 0.25rem;">
+                <button class="btn btn-edit" onclick="window.editGift('${g.id}')">✏️ Edit</button>
+                <button class="btn" style="background: rgba(239,68,68,0.2); color: #ef4444;" onclick="window.deleteGift('${g.id}')">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Products Table Body
+    const productsBody = document.getElementById('productsTableBody');
+    if (productsBody) {
+      productsBody.innerHTML = (products || []).map(p => {
+        const isLow = p.stock <= p.min_threshold;
+        return `
+          <tr>
+            <td><strong>${p.name}</strong></td>
+            <td>${p.category || 'Услуги'}</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <button class="btn" style="padding: 2px 8px;" onclick="window.updateStock('product', '${p.id}', ${p.stock - 1}, ${p.min_threshold}, ${p.unit_cost})">-</button>
+                <strong style="color: ${isLow ? '#f87171' : '#34d399'};">${p.stock} шт.</strong>
+                <button class="btn" style="padding: 2px 8px;" onclick="window.updateStock('product', '${p.id}', ${p.stock + 1}, ${p.min_threshold}, ${p.unit_cost})">+</button>
+              </div>
+            </td>
+            <td>${p.min_threshold} шт.</td>
+            <td>${(p.unit_cost || 0).toLocaleString('ru-RU')} ₽</td>
+            <td>${(p.price || 0).toLocaleString('ru-RU')} ₽</td>
+            <td><button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="window.promptStockUpdate('product', '${p.id}', ${p.stock}, ${p.min_threshold}, ${p.unit_cost})">Корректировка</button></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Logs Table Body
+    const logsBody = document.getElementById('stockLogsTableBody');
+    if (logsBody) {
+      logsBody.innerHTML = (logs || []).map(l => `
+        <tr>
+          <td style="font-size: 11px; color: #a1a1aa;">${l.created_at || ''}</td>
+          <td><span style="font-weight: 700; font-size: 11px; color: ${l.item_type === 'gift' ? 'var(--accent-gold)' : '#60a5fa'};">${l.item_type === 'gift' ? 'Подарок' : 'Товар'}</span></td>
+          <td><strong>${l.item_name || ''}</strong></td>
+          <td><span style="font-weight: 800; color: ${l.change_qty >= 0 ? '#34d399' : '#f87171'};">${l.change_qty > 0 ? '+' : ''}${l.change_qty}</span></td>
+          <td style="font-size: 11px; color: #e4e4e7;">${l.reason || ''}</td>
+        </tr>
+      `).join('');
+    }
+
+    window._cachedGifts = gifts || [];
+  } catch (err) {
+    console.error('Error loading warehouse dashboard:', err);
+  }
+}
+
+window.updateStock = async (itemType, id, newStock, min_threshold, unit_cost, reason = 'Быстрая корректировка остатка') => {
+  if (newStock < 0) return;
+  try {
+    const res = await fetch(`${API_BASE}/admin/warehouse/update`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${currentToken}`
+      },
+      body: JSON.stringify({ itemType, id, stock: newStock, min_threshold, unit_cost, reason })
+    });
+    const data = await res.json();
+    if (data.success) {
+      await loadWarehouseDashboard();
+    }
+  } catch (err) {
+    alert('Ошибка обновления остатка');
+  }
+};
+
+window.promptStockUpdate = async (itemType, id, currentStock, currentMin, currentCost) => {
+  const val = prompt('Введите новый остаток на складе (шт.):', currentStock);
+  if (val === null) return;
+  const num = parseInt(val, 10);
+  if (isNaN(num) || num < 0) return alert('Введите корректное число!');
+  await window.updateStock(itemType, id, num, currentMin, currentCost, 'Инвентаризация склада');
+};
+
+// Gift Modal Controls (CRUD)
+const giftModalAdmin = document.getElementById('giftModalAdmin');
+const giftFormAdmin = document.getElementById('giftFormAdmin');
+const openAddGiftModalBtn = document.getElementById('openAddGiftModalBtn');
+const closeGiftModalAdminBtn = document.getElementById('closeGiftModalAdminBtn');
+
+if (openAddGiftModalBtn) {
+  openAddGiftModalBtn.addEventListener('click', () => {
+    document.getElementById('giftIdAdmin').value = '';
+    document.getElementById('giftTitleAdmin').value = '';
+    document.getElementById('giftSubtitleAdmin').value = '';
+    document.getElementById('giftBadgeAdmin').value = '★ Символ Парка';
+    document.getElementById('giftImageUrlAdmin').value = './assets/images/gifts/gift_toy.png?v=2';
+    document.getElementById('giftStockAdmin').value = '50';
+    document.getElementById('giftMinThresholdAdmin').value = '10';
+    document.getElementById('giftUnitCostAdmin').value = '350';
+    document.getElementById('giftIsActiveAdmin').checked = true;
+    document.getElementById('giftModalAdminTitle').innerText = 'Добавить Новый Подарок';
+    giftModalAdmin.classList.add('active');
+  });
+}
+
+if (closeGiftModalAdminBtn) {
+  closeGiftModalAdminBtn.addEventListener('click', () => {
+    giftModalAdmin.classList.remove('active');
+  });
+}
+
+window.editGift = (id) => {
+  const g = (window._cachedGifts || []).find(x => x.id === id);
+  if (!g) return;
+  document.getElementById('giftIdAdmin').value = g.id;
+  document.getElementById('giftTitleAdmin').value = g.title || '';
+  document.getElementById('giftSubtitleAdmin').value = g.subtitle || '';
+  document.getElementById('giftBadgeAdmin').value = g.badge || '';
+  document.getElementById('giftImageUrlAdmin').value = g.image_url || '';
+  document.getElementById('giftStockAdmin').value = g.stock || 50;
+  document.getElementById('giftMinThresholdAdmin').value = g.min_threshold || 10;
+  document.getElementById('giftUnitCostAdmin').value = g.unit_cost || 350;
+  document.getElementById('giftIsActiveAdmin').checked = g.is_active !== 0;
+  document.getElementById('giftModalAdminTitle').innerText = 'Редактировать Подарок';
+  giftModalAdmin.classList.add('active');
+};
+
+window.deleteGift = async (id) => {
+  if (!confirm('Вы уверены, что хотите удалить этот подарок?')) return;
+  try {
+    const res = await fetch(`${API_BASE}/admin/gifts/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${currentToken}` }
+    });
+    if (res.ok) {
+      await loadWarehouseDashboard();
+    }
+  } catch (err) {
+    alert('Ошибка удаления подарка');
+  }
+};
+
+if (giftFormAdmin) {
+  giftFormAdmin.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('giftIdAdmin').value;
+    const title = document.getElementById('giftTitleAdmin').value;
+    const subtitle = document.getElementById('giftSubtitleAdmin').value;
+    const badge = document.getElementById('giftBadgeAdmin').value;
+    let image_url = document.getElementById('giftImageUrlAdmin').value;
+    const stock = parseInt(document.getElementById('giftStockAdmin').value, 10);
+    const min_threshold = parseInt(document.getElementById('giftMinThresholdAdmin').value, 10);
+    const unit_cost = parseInt(document.getElementById('giftUnitCostAdmin').value, 10);
+    const is_active = document.getElementById('giftIsActiveAdmin').checked ? 1 : 0;
+    const fileInput = document.getElementById('giftImageFileAdmin');
+
+    if (fileInput && fileInput.files.length > 0) {
+      const formData = new FormData();
+      formData.append('image', fileInput.files[0]);
+      try {
+        const uploadRes = await fetch(`${API_BASE}/upload`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentToken}` },
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.success) {
+          image_url = uploadData.imageUrl;
+        }
+      } catch (err) {
+        alert('Ошибка загрузки фото подарка');
+        return;
+      }
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/gifts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentToken}`
+        },
+        body: JSON.stringify({ id, title, subtitle, badge, image_url, stock, min_threshold, unit_cost, is_active })
+      });
+      const data = await res.json();
+      if (data.success) {
+        giftModalAdmin.classList.remove('active');
+        await loadWarehouseDashboard();
+      } else {
+        alert('Ошибка сохранения подарка');
+      }
+    } catch (err) {
+      alert('Ошибка сети');
+    }
+  });
+}
+
+// ----------------------------------------------------
+// LIVE IN-HOUSE GUEST SMS BROADCAST DASHBOARD
+// ----------------------------------------------------
+async function loadBroadcastDashboard() {
+  if (!currentToken) return;
+  try {
+    const res = await fetch(`${API_BASE}/admin/in-house-guests`, {
+      headers: { 'Authorization': `Bearer ${currentToken}` }
+    });
+    const data = await res.json();
+    if (data.success) {
+      const badge = document.getElementById('inHouseGuestsCountBadge');
+      if (badge) {
+        badge.innerText = `👥 ${data.guests.length} гостей сейчас в парке`;
+      }
+      window._inHouseGuests = data.guests || [];
+    }
+  } catch (err) {
+    console.error('Error loading in-house guests for broadcast:', err);
+  }
+}
+
+const broadcastTextarea = document.getElementById('broadcastTextarea');
+const broadcastPreviewText = document.getElementById('broadcastPreviewText');
+const insertNameTagBtn = document.getElementById('insertNameTagBtn');
+const sendBroadcastBtn = document.getElementById('sendBroadcastBtn');
+
+if (broadcastTextarea && broadcastPreviewText) {
+  broadcastTextarea.addEventListener('input', () => {
+    const sampleGuest = (window._inHouseGuests && window._inHouseGuests[0]) ? window._inHouseGuests[0].guest_name.split(' ')[0] : 'Константин';
+    const text = broadcastTextarea.value || '[Введите текст слева]';
+    broadcastPreviewText.innerText = text.replace(/\{имя\}/g, sampleGuest).replace(/\{name\}/g, sampleGuest);
+  });
+}
+
+if (insertNameTagBtn && broadcastTextarea) {
+  insertNameTagBtn.addEventListener('click', () => {
+    broadcastTextarea.value += ' {имя}';
+    broadcastTextarea.dispatchEvent(new Event('input'));
+    broadcastTextarea.focus();
+  });
+}
+
+if (sendBroadcastBtn) {
+  sendBroadcastBtn.addEventListener('click', async () => {
+    const text = broadcastTextarea ? broadcastTextarea.value.trim() : '';
+    if (!text) return alert('Введите текст сообщения!');
+
+    const count = (window._inHouseGuests || []).length;
+    if (!confirm(`Вы действительно хотите отправить это СМС сообщение ${count} проживающим гостям прямо сейчас?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/broadcast-sms`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentToken}`
+        },
+        body: JSON.stringify({ template: text })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`✅ СМС-рассылка успешно выполнена! Отправлено ${data.sentCount} гостям.`);
+        broadcastTextarea.value = '';
+        if (broadcastPreviewText) broadcastPreviewText.innerText = '[Сообщение отправлено!]';
+      } else {
+        alert('Ошибка отправки: ' + data.error);
+      }
+    } catch (err) {
+      alert('Ошибка сети при отправке рассылки');
+    }
+  });
+}

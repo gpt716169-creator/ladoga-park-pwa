@@ -477,6 +477,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const heroTextContainer = document.getElementById("heroTextContainer");
+    if (data && data.showGifts === false) {
+      const giftsSec = document.getElementById("giftsShowcaseSection");
+      if (giftsSec) giftsSec.style.display = "none";
+    }
+
     if (heroTextContainer) {
       heroTextContainer.style.opacity = "1";
     }
@@ -920,30 +925,56 @@ document.addEventListener("DOMContentLoaded", async () => {
     closeGiftBtn.addEventListener("click", () => closeModal("giftModal"));
   }
 
-  // Make all gift cards interactive
-  document.querySelectorAll(".gift-card").forEach(card => {
-    card.style.cursor = "pointer";
-    card.addEventListener("click", () => {
-      const img = card.querySelector("img");
-      const title = card.querySelector("h4");
-      const desc = card.querySelector("p");
-      
-      selectedGiftData = {
-        id: "gift-" + (title ? title.innerText.replace(/[^\wа-яА-Я0-9]/g, '_').toLowerCase() : Date.now()),
-        displayName: title ? title.innerText : "Приветственный подарок",
-        desc: desc ? desc.innerText : "Подарок заезда в парке",
-        image: img ? img.src : "",
-        price: 0,
-        isGift: true
-      };
+  function loadDynamicGifts() {
+    const container = document.getElementById("giftsGalleryContainer");
+    if (!container) return;
+    fetch('/api/gifts')
+      .then(r => r.json())
+      .then(res => {
+        if (res.success && res.data && res.data.length > 0) {
+          container.innerHTML = "";
+          res.data.forEach(g => {
+            const card = document.createElement("div");
+            card.className = "glass-card gift-card";
+            card.style.cssText = "min-width: 13.5rem; width: 13.5rem; flex-shrink: 0; padding: 0.875rem; display: flex; flex-direction: column; justify-content: space-between; gap: 0.75rem; cursor: pointer;";
+            card.innerHTML = `
+              <div style="position: relative; width: 100%; height: 9.5rem; border-radius: 0.75rem; overflow: hidden; background: #ffffff;">
+                <img src="${g.image_url}" style="width: 100%; height: 100%; object-fit: contain; padding: 0.5rem;" alt="${g.title}" />
+                <span style="position: absolute; top: 0.375rem; left: 0.375rem; background: rgba(0, 150, 217, 0.9); color: #ffffff; font-size: 9px; font-weight: 800; padding: 0.2rem 0.5rem; border-radius: 9999px;">${g.badge || '🎁 Подарок'}</span>
+              </div>
+              <div>
+                <h4 style="font-weight: 700; font-size: 0.8125rem; color: var(--text-main); line-height: 1.3; margin-bottom: 0.25rem;">${g.title}</h4>
+                <p style="font-size: 11px; color: var(--text-muted); line-height: 1.35;">${g.subtitle || ''}</p>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(0, 150, 217, 0.15); padding-top: 0.5rem; font-size: 11px; font-weight: 700; color: #0096d9;">
+                <span>🎁 В подарок</span>
+                <span style="color: var(--text-muted); font-weight: 500; font-size: 10px;">На ресепшн</span>
+              </div>
+            `;
+            card.onclick = () => {
+              selectedGiftData = {
+                id: "gift-" + g.id,
+                displayName: g.title,
+                desc: g.subtitle,
+                image: g.image_url,
+                price: 0,
+                isGift: true
+              };
 
-      if (giftModalImage && img) giftModalImage.src = img.src;
-      if (giftModalTitle && title) giftModalTitle.innerText = title.innerText;
-      if (giftModalDesc && desc) giftModalDesc.innerText = desc.innerText;
+              if (giftModalImage) giftModalImage.src = g.image_url;
+              if (giftModalTitle) giftModalTitle.innerText = g.title;
+              if (giftModalDesc) giftModalDesc.innerText = g.subtitle || "Выберите ваш фирменный приветственный подарок на стойке ресепшен!";
 
-      openModal("giftModal");
-    });
-  });
+              openModal("giftModal");
+            };
+            container.appendChild(card);
+          });
+        }
+      })
+      .catch(() => {});
+  }
+
+  loadDynamicGifts();
 
   if (claimGiftBtn) {
     claimGiftBtn.addEventListener("click", () => {

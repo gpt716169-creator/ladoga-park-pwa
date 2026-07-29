@@ -57,9 +57,11 @@
     </div>
     
     <!-- TABS -->
-    <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+    <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; overflow-x: auto;">
       <button class="btn btn-primary" id="tabCatalogBtn">Каталог Услуг</button>
       <button class="btn" id="tabBookingsBtn" style="background: rgba(255,255,255,0.1); color: white;">СМС и Брони</button>
+      <button class="btn" id="tabWarehouseBtn" style="background: rgba(255,255,255,0.1); color: white;">📦 Склад и Подарки</button>
+      <button class="btn" id="tabBroadcastBtn" style="background: rgba(255,255,255,0.1); color: white;">📢 Срочная Рассылка (SMS)</button>
     </div>
 
     <!-- CATALOG VIEW -->
@@ -141,6 +143,128 @@
         </div>
       </div>
     </div>
+
+    <!-- WAREHOUSE & GIFTS VIEW -->
+    <div id="viewWarehouse" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="color: white;">📦 Склад, Подарки и Аналитика Остатков</h2>
+        <button class="btn btn-primary" id="openAddGiftModalBtn">+ Добавить Новый Подарок</button>
+      </div>
+
+      <!-- Analytics Summary Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+        <div class="glass-card" style="padding: 1.25rem;">
+          <div style="font-size: 0.75rem; color: #a1a1aa; margin-bottom: 0.25rem;">Общая Стоимость Склада (₽)</div>
+          <div id="kpiTotalValuation" style="font-size: 1.5rem; font-weight: 800; color: #34d399;">0 ₽</div>
+        </div>
+        <div class="glass-card" style="padding: 1.25rem;">
+          <div style="font-size: 0.75rem; color: #a1a1aa; margin-bottom: 0.25rem;">Заканчивающиеся Позиции</div>
+          <div id="kpiLowStockCount" style="font-size: 1.5rem; font-weight: 800; color: #f87171;">0 позиций</div>
+        </div>
+        <div class="glass-card" style="padding: 1.25rem;">
+          <div style="font-size: 0.75rem; color: #a1a1aa; margin-bottom: 0.25rem;">Подарков на Витрине</div>
+          <div id="kpiTotalGifts" style="font-size: 1.5rem; font-weight: 800; color: var(--accent-gold);">0 видов</div>
+        </div>
+      </div>
+
+      <!-- Gifts Management Table -->
+      <div class="glass-card" style="margin-bottom: 2rem;">
+        <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">🎁 Витрина Подарков заезда (CRUD)</h3>
+        <div class="table-container" style="margin-top: 0;">
+          <table>
+            <thead>
+              <tr>
+                <th>Фото</th>
+                <th>Название</th>
+                <th>Тег-бейдж</th>
+                <th>Остаток шт.</th>
+                <th>Мин. порог</th>
+                <th>Себестоимость</th>
+                <th>Статус</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody id="giftsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Warehouse Products Table -->
+      <div class="glass-card" style="margin-bottom: 2rem;">
+        <h3 style="color: #60a5fa; margin-bottom: 1rem;">📦 Склад Товаров и Услуг Каталога</h3>
+        <div class="table-container" style="margin-top: 0;">
+          <table>
+            <thead>
+              <tr>
+                <th>Товар</th>
+                <th>Категория</th>
+                <th>Остаток шт.</th>
+                <th>Мин. порог</th>
+                <th>Себестоимость (₽)</th>
+                <th>Цена продажи (₽)</th>
+                <th>Действие</th>
+              </tr>
+            </thead>
+            <tbody id="productsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Stock Movement Log -->
+      <div class="glass-card">
+        <h3 style="color: #a1a1aa; margin-bottom: 1rem;">📋 Лог движения запасов и списаний</h3>
+        <div class="table-container" style="margin-top: 0;">
+          <table>
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Тип</th>
+                <th>Наименование</th>
+                <th>Изменение</th>
+                <th>Причина</th>
+              </tr>
+            </thead>
+            <tbody id="stockLogsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- IN-HOUSE SMS BROADCAST VIEW -->
+    <div id="viewBroadcast" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+          <h2 style="color: white; margin-bottom: 0.25rem;">📢 Срочная СМС-Рассылка Проживающим Гостям</h2>
+          <p style="font-size: 0.8125rem; color: #a1a1aa; margin: 0;">Отправляйте горячие спецпредложения или утренние анонсы всем гостям на базе в 1 клик</p>
+        </div>
+        <span id="inHouseGuestsCountBadge" style="background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 0.5rem 1rem; border-radius: 9999px; font-weight: 700; border: 1px solid rgba(52, 211, 153, 0.3);">👥 0 гостей сейчас в парке</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <!-- Broadcast Composer -->
+        <div class="glass-card">
+          <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">Составление Сообщения</h3>
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.8125rem; color: #a1a1aa; margin-bottom: 0.5rem;">Вставьте персонализацию:</label>
+            <button class="btn" id="insertNameTagBtn" style="background: rgba(0, 150, 217, 0.2); color: #0096d9; border: 1px solid rgba(0, 150, 217, 0.4); font-size: 0.8125rem; font-weight: 700;">+ {имя}</button>
+          </div>
+          <textarea id="broadcastTextarea" rows="5" placeholder="Пример: {имя}, добрый день! На сегодня в 19:00 освободилась Баня на берегу со скидкой 20%! Напишите в ответ или забронируйте в приложении." style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 0.75rem; color: white; padding: 0.875rem; font-size: 0.875rem; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
+          <button class="btn btn-primary" id="sendBroadcastBtn" style="width: 100%; margin-top: 1rem; padding: 0.875rem; font-size: 1rem; font-weight: 800;">🚀 Отправить СМС Всем Проживающим</button>
+        </div>
+
+        <!-- Live Preview -->
+        <div class="glass-card">
+          <h3 style="color: #60a5fa; margin-bottom: 1rem;">📱 Предпросмотр у Гостя</h3>
+          <div style="background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem; padding: 1.25rem; color: white;">
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem; font-weight: 600;">СМС от Ладога Парк:</div>
+            <div id="broadcastPreviewText" style="font-size: 0.875rem; line-height: 1.5; color: #f1f5f9; background: #0f172a; padding: 0.875rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.05);">
+              [Введите текст слева]
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   </div>
 
   <!-- Edit/Add Modal -->
@@ -184,6 +308,51 @@
         <div style="display: flex; gap: 1rem;">
           <button type="submit" class="btn btn-primary" style="flex: 1;">Сохранить</button>
           <button type="button" class="btn" style="flex: 1; background: rgba(255,255,255,0.1); color: white;" id="closeModalBtn">Отмена</button>
+        </div>
+      </form>
+  <!-- Gift Add/Edit Modal -->
+  <div id="giftModalAdmin" class="modal">
+    <div class="glass-card modal-content" style="max-width: 500px;">
+      <h2 id="giftModalAdminTitle" style="color: var(--accent-gold); margin-bottom: 1.5rem;">Добавить Подарок</h2>
+      <form id="giftFormAdmin">
+        <input type="hidden" id="giftIdAdmin" />
+        
+        <label>Название подарка:</label>
+        <input type="text" id="giftTitleAdmin" placeholder="Пример: Футболка Ладога Парк" required />
+        
+        <label>Описание (подзаголовок):</label>
+        <input type="text" id="giftSubtitleAdmin" placeholder="Пример: Мягкая дышащая футболка из орг. хлопка" />
+        
+        <label>Тег-бейдж (на картинке):</label>
+        <input type="text" id="giftBadgeAdmin" placeholder="Пример: ★ Символ Парка / Для детей" />
+        
+        <label>URL картинки или файл:</label>
+        <input type="text" id="giftImageUrlAdmin" placeholder="./assets/images/gifts/gift_toy.png?v=2" />
+        <input type="file" id="giftImageFileAdmin" accept="image/*" style="margin-top: 0.5rem;" />
+        <img id="giftImagePreviewAdmin" src="" style="width: 100px; height: 100px; object-fit: contain; border-radius: 8px; display: none; margin: 0.5rem 0;" />
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem;">
+          <div>
+            <label>Остаток (шт.):</label>
+            <input type="number" id="giftStockAdmin" value="50" required />
+          </div>
+          <div>
+            <label>Мин. порог (шт.):</label>
+            <input type="number" id="giftMinThresholdAdmin" value="10" required />
+          </div>
+        </div>
+
+        <label style="margin-top: 0.5rem;">Себестоимость 1 шт. (₽):</label>
+        <input type="number" id="giftUnitCostAdmin" value="350" required />
+
+        <label style="display: flex; align-items: center; gap: 0.5rem; margin: 1rem 0; cursor: pointer;">
+          <input type="checkbox" id="giftIsActiveAdmin" checked style="width: auto; margin: 0;" />
+          Отображать на витрине у гостей
+        </label>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+          <button type="submit" class="btn btn-primary" style="flex: 1;">Сохранить Подарок</button>
+          <button type="button" class="btn" style="flex: 1; background: rgba(255,255,255,0.1); color: white;" id="closeGiftModalAdminBtn">Отмена</button>
         </div>
       </form>
     </div>
