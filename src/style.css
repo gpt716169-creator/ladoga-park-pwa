@@ -467,7 +467,25 @@ span.brand-circle-badge {
   background: linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.15) 35%, rgba(0,0,0,0.2) 60%, rgba(240,249,255,0.85) 85%, #f0f9ff 100%) !important;
 }
 
-/* Modals & Drawers */
+/* Light Theme Typography & Card Headings Overrides */
+[data-theme="light"] .glass-card strong,
+[data-theme="light"] .glass-card h2,
+[data-theme="light"] .glass-card h3,
+[data-theme="light"] .glass-card h4,
+[data-theme="light"] #stage2GuideSection strong,
+[data-theme="light"] #stage2GuideSection h2,
+[data-theme="light"] #stage2GuideSection h3,
+[data-theme="light"] #stage2GuideSection h4,
+[data-theme="light"] #morningServiceSection strong,
+[data-theme="light"] #morningServiceSection h2,
+[data-theme="light"] #morningServiceSection h3 {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .glass-card p,
+[data-theme="light"] #stage2GuideSection p {
+  color: #475569 !important;
+}
 [data-theme="light"] .drawer-content,
 [data-theme="light"] .glass-modal {
   background: #ffffff !important;
