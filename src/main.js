@@ -1011,4 +1011,47 @@ document.addEventListener("DOMContentLoaded", async () => {
       closeDrawer("cartDrawer");
     });
   }
+
+  // Theme Switcher System (Dark / Light "Summer Refresh")
+  const themeToggleBtn = document.getElementById("themeToggleBtn");
+  const themeToggleIcon = document.getElementById("themeToggleIcon");
+  const themeToggleText = document.getElementById("themeToggleText");
+
+  function applyTheme(theme) {
+    if (theme === "light") {
+      document.documentElement.setAttribute("data-theme", "light");
+      document.body.setAttribute("data-theme", "light");
+      if (themeToggleIcon) themeToggleIcon.innerText = "🌙";
+      if (themeToggleText) themeToggleText.innerText = "Тёмная";
+      if (themeToggleBtn) {
+        themeToggleBtn.style.background = "#ffffff";
+        themeToggleBtn.style.color = "#1e293b";
+        themeToggleBtn.style.borderColor = "rgba(56, 189, 248, 0.4)";
+        themeToggleBtn.style.boxShadow = "0 4px 14px rgba(56, 189, 248, 0.2)";
+      }
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+      document.body.removeAttribute("data-theme");
+      if (themeToggleIcon) themeToggleIcon.innerText = "☀️";
+      if (themeToggleText) themeToggleText.innerText = "Светлая";
+      if (themeToggleBtn) {
+        themeToggleBtn.style.background = "rgba(18,28,23,0.85)";
+        themeToggleBtn.style.color = "#f3f4f6";
+        themeToggleBtn.style.borderColor = "rgba(232,165,88,0.3)";
+        themeToggleBtn.style.boxShadow = "0 4px 12px rgba(0,0,0,0.5)";
+      }
+    }
+  }
+
+  const savedTheme = localStorage.getItem("appTheme") || "dark";
+  applyTheme(savedTheme);
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+      const nextTheme = current === "light" ? "dark" : "light";
+      localStorage.setItem("appTheme", nextTheme);
+      applyTheme(nextTheme);
+    });
+  }
 })
