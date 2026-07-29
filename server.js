@@ -285,6 +285,8 @@ function extractCabinName(roomStay, defaultName = "Домик") {
 // ==========================================
 // SMS CRON JOB & DB SYNC SYSTEM
 // ==========================================
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 async function syncPropertyBookings(config, defaultName = "Домик") {
   try {
     const isSauna = config.propertyId === TL_SAUNAS.propertyId;
@@ -298,58 +300,83 @@ async function syncPropertyBookings(config, defaultName = "Домик") {
       if (continueToken) {
         url += `?continueToken=${encodeURIComponent(continueToken)}`;
       }
-      const res = await axios.get(url, { headers: { 'Authorization': `Bearer ${token}` } });
-      const summaries = res.data.bookingSummaries || [];
-      allSummaries.push(...summaries);
-      continueToken = res.data.continueToken;
-      hasMore = !!(res.data.hasMoreData && continueToken);
+      try {
+        const res = await axios.get(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        const summaries = res.data.bookingSummaries || [];
+        allSummaries.push(...summaries);
+        continueToken = res.data.continueToken;
+        hasMore = !!(res.data.hasMoreData && continueToken);
+        await sleep(200);
+      } catch (pageErr) {
+        if (pageErr.response && pageErr.response.status === 429) {
+          console.warn('[Sync] 429 Rate limited on page fetch, retrying in 1.5s...');
+          await sleep(1500);
+        } else {
+          throw pageErr;
+        }
+      }
     }
     
     const activeSummaries = allSummaries.filter(s => s.status !== 'Cancelled');
-    for (let i = activeSummaries.length - 1; i >= Math.max(0, activeSummaries.length - 300); i--) {
+    for (let i = activeSummaries.length - 1; i >= Math.max(0, activeSummaries.length - 400); i--) {
       const summary = activeSummaries[i];
       const existing = await new Promise((resolve) => db.get('SELECT modified_at, status, guest_name FROM bookings WHERE id = ?', [summary.number], (err, row) => resolve(row)));
       
       if (!existing || existing.modified_at !== summary.modifiedDateTime || existing.status !== summary.status || !existing.guest_name) {
-        try {
-          const detailRes = await axios.get(`${config.apiUrl}/properties/${config.propertyId}/bookings/${summary.number}`, {
-             headers: { 'Authorization': `Bearer ${token}` }
-          });
-          const b = detailRes.data.booking;
-          if (b && b.roomStays && b.roomStays[0]) {
-            const rs = b.roomStays[0];
-            let lastName = (b.customer?.lastName || rs.guests?.[0]?.lastName || "").replace(/\*/g, '').trim();
-            let firstName = (b.customer?.firstName || rs.guests?.[0]?.firstName || "").replace(/\*/g, '').trim();
+        let attempts = 0;
+        let success = false;
 
-            let guestName = "Гость";
-            if (lastName && firstName) {
-              guestName = `${lastName} ${firstName}`;
-            } else if (lastName) {
-              guestName = lastName;
-            } else if (firstName) {
-              guestName = firstName;
-            }
+        while (attempts < 3 && !success) {
+          try {
+            const detailRes = await axios.get(`${config.apiUrl}/properties/${config.propertyId}/bookings/${summary.number}`, {
+               headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const b = detailRes.data.booking;
+            if (b && b.roomStays && b.roomStays[0]) {
+              const rs = b.roomStays[0];
+              let lastName = (b.customer?.lastName || rs.guests?.[0]?.lastName || "").replace(/\*/g, '').trim();
+              let firstName = (b.customer?.firstName || rs.guests?.[0]?.firstName || "").replace(/\*/g, '').trim();
 
-            const phone = b.customer?.phone || "";
-            const cabin = extractCabinName(rs, defaultName);
-            const arr = rs.stayDates.arrivalDateTime.split('T')[0];
-            const dep = rs.stayDates.departureDateTime.split('T')[0];
-            
-            const arrYear = parseInt(arr.substring(0, 4), 10);
-            if (isNaN(arrYear) || arrYear < 2025) {
-              return;
+              let guestName = "Гость";
+              if (lastName && firstName) {
+                guestName = `${lastName} ${firstName}`;
+              } else if (lastName) {
+                guestName = lastName;
+              } else if (firstName) {
+                guestName = firstName;
+              }
+
+              const phone = b.customer?.phone || "";
+              const cabin = extractCabinName(rs, defaultName);
+              const arr = rs.stayDates.arrivalDateTime.split('T')[0];
+              const dep = rs.stayDates.departureDateTime.split('T')[0];
+              
+              const arrYear = parseInt(arr.substring(0, 4), 10);
+              if (isNaN(arrYear) || arrYear < 2025) {
+                success = true;
+                break;
+              }
+              
+              db.run(`INSERT INTO bookings (id, guest_name, cabin_name, arrival_date, departure_date, status, phone, modified_at)
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                      ON CONFLICT(id) DO UPDATE SET 
+                      guest_name=excluded.guest_name, cabin_name=excluded.cabin_name,
+                      arrival_date=excluded.arrival_date, departure_date=excluded.departure_date,
+                      status=excluded.status, phone=excluded.phone, modified_at=excluded.modified_at`,
+                [summary.number, guestName, cabin, arr, dep, summary.status, phone, summary.modifiedDateTime]);
             }
-            
-            db.run(`INSERT INTO bookings (id, guest_name, cabin_name, arrival_date, departure_date, status, phone, modified_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                    ON CONFLICT(id) DO UPDATE SET 
-                    guest_name=excluded.guest_name, cabin_name=excluded.cabin_name,
-                    arrival_date=excluded.arrival_date, departure_date=excluded.departure_date,
-                    status=excluded.status, phone=excluded.phone, modified_at=excluded.modified_at`,
-              [summary.number, guestName, cabin, arr, dep, summary.status, phone, summary.modifiedDateTime]);
+            success = true;
+            await sleep(100);
+          } catch (detailErr) {
+            attempts++;
+            if (detailErr.response && detailErr.response.status === 429) {
+              console.warn(`[Sync] Rate limited (429) on ${summary.number}, retry ${attempts} in 1.5s...`);
+              await sleep(1500);
+            } else {
+              console.error(`[Sync] Failed details for ${summary.number}:`, detailErr.message);
+              break;
+            }
           }
-        } catch (detailErr) {
-          console.error(`[Sync] Failed details for ${summary.number}:`, detailErr.message);
         }
       }
     }
