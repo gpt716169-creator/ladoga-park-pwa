@@ -311,10 +311,9 @@ async function syncPropertyBookings(config, defaultName = "Домик") {
     
     const activeSummaries = allSummaries.filter(s => s.status !== 'Cancelled');
     for (let i = activeSummaries.length - 1; i >= Math.max(0, activeSummaries.length - 100); i--) {
-      const summary = activeSummaries[i];
-      const existing = await new Promise((resolve) => db.get('SELECT modified_at, status FROM bookings WHERE id = ?', [summary.number], (err, row) => resolve(row)));
+      const existing = await new Promise((resolve) => db.get('SELECT modified_at, status, guest_name FROM bookings WHERE id = ?', [summary.number], (err, row) => resolve(row)));
       
-      if (!existing || existing.modified_at !== summary.modifiedDateTime || existing.status !== summary.status) {
+      if (!existing || existing.modified_at !== summary.modifiedDateTime || existing.status !== summary.status || !existing.guest_name || !existing.guest_name.includes(' ')) {
         try {
           const detailRes = await axios.get(`${config.apiUrl}/properties/${config.propertyId}/bookings/${summary.number}`, {
              headers: { 'Authorization': `Bearer ${token}` }
@@ -322,8 +321,18 @@ async function syncPropertyBookings(config, defaultName = "Домик") {
           const b = detailRes.data.booking;
           if (b && b.roomStays && b.roomStays[0]) {
             const rs = b.roomStays[0];
-            let guestName = b.customer?.firstName || rs.guests?.[0]?.firstName || "Гость";
-            guestName = guestName.replace(/\*/g, '').trim() || "Гость";
+            let lastName = (b.customer?.lastName || rs.guests?.[0]?.lastName || "").replace(/\*/g, '').trim();
+            let firstName = (b.customer?.firstName || rs.guests?.[0]?.firstName || "").replace(/\*/g, '').trim();
+
+            let guestName = "Гость";
+            if (lastName && firstName) {
+              guestName = `${lastName} ${firstName}`;
+            } else if (lastName) {
+              guestName = lastName;
+            } else if (firstName) {
+              guestName = firstName;
+            }
+
             const phone = b.customer?.phone || "";
             const cabin = extractCabinName(rs, defaultName);
             const arr = rs.stayDates.arrivalDateTime.split('T')[0];
