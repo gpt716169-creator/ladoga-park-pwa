@@ -151,14 +151,9 @@ async function loadBookingsDashboard() {
     const res = await fetch(`${API_BASE}/admin/dashboard`);
     const data = await res.json();
     if (data.success) {
-      const { tomorrowArrivals, currentStays, todayDepartures, upcomingBookings } = data.data;
-      
-      const activeList = [...(currentStays || []), ...(tomorrowArrivals || []), ...(todayDepartures || [])];
-      const activeUniqueMap = new Map();
-      activeList.forEach(item => activeUniqueMap.set(item.id, item));
-      const activeUnique = Array.from(activeUniqueMap.values());
+      const { tomorrowArrivals, currentStays, upcomingBookings } = data.data;
 
-      renderMasterBookingsTable('activeBookingsTableBody', 'activeGuestsCountBadge', activeUnique, '🔥 0 активных гостей');
+      renderActiveGroupedBookingsTable(tomorrowArrivals || [], currentStays || []);
       renderMasterBookingsTable('futureBookingsTableBody', 'futureBookingsBadge', upcomingBookings || [], '(0 броней)');
     }
   } catch (err) {
@@ -239,6 +234,98 @@ window.autoSavePhone = async (bookingId, phone) => {
     alert('Ошибка сети при сохранении телефона');
   }
 };
+
+function renderActiveGroupedBookingsTable(tomorrowArrivals, currentStays) {
+  const tbody = document.getElementById('activeBookingsTableBody');
+  const badge = document.getElementById('activeGuestsCountBadge');
+  if (!tbody) return;
+
+  const totalCount = (tomorrowArrivals ? tomorrowArrivals.length : 0) + (currentStays ? currentStays.length : 0);
+  if (badge) {
+    badge.innerText = `🔥 ${totalCount} гостей (Завтра: ${tomorrowArrivals.length}, Живут: ${currentStays.length})`;
+  }
+
+  if (totalCount === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #a1a1aa; padding: 1.5rem;">Активных проживаний и заездов на завтра не найдено</td></tr>';
+    return;
+  }
+
+  let html = '';
+
+  // 1. TOMORROW ARRIVALS FIRST
+  if (tomorrowArrivals && tomorrowArrivals.length > 0) {
+    html += `
+      <tr style="background: rgba(52, 211, 153, 0.15); border-left: 4px solid #34d399;">
+        <td colspan="8" style="padding: 0.65rem 0.75rem; font-weight: 800; color: #34d399; font-size: 0.8125rem; letter-spacing: 0.05em;">
+          ⚡ ЗАЕЗЖАЮТ ЗАВТРА (${tomorrowArrivals.length})
+        </td>
+      </tr>
+    `;
+    html += tomorrowArrivals.map(b => renderBookingRow(b, '🟢 Заезд завтра')).join('');
+  }
+
+  // 2. CURRENT STAYS SECOND
+  if (currentStays && currentStays.length > 0) {
+    html += `
+      <tr style="background: rgba(232, 165, 88, 0.15); border-left: 4px solid var(--accent-gold);">
+        <td colspan="8" style="padding: 0.65rem 0.75rem; font-weight: 800; color: var(--accent-gold); font-size: 0.8125rem; letter-spacing: 0.05em;">
+          🏡 УЖЕ ПРОЖИВАЮТ В ПАРКЕ СЕГОДНЯ (${currentStays.length})
+        </td>
+      </tr>
+    `;
+    html += currentStays.map(b => renderBookingRow(b, '🏠 Проживает')).join('');
+  }
+
+  tbody.innerHTML = html;
+}
+
+function renderBookingRow(b, tagText) {
+  const cur = String(b.house_number || '');
+  const shortGuest = formatGuestInitials(b.guest_name);
+  const arrShort = b.arrival_date ? b.arrival_date.slice(5, 10).replace('-', '.') : '';
+  const depShort = b.departure_date ? b.departure_date.slice(5, 10).replace('-', '.') : '';
+  const datesFormatted = `${arrShort} – ${depShort}`;
+  const houseSelectHtml = getHouseOptionsForCategory(b.cabin_name, cur);
+
+  const hasSmsSent = b.sms_stages || (b.sms && Object.keys(b.sms).length > 0);
+  const smsBadge = hasSmsSent 
+    ? `<span style="background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 0.2rem 0.45rem; border-radius: 0.375rem; font-size: 11px; font-weight: 700; border: 1px solid rgba(52, 211, 153, 0.3);">✅ Ушла</span>`
+    : `<span style="background: rgba(148, 163, 184, 0.12); color: #94a3b8; padding: 0.2rem 0.45rem; border-radius: 0.375rem; font-size: 11px; font-weight: 600;">⏳ Ожидает</span>`;
+
+  const isTomorrow = tagText && tagText.includes('завтра');
+  const tagBadge = tagText ? `<span style="font-size: 10px; font-weight: 700; padding: 0.15rem 0.35rem; border-radius: 0.25rem; margin-left: 0.35rem; ${isTomorrow ? 'background: rgba(52, 211, 153, 0.2); color: #34d399;' : 'background: rgba(232, 165, 88, 0.2); color: #facc15;'}">${tagText}</span>` : '';
+
+  return `
+    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); ${isTomorrow ? 'background: rgba(52, 211, 153, 0.03);' : ''}">
+      <td style="padding: 0.6rem 0.5rem;">
+        <button class="btn" style="background: rgba(255,255,255,0.08); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); padding: 0.25rem 0.5rem; font-size: 11px; font-weight: 600;" onclick="navigator.clipboard.writeText('${b.id}'); this.innerText='✓ Скопировано'; setTimeout(() => this.innerText='📋 ID', 1500);" title="Скопировать номер брони (${b.id})">📋 ID</button>
+      </td>
+      <td style="padding: 0.6rem 0.5rem;">
+        <strong style="color: white; font-size: 0.875rem;">${shortGuest}</strong> ${tagBadge}
+      </td>
+      <td style="padding: 0.6rem 0.5rem;">
+        <input type="text" value="${b.phone || ''}" placeholder="📱 +7..." style="width: 110px; margin-bottom: 0; padding: 0.25rem 0.4rem; font-size: 11px; font-weight: 600; color: #34d399; background: rgba(0,0,0,0.4); border: 1px solid rgba(52,211,153,0.3); border-radius: 0.375rem;" onchange="window.autoSavePhone('${b.id}', this.value)" title="Нажмите, чтобы ввести или отредактировать телефон для СМС" />
+      </td>
+      <td style="padding: 0.6rem 0.5rem; color: #e4e4e7; font-size: 0.8125rem;">
+        ${b.cabin_name || 'Домик'}
+      </td>
+      <td style="padding: 0.6rem 0.5rem; font-size: 11px; color: #a1a1aa; font-weight: 600;">
+        ${datesFormatted}
+      </td>
+      <td style="padding: 0.6rem 0.5rem;">
+        <select style="margin-bottom: 0; padding: 0.3rem 0.4rem; font-size: 12px; font-weight: 700; color: #facc15; background: #0f172a; border: 1px solid rgba(250,204,21,0.5); border-radius: 0.375rem; cursor: pointer;" onchange="window.autoSaveHouseNumber('${b.id}', this.value)">
+          ${houseSelectHtml}
+        </select>
+      </td>
+      <td style="padding: 0.6rem 0.5rem;">
+        <a href="/?booking=${b.id}" target="_blank" class="btn" style="background: rgba(0, 150, 217, 0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 0.25rem 0.5rem; font-size: 11px; font-weight: 600; text-decoration: none;">📱 ПВА</a>
+      </td>
+      <td style="padding: 0.6rem 0.5rem;">
+        ${smsBadge}
+      </td>
+    </tr>
+  `;
+}
 
 function renderMasterBookingsTable(tbodyId, badgeId, bookings, emptyBadgeText) {
   const tbody = document.getElementById(tbodyId);
