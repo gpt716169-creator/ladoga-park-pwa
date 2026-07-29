@@ -842,6 +842,18 @@ app.post('/api/admin/assign-house', authenticateToken, (req, res) => {
   );
 });
 
+app.post('/api/admin/update-phone', authenticateToken, (req, res) => {
+  const { bookingId, phone } = req.body;
+  if (!bookingId) {
+    return res.status(400).json({ success: false, error: 'bookingId is required' });
+  }
+
+  db.run('UPDATE bookings SET phone = ? WHERE id = ?', [(phone || '').trim(), bookingId], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, bookingId, phone: (phone || '').trim() });
+  });
+});
+
 // SMS Templates API
 app.get('/api/admin/sms-templates', authenticateToken, (req, res) => {
   db.all('SELECT * FROM sms_templates ORDER BY created_at DESC', [], (err, rows) => {
