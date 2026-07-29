@@ -93,6 +93,18 @@ header {
   opacity: 1;
 }
 
+/* Hide native iOS WebKit video play buttons & controls overlay */
+video::-webkit-media-controls,
+video::-webkit-media-controls-start-playback-button,
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-overlay-play-button,
+video::-webkit-media-controls-panel {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 .vignette-overlay {
   position: absolute;
   top: 0;

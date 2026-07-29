@@ -618,6 +618,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Try to load cached booking data if exists
     const cachedData = JSON.parse(localStorage.getItem("bookingData") || "null");
     initStage(currentStage, cachedData);
+
+    // iOS Safari Low Power Mode / Autoplay Fallback Trigger
+    const tryPlayVideos = () => {
+      const videos = document.querySelectorAll(".hero-video");
+      videos.forEach(v => {
+        v.muted = true;
+        v.defaultMuted = true;
+        v.play().catch(() => {});
+      });
+    };
+    tryPlayVideos();
+    ["touchstart", "pointerdown", "scroll"].forEach(evt => {
+      window.addEventListener(evt, tryPlayVideos, { once: true, passive: true });
+    });
   }
 
   function initStage(stageId, bookingData) {

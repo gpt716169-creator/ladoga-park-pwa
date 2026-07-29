@@ -79,8 +79,14 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
     // Avoid dual decoding or reloading if the current active video is already playing this exact source!
     const activeSrc = currentActive.getAttribute("src") || "";
     if (activeSrc === config.videoPath || (currentActive.src && currentActive.src.endsWith(config.videoPath))) {
-      // The video is already loaded and playing smoothly on currentActive! Do not touch decoders!
+      // Ensure currentActive is playing on iOS
+      currentActive.muted = true;
+      currentActive.defaultMuted = true;
+      currentActive.play().catch(() => {});
     } else {
+      currentInactive.muted = true;
+      currentInactive.defaultMuted = true;
+      currentInactive.playsInline = true;
       currentInactive.src = config.videoPath;
       currentInactive.load();
       
