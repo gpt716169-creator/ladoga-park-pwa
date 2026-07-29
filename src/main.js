@@ -477,9 +477,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const heroTextContainer = document.getElementById("heroTextContainer");
-    if (data && data.showGifts === false) {
-      const giftsSec = document.getElementById("giftsShowcaseSection");
-      if (giftsSec) giftsSec.style.display = "none";
+    const giftsSec = document.getElementById("giftsShowcaseSection");
+    if (data && data.showGifts === true) {
+      if (giftsSec && (currentStage === "1" || currentStage === "2")) {
+        giftsSec.classList.remove("hidden");
+        giftsSec.style.display = "flex";
+      }
+    } else {
+      if (giftsSec) {
+        giftsSec.classList.add("hidden");
+        giftsSec.style.display = "none";
+      }
     }
 
     if (heroTextContainer) {

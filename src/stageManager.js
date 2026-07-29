@@ -175,11 +175,11 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
   if (morningServiceSection) morningServiceSection.classList.add("hidden");
   if (farewellSection) farewellSection.classList.add("hidden");
 
-  const shouldHideGifts = bookingData && bookingData.showGifts === false;
+  const shouldShowGifts = bookingData ? (bookingData.showGifts === true) : true;
 
   if (stageId === "1" || stageId == 1) {
-    // Stage 1: Pre-arrival -> Show Gifts Showcase (only if showGifts != false!), Sauna, Quick Orders, Catalogue
-    if (giftsShowcaseSection && !shouldHideGifts) {
+    // Stage 1: Pre-arrival -> Show Gifts Showcase (only if showGifts === true or no booking param!), Sauna, Quick Orders, Catalogue
+    if (giftsShowcaseSection && shouldShowGifts) {
       giftsShowcaseSection.classList.remove("hidden");
       giftsShowcaseSection.style.display = "flex";
     }
@@ -189,8 +189,8 @@ export function switchStage(stageId, season = "summer", onActionClick, bookingDa
     if (saunaSectionHeader) saunaSectionHeader.innerText = "🔥 Выберите баню к приезду";
   } 
   else if (stageId === "2" || stageId == 2) {
-    // Stage 2: In-Stay -> Show Gifts Showcase (only if showGifts != false!), Sightseeing Guide, Sauna, Quick Orders, Catalogue
-    if (giftsShowcaseSection && !shouldHideGifts) {
+    // Stage 2: In-Stay -> Show Gifts Showcase (only if showGifts === true or no booking param!), Sightseeing Guide, Sauna, Quick Orders, Catalogue
+    if (giftsShowcaseSection && shouldShowGifts) {
       giftsShowcaseSection.classList.remove("hidden");
       giftsShowcaseSection.style.display = "flex";
     }
