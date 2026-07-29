@@ -140,78 +140,37 @@
     <!-- BOOKINGS DASHBOARD VIEW -->
     <div id="viewBookings" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h2 style="color: white;">СМС & Бронирования (TravelLine)</h2>
+        <h2 style="color: white;">📋 Гости & Бронирования (TravelLine)</h2>
         <button class="btn btn-edit" id="forceSyncBtn">🔄 Синхронизировать (TL)</button>
       </div>
       
-      <div style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
-        <!-- IN-HOUSE GUEST HOUSE NUMBER ASSIGNMENT CARD -->
-        <div class="glass-card" style="border: 1px solid rgba(232,165,88,0.4);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-            <h3 style="color: var(--accent-gold); margin: 0;">👥 Проживающие Гости & Привязка Домиков (101 - 121)</h3>
-            <span id="inHouseGuestsCountBadge" style="background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 0.35rem 0.85rem; border-radius: 9999px; font-weight: 700; font-size: 0.8125rem; border: 1px solid rgba(52, 211, 153, 0.3);">👥 0 гостей сейчас в парке</span>
+      <div class="glass-card" style="border: 1px solid rgba(232,165,88,0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h3 style="color: var(--accent-gold); margin: 0;">👥 Все Бронирования и Назначение Номеров Домиков</h3>
+            <p style="font-size: 0.8125rem; color: #a1a1aa; margin: 0.25rem 0 0 0;">Привязывайте номера домиков (101–121) к заездам и текущим проживаниям. Номер сохраняется мгновенно при выборе!</p>
           </div>
-          <p style="font-size: 0.8125rem; color: #a1a1aa; margin-bottom: 1rem;">Выберите номер физического домика из шахматки для гостя. Номер сохраняется мгновенно при выборе!</p>
-          <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
-              <thead>
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #a1a1aa; text-align: left;">
-                  <th style="padding: 0.5rem;">Гость</th>
-                  <th style="padding: 0.5rem;">Телефон</th>
-                  <th style="padding: 0.5rem;">Категория брони</th>
-                  <th style="padding: 0.5rem;">Даты</th>
-                  <th style="padding: 0.5rem;">Назначенный Домик</th>
-                </tr>
-              </thead>
-              <tbody id="inHouseGuestsTableBody">
-                <!-- Rendered dynamically by src/admin.js -->
-              </tbody>
-            </table>
-          </div>
+          <span id="allBookingsCountBadge" style="background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 0.4rem 0.85rem; border-radius: 9999px; font-weight: 700; font-size: 0.8125rem; border: 1px solid rgba(52, 211, 153, 0.3);">👥 0 броней</span>
         </div>
 
-        <!-- Arrivals Tomorrow -->
-        <div class="glass-card">
-          <h3 style="color: #34d399; margin-bottom: 1rem;">Заезжают завтра / Новый заезд</h3>
-          <div class="table-container" style="margin-top: 0;">
-            <table>
-              <thead><tr><th>ID</th><th>Гость</th><th>Телефон</th><th>Объект</th><th>Даты</th><th>Ссылка</th></tr></thead>
-              <tbody id="tomorrowArrivalsBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Current Stays -->
-        <div class="glass-card">
-          <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">Текущие проживания & Брони бань</h3>
-          <div class="table-container" style="margin-top: 0;">
-            <table>
-              <thead><tr><th>ID</th><th>Гость</th><th>Телефон</th><th>Объект / Баня</th><th>Даты</th><th>Ссылка</th></tr></thead>
-              <tbody id="currentStaysBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Departures Today -->
-        <div class="glass-card">
-          <h3 style="color: #60a5fa; margin-bottom: 1rem;">Выезды сегодня</h3>
-          <div class="table-container" style="margin-top: 0;">
-            <table>
-              <thead><tr><th>ID</th><th>Гость</th><th>Телефон</th><th>Объект</th><th>Даты</th><th>Ссылка</th></tr></thead>
-              <tbody id="todayDeparturesBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Upcoming Bookings (Future) -->
-        <div class="glass-card">
-          <h3 style="color: #c084fc; margin-bottom: 1rem;">📅 Предстоящие заезды (Февраль, Март, Апрель...)</h3>
-          <div class="table-container" style="margin-top: 0;">
-            <table>
-              <thead><tr><th>ID</th><th>Гость</th><th>Телефон</th><th>Объект / Баня</th><th>Даты</th><th>Ссылка</th></tr></thead>
-              <tbody id="upcomingBookingsBody"></tbody>
-            </table>
-          </div>
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+            <thead>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #a1a1aa; text-align: left;">
+                <th style="padding: 0.6rem 0.5rem;">Бронь</th>
+                <th style="padding: 0.6rem 0.5rem;">Гость</th>
+                <th style="padding: 0.6rem 0.5rem;">Телефон</th>
+                <th style="padding: 0.6rem 0.5rem;">Категория</th>
+                <th style="padding: 0.6rem 0.5rem;">Даты</th>
+                <th style="padding: 0.6rem 0.5rem;">№ Домика</th>
+                <th style="padding: 0.6rem 0.5rem;">ПВА</th>
+                <th style="padding: 0.6rem 0.5rem;">СМС</th>
+              </tr>
+            </thead>
+            <tbody id="masterBookingsTableBody">
+              <!-- Rendered dynamically by src/admin.js -->
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

@@ -151,15 +151,121 @@ async function loadBookingsDashboard() {
     const res = await fetch(`${API_BASE}/admin/dashboard`);
     const data = await res.json();
     if (data.success) {
-      const { tomorrowArrivals, currentStays, todayDepartures, upcomingBookings } = data.data;
-      renderBookingsTable('tomorrowArrivalsBody', tomorrowArrivals || []);
-      renderBookingsTable('currentStaysBody', currentStays || []);
-      renderBookingsTable('todayDeparturesBody', todayDepartures || []);
-      renderBookingsTable('upcomingBookingsBody', upcomingBookings || []);
+      const { allBookings } = data.data;
+      renderMasterBookingsTable(allBookings || []);
     }
   } catch (err) {
     console.error('Failed to load bookings dashboard', err);
   }
+}
+
+function formatGuestInitials(name) {
+  if (!name || name === "Гость") return "Гость";
+  const clean = name.replace(/\*/g, '').trim();
+  const parts = clean.split(/\s+/);
+  if (parts.length === 1) return parts[0];
+  
+  const p1 = parts[0];
+  const p2 = parts[1];
+  
+  const isP2Surname = /(?:ов|ова|ев|ева|ин|ина|ский|ская|ый|ая)$/i.test(p2);
+  const isP1Surname = /(?:ов|ова|ев|ева|ин|ина|ский|ская|ый|ая)$/i.test(p1);
+
+  if (isP2Surname && !isP1Surname) {
+    return `${p2} ${p1[0].toUpperCase()}.`;
+  } else {
+    return `${p1} ${p2[0].toUpperCase()}.`;
+  }
+}
+
+function renderMasterBookingsTable(bookings) {
+  const tbody = document.getElementById('masterBookingsTableBody');
+  const badge = document.getElementById('allBookingsCountBadge');
+  if (!tbody) return;
+
+  if (badge) {
+    badge.innerText = `👥 ${bookings.length} броней`;
+  }
+
+  if (!bookings || bookings.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #a1a1aa; padding: 1.5rem;">Бронирований не найдено</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = bookings.map(b => {
+    const cur = String(b.house_number || '');
+    const shortGuest = formatGuestInitials(b.guest_name);
+    const arrShort = b.arrival_date ? b.arrival_date.slice(5, 10).replace('-', '.') : '';
+    const depShort = b.departure_date ? b.departure_date.slice(5, 10).replace('-', '.') : '';
+    const datesFormatted = `${arrShort} – ${depShort}`;
+
+    const hasSmsSent = b.sms_stages || (b.sms && Object.keys(b.sms).length > 0);
+    const smsBadge = hasSmsSent 
+      ? `<span style="background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 0.2rem 0.45rem; border-radius: 0.375rem; font-size: 11px; font-weight: 700; border: 1px solid rgba(52, 211, 153, 0.3);">✅ Ушла</span>`
+      : `<span style="background: rgba(148, 163, 184, 0.12); color: #94a3b8; padding: 0.2rem 0.45rem; border-radius: 0.375rem; font-size: 11px; font-weight: 600;">⏳ Ожидает</span>`;
+
+    return `
+      <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <td style="padding: 0.6rem 0.5rem;">
+          <button class="btn" style="background: rgba(255,255,255,0.08); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); padding: 0.25rem 0.5rem; font-size: 11px; font-weight: 600;" onclick="navigator.clipboard.writeText('${b.id}'); this.innerText='✓ Скопировано'; setTimeout(() => this.innerText='📋 ID', 1500);" title="Скопировать номер брони (${b.id})">📋 ID</button>
+        </td>
+        <td style="padding: 0.6rem 0.5rem;">
+          <strong style="color: white; font-size: 0.875rem;">${shortGuest}</strong>
+        </td>
+        <td style="padding: 0.6rem 0.5rem; font-size: 0.8125rem;">
+          <span style="color: #34d399; font-weight: 600;">${b.phone ? '📞 ' + b.phone : '—'}</span>
+        </td>
+        <td style="padding: 0.6rem 0.5rem; color: #e4e4e7; font-size: 0.8125rem;">
+          ${b.cabin_name || 'Домик'}
+        </td>
+        <td style="padding: 0.6rem 0.5rem; font-size: 11px; color: #a1a1aa; font-weight: 600;">
+          ${datesFormatted}
+        </td>
+        <td style="padding: 0.6rem 0.5rem;">
+          <select style="margin-bottom: 0; padding: 0.3rem 0.4rem; font-size: 12px; font-weight: 700; color: #facc15; background: #0f172a; border: 1px solid rgba(250,204,21,0.5); border-radius: 0.375rem; cursor: pointer;" onchange="window.autoSaveHouseNumber('${b.id}', this.value)">
+            <option value="">-- № --</option>
+            <optgroup label="7-местный">
+              <option value="101" ${cur === '101' ? 'selected' : ''}>№ 101</option>
+              <option value="102" ${cur === '102' ? 'selected' : ''}>№ 102</option>
+              <option value="103" ${cur === '103' ? 'selected' : ''}>№ 103</option>
+            </optgroup>
+            <optgroup label="Мини 2-местный">
+              <option value="104" ${cur === '104' ? 'selected' : ''}>№ 104</option>
+              <option value="105" ${cur === '105' ? 'selected' : ''}>№ 105</option>
+              <option value="106" ${cur === '106' ? 'selected' : ''}>№ 106</option>
+              <option value="107" ${cur === '107' ? 'selected' : ''}>№ 107</option>
+              <option value="108" ${cur === '108' ? 'selected' : ''}>№ 108</option>
+              <option value="109" ${cur === '109' ? 'selected' : ''}>№ 109</option>
+            </optgroup>
+            <optgroup label="Мини 4-местный">
+              <option value="110" ${cur === '110' ? 'selected' : ''}>№ 110</option>
+              <option value="111" ${cur === '111' ? 'selected' : ''}>№ 111</option>
+            </optgroup>
+            <optgroup label="Барн 4-местный (Барн+)">
+              <option value="112" ${cur === '112' ? 'selected' : ''}>№ 112</option>
+              <option value="113" ${cur === '113' ? 'selected' : ''}>№ 113</option>
+              <option value="114" ${cur === '114' ? 'selected' : ''}>№ 114</option>
+              <option value="115" ${cur === '115' ? 'selected' : ''}>№ 115</option>
+              <option value="116" ${cur === '116' ? 'selected' : ''}>№ 116</option>
+              <option value="117" ${cur === '117' ? 'selected' : ''}>№ 117</option>
+              <option value="118" ${cur === '118' ? 'selected' : ''}>№ 118</option>
+              <option value="119" ${cur === '119' ? 'selected' : ''}>№ 119</option>
+            </optgroup>
+            <optgroup label="Барн 2-местный">
+              <option value="120" ${cur === '120' ? 'selected' : ''}>№ 120</option>
+              <option value="121" ${cur === '121' ? 'selected' : ''}>№ 121</option>
+            </optgroup>
+          </select>
+        </td>
+        <td style="padding: 0.6rem 0.5rem;">
+          <a href="/?booking=${b.id}" target="_blank" class="btn" style="background: rgba(0, 150, 217, 0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 0.25rem 0.5rem; font-size: 11px; font-weight: 600; text-decoration: none;">📱 ПВА</a>
+        </td>
+        <td style="padding: 0.6rem 0.5rem;">
+          ${smsBadge}
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 function renderBookingsTable(targetId, bookings) {
