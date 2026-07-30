@@ -418,11 +418,18 @@ app.get('/api/booking/:id', async (req, res) => {
     if (!roomStay) {
       return res.status(400).json({ success: false, error: 'No room stays found for booking' });
     }
-    let guestName = "Гость";
-    if (booking.customer && booking.customer.firstName && !booking.customer.firstName.includes("*")) {
-       guestName = booking.customer.firstName;
-    } else if (roomStay.guests && roomStay.guests[0] && roomStay.guests[0].firstName && !roomStay.guests[0].firstName.includes("*")) {
-       guestName = roomStay.guests[0].firstName;
+    // Check if house_number or guest_name is assigned/overridden in SQLite DB
+    const dbRow = await new Promise((resolve) => db.get('SELECT house_number, guest_name FROM bookings WHERE id = ?', [id], (err, row) => resolve(row)));
+
+    let guestName = dbRow?.guest_name || "";
+    if (!guestName || guestName === "Гость") {
+      if (booking.customer && booking.customer.firstName && !booking.customer.firstName.includes("*")) {
+         guestName = booking.customer.firstName;
+      } else if (roomStay.guests && roomStay.guests[0] && roomStay.guests[0].firstName && !roomStay.guests[0].firstName.includes("*")) {
+         guestName = roomStay.guests[0].firstName;
+      } else {
+         guestName = "Гость";
+      }
     }
     const cabinName = extractCabinName(roomStay, "Домик");
     const arrivalDate = roomStay.stayDates.arrivalDateTime.split('T')[0];
