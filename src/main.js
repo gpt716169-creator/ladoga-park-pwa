@@ -596,7 +596,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             calculatedStage = "4"; // Post-stay
           }
           
-          currentStage = calculatedStage;
+          // Respect explicit URL parameter ?stage=X over date calculation
+          const explicitStage = urlParams.get("stage");
+          if (explicitStage && ["1", "2", "3", "4"].includes(explicitStage)) {
+            currentStage = explicitStage;
+          } else {
+            currentStage = calculatedStage;
+          }
+          
           localStorage.setItem("demoStage", currentStage);
           
           const stageSelector = document.getElementById("stageSelector");
@@ -689,6 +696,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Developer Pill Drawer Toggle & Stage Change Listener
   const toggleDemoMenuBtn = document.getElementById("toggleDemoMenuBtn");
   const demoMenuDrawer = document.getElementById("demoMenuDrawer");
+  if (toggleDemoMenuBtn) {
+    if ((urlParams.get("booking") || urlParams.get("stage") || urlParams.get("demo")) && urlParams.get("dev") !== "1") {
+      toggleDemoMenuBtn.style.display = "none";
+    }
+  }
   if (toggleDemoMenuBtn && demoMenuDrawer) {
     toggleDemoMenuBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -945,7 +957,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       .then(res => {
         if (res.success && res.data && res.data.length > 0) {
           container.innerHTML = "";
-          res.data.forEach(g => {
+          let giftsList = res.data;
+          // Stage 1 filter: Only show Umbrella ("Фирменный зонт Ладога Парк")
+          if (currentStage === "1" || currentStage == 1) {
+            giftsList = giftsList.filter(g => g.id === 'g3' || (g.title && g.title.toLowerCase().includes('зонт')));
+          }
+          giftsList.forEach(g => {
             const card = document.createElement("div");
             card.className = "glass-card gift-card";
             card.style.cssText = "min-width: 13.5rem; width: 13.5rem; flex-shrink: 0; padding: 0.875rem; display: flex; flex-direction: column; justify-content: space-between; gap: 0.75rem; cursor: pointer;";
