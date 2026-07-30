@@ -486,8 +486,6 @@ app.get('/api/booking/:id', async (req, res) => {
     // Show gifts ONLY IF NOT paid online via card (i.e. paid direct/by phone/bank transfer)
     const showGifts = !isOnlineCard;
 
-    // Check if house_number is assigned in DB
-    const dbRow = await new Promise((resolve) => db.get('SELECT house_number FROM bookings WHERE id = ?', [id], (err, row) => resolve(row)));
     const houseNumber = dbRow?.house_number || "";
     const finalCabinName = houseNumber ? `Домик № ${houseNumber}` : cabinName;
 
