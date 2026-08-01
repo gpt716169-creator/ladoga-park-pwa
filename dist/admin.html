@@ -6,12 +6,16 @@
   <title>Ладога Парк | Админ Панель</title>
   <style>
     :root {
-      --admin-bg: #0b110e;
-      --admin-card: #14221c;
-      --admin-border: rgba(232, 165, 88, 0.35);
-      --admin-text: #ffffff;
-      --admin-text-muted: #a1a1aa;
-      --admin-gold: #e8a558;
+      --admin-bg: #f1f5f9;
+      --admin-card: #ffffff;
+      --admin-border: #e2e8f0;
+      --admin-border-accent: #cbd5e1;
+      --admin-text: #0f172a;
+      --admin-text-muted: #475569;
+      --admin-text-subtle: #64748b;
+      --admin-gold: #d97706;
+      --admin-blue: #0284c7;
+      --admin-emerald: #059669;
     }
     html, body {
       background-color: var(--admin-bg) !important;
@@ -20,66 +24,82 @@
       margin: 0;
       padding: 0;
     }
-    .admin-container { max-width: 1050px; margin: 0 auto; padding: 2rem 1rem; }
+    .admin-container { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
     .glass-card {
       background: var(--admin-card) !important;
       border: 1px solid var(--admin-border) !important;
       border-radius: 1rem;
       padding: 1.5rem;
       color: var(--admin-text) !important;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
     }
     
     /* Login Form */
-    #loginScreen { display: flex; align-items: center; justify-content: center; height: 100vh; background: #080d0b; }
+    #loginScreen { display: flex; align-items: center; justify-content: center; height: 100vh; background: #e2e8f0; }
     
     /* Dashboard */
     #dashboardScreen { display: none; }
     .table-container { width: 100%; overflow-x: auto; margin-top: 1rem; }
-    table { width: 100%; border-collapse: collapse; color: #ffffff !important; }
-    th, td { padding: 0.875rem 1rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); color: #f3f4f6 !important; }
-    th { color: var(--admin-gold) !important; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; background: rgba(0,0,0,0.3); }
-    td strong { color: #ffffff !important; }
-    td a { color: #60a5fa !important; font-weight: 600; text-decoration: underline; }
+    table { width: 100%; border-collapse: collapse; color: var(--admin-text) !important; }
+    th, td { padding: 0.875rem 1rem; text-align: left; border-bottom: 1px solid #e2e8f0; color: var(--admin-text) !important; }
+    th { color: #1e293b !important; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; background: #f8fafc !important; }
+    td strong { color: #0f172a !important; font-weight: 700; }
+    td a { color: #0284c7 !important; font-weight: 600; text-decoration: underline; }
     .item-image { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; }
     
-    .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 700; cursor: pointer; border: none; font-size: 0.875rem; }
-    .btn-primary { background: linear-gradient(135deg, var(--primary-ember), var(--accent-gold)) !important; color: #0b110e !important; text-shadow: none; }
-    .btn-danger { background: rgba(239,68,68,0.25) !important; color: #f87171 !important; border: 1px solid rgba(239,68,68,0.5) !important; }
-    .btn-edit { background: rgba(96,165,250,0.25) !important; color: #60a5fa !important; border: 1px solid rgba(96,165,250,0.5) !important; margin-right: 0.5rem; }
+    /* Buttons */
+    .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 700; cursor: pointer; border: none; font-size: 0.875rem; transition: all 0.2s ease; }
+    .btn-primary { background: linear-gradient(135deg, #0096d9, #0284c7) !important; color: #ffffff !important; text-shadow: none; box-shadow: 0 2px 8px rgba(0, 150, 217, 0.25); }
+    .btn-primary:hover { background: linear-gradient(135deg, #0084bf, #0274b0) !important; }
+    .btn-danger { background: #fee2e2 !important; color: #dc2626 !important; border: 1px solid #fca5a5 !important; }
+    .btn-danger:hover { background: #fecaca !important; }
+    .btn-edit { background: #e0f2fe !important; color: #0284c7 !important; border: 1px solid #7dd3fc !important; margin-right: 0.5rem; }
+    .btn-edit:hover { background: #bae6fd !important; }
     
     /* Inputs, Textareas, Select Dropdowns High Contrast */
     input, textarea, select {
       width: 100%;
       padding: 0.75rem;
-      background-color: #1a2820 !important;
-      border: 1px solid rgba(232,165,88,0.4) !important;
+      background-color: #ffffff !important;
+      border: 1px solid #cbd5e1 !important;
       border-radius: 0.5rem;
-      color: #ffffff !important;
+      color: #0f172a !important;
       font-size: 0.875rem;
+      font-weight: 500;
       outline: none;
       margin-bottom: 1rem;
       box-sizing: border-box;
+      transition: border-color 0.2s ease;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: #0284c7 !important;
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
     }
     input::placeholder, textarea::placeholder {
-      color: #9ca3af !important;
+      color: #64748b !important;
+      opacity: 1;
     }
     select option {
-      background-color: #1a2820 !important;
-      color: #ffffff !important;
+      background-color: #ffffff !important;
+      color: #0f172a !important;
       padding: 0.5rem;
+    }
+    select optgroup {
+      color: #475569 !important;
+      font-weight: 700;
+      background-color: #f8fafc !important;
     }
     
     /* Labels & Headings */
-    label { color: #e4e4e7 !important; font-weight: 600; font-size: 0.8125rem; display: block; margin-bottom: 0.375rem; }
-    h1, h2, h3, h4 { color: #ffffff !important; margin-top: 0; }
+    label { color: #1e293b !important; font-weight: 700; font-size: 0.8125rem; display: block; margin-bottom: 0.375rem; }
+    h1, h2, h3, h4 { color: #0f172a !important; margin-top: 0; }
     
     /* Modals */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 100; padding: 1rem; box-sizing: border-box; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 100; padding: 1rem; box-sizing: border-box; }
     .modal.active { display: flex; }
-    .modal-content { max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; background: #14221c !important; border: 1px solid var(--admin-border) !important; color: #ffffff !important; }
+    .modal-content { max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; background: #ffffff !important; border: 1px solid #cbd5e1 !important; color: #0f172a !important; box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2); }
   </style>
-  <script type="module" crossorigin src="/assets/admin-CIWR70AZ.js"></script>
+  <script type="module" crossorigin src="/assets/admin-TtT-bkR3.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/style-CTAUnyPs.js">
   <link rel="stylesheet" crossorigin href="/assets/style-Czw1w1HG.css">
 </head>
@@ -87,36 +107,36 @@
 
   <!-- Login Screen -->
   <div id="loginScreen">
-    <div class="glass-card" style="width: 100%; max-width: 400px;">
-      <h2 style="color: var(--accent-gold); text-align: center; margin-bottom: 1.5rem; font-family: var(--font-serif);">Вход в Панель</h2>
+    <div class="glass-card" style="width: 100%; max-width: 400px; background: #ffffff !important;">
+      <h2 style="color: #d97706; text-align: center; margin-bottom: 1.5rem; font-family: var(--font-serif);">Вход в Панель</h2>
       <input type="text" id="username" placeholder="Логин" />
       <input type="password" id="password" placeholder="Пароль" />
       <button class="btn btn-primary" style="width: 100%;" id="loginBtn">Войти</button>
-      <div id="loginError" style="color: #ef4444; margin-top: 1rem; text-align: center; font-size: 0.875rem;"></div>
-      </div>
+      <div id="loginError" style="color: #dc2626; margin-top: 1rem; text-align: center; font-size: 0.875rem; font-weight: 600;"></div>
+    </div>
   </div>
 
   <!-- Dashboard -->
   <div id="dashboardScreen" class="admin-container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-      <h1 style="color: var(--accent-gold); font-family: var(--font-serif);">Админ-панель</h1>
+      <h1 style="color: #0f172a; font-family: var(--font-serif); font-weight: 800;">Админ-панель</h1>
       <div>
-        <button class="btn" id="logoutBtn" style="background: rgba(255,255,255,0.1); color: white;">Выйти</button>
+        <button class="btn" id="logoutBtn" style="background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1;">Выйти</button>
       </div>
     </div>
     
     <!-- TABS -->
-    <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; overflow-x: auto;">
+    <div style="display: flex; gap: 0.75rem; margin-bottom: 2rem; border-bottom: 1px solid #cbd5e1; padding-bottom: 1rem; overflow-x: auto;">
       <button class="btn btn-primary" id="tabCatalogBtn">Каталог Услуг</button>
-      <button class="btn" id="tabBookingsBtn" style="background: rgba(255,255,255,0.1); color: white;">СМС и Брони</button>
-      <button class="btn" id="tabWarehouseBtn" style="background: rgba(255,255,255,0.1); color: white;">📦 Склад и Подарки</button>
-      <button class="btn" id="tabBroadcastBtn" style="background: rgba(255,255,255,0.1); color: white;">📢 Срочная Рассылка (SMS)</button>
+      <button class="btn" id="tabBookingsBtn" style="background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1;">СМС и Брони</button>
+      <button class="btn" id="tabWarehouseBtn" style="background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1;">📦 Склад и Подарки</button>
+      <button class="btn" id="tabBroadcastBtn" style="background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1;">📢 Срочная Рассылка (SMS)</button>
     </div>
 
     <!-- CATALOG VIEW -->
     <div id="viewCatalog">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h2 style="color: white;">Услуги</h2>
+        <h2 style="color: #0f172a;">Услуги</h2>
         <button class="btn btn-primary" id="openAddModalBtn">+ Добавить услугу</button>
       </div>
       <div class="glass-card table-container">
@@ -142,24 +162,24 @@
     <!-- BOOKINGS DASHBOARD VIEW -->
     <div id="viewBookings" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h2 style="color: white;">📋 Гости & Бронирования (TravelLine)</h2>
+        <h2 style="color: #0f172a;">📋 Гости & Бронирования (TravelLine)</h2>
         <button class="btn btn-edit" id="forceSyncBtn">🔄 Синхронизировать (TL)</button>
       </div>
       
       <!-- Primary Active Section: In-House Stays & Tomorrow Arrivals -->
-      <div class="glass-card" style="border: 1px solid rgba(232,165,88,0.4); margin-bottom: 1.5rem;">
+      <div class="glass-card" style="border: 1px solid #e2e8f0; margin-bottom: 1.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
           <div>
-            <h3 style="color: var(--accent-gold); margin: 0;">🔥 Проживающие Сегодня и Заезжающие Завтра</h3>
-            <p style="font-size: 0.8125rem; color: #a1a1aa; margin: 0.25rem 0 0 0;">Привязка номеров домиков (101–121) к текущим и завтрашним гостям. Номер сохраняется мгновенно при выборе!</p>
+            <h3 style="color: #d97706; margin: 0; font-weight: 800;">🔥 Проживающие Сегодня и Заезжающие Завтра</h3>
+            <p style="font-size: 0.8125rem; color: #475569; margin: 0.25rem 0 0 0; font-weight: 500;">Привязка номеров домиков (101–121) к текущим и завтрашним гостям. Номер сохраняется мгновенно при выборе!</p>
           </div>
-          <span id="activeGuestsCountBadge" style="background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 0.4rem 0.85rem; border-radius: 9999px; font-weight: 700; font-size: 0.8125rem; border: 1px solid rgba(52, 211, 153, 0.3);">🔥 0 активных гостей</span>
+          <span id="activeGuestsCountBadge" style="background: #dcfce7; color: #15803d; padding: 0.4rem 0.85rem; border-radius: 9999px; font-weight: 700; font-size: 0.8125rem; border: 1px solid #86efac;">🔥 0 активных гостей</span>
         </div>
 
         <div style="overflow-x: auto;">
           <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
             <thead>
-              <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #a1a1aa; text-align: left;">
+              <tr style="border-bottom: 1px solid #e2e8f0; color: #475569; text-align: left;">
                 <th style="padding: 0.6rem 0.5rem;">Бронь</th>
                 <th style="padding: 0.6rem 0.5rem;">Гость</th>
                 <th style="padding: 0.6rem 0.5rem;">Телефон</th>
@@ -178,14 +198,14 @@
       </div>
 
       <!-- Collapsible Secondary Section: Future & Upcoming Bookings -->
-      <details class="glass-card" style="border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3);">
-        <summary style="cursor: pointer; padding: 0.5rem 0; font-weight: 700; color: #c084fc; font-size: 0.9375rem; user-select: none;">
-          ▶ 📅 Предстоящие заезды на будущие даты (Нажмите, чтобы развернуть список) <span id="futureBookingsBadge" style="font-size: 0.8125rem; color: #a1a1aa; font-weight: 400;">(0 броней)</span>
+      <details class="glass-card" style="border: 1px solid #e2e8f0; background: #ffffff;">
+        <summary style="cursor: pointer; padding: 0.5rem 0; font-weight: 700; color: #6b21a8; font-size: 0.9375rem; user-select: none;">
+          ▶ 📅 Предстоящие заезды на будущие даты (Нажмите, чтобы развернуть список) <span id="futureBookingsBadge" style="font-size: 0.8125rem; color: #64748b; font-weight: 500;">(0 броней)</span>
         </summary>
         <div style="overflow-x: auto; margin-top: 1rem;">
           <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
             <thead>
-              <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #a1a1aa; text-align: left;">
+              <tr style="border-bottom: 1px solid #e2e8f0; color: #475569; text-align: left;">
                 <th style="padding: 0.6rem 0.5rem;">Бронь</th>
                 <th style="padding: 0.6rem 0.5rem;">Гость</th>
                 <th style="padding: 0.6rem 0.5rem;">Телефон</th>
@@ -207,29 +227,29 @@
     <!-- WAREHOUSE & GIFTS VIEW -->
     <div id="viewWarehouse" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <h2 style="color: white;">📦 Склад, Подарки и Аналитика Остатков</h2>
+        <h2 style="color: #0f172a;">📦 Склад, Подарки и Аналитика Остатков</h2>
         <button class="btn btn-primary" id="openAddGiftModalBtn">+ Добавить Новый Подарок</button>
       </div>
 
       <!-- Analytics Summary Cards -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
         <div class="glass-card" style="padding: 1.25rem;">
-          <div style="font-size: 0.75rem; color: #a1a1aa; margin-bottom: 0.25rem;">Общая Стоимость Склада (₽)</div>
-          <div id="kpiTotalValuation" style="font-size: 1.5rem; font-weight: 800; color: #34d399;">0 ₽</div>
+          <div style="font-size: 0.75rem; color: #475569; font-weight: 600; margin-bottom: 0.25rem;">Общая Стоимость Склада (₽)</div>
+          <div id="kpiTotalValuation" style="font-size: 1.5rem; font-weight: 800; color: #16a34a;">0 ₽</div>
         </div>
         <div class="glass-card" style="padding: 1.25rem;">
-          <div style="font-size: 0.75rem; color: #a1a1aa; margin-bottom: 0.25rem;">Заканчивающиеся Позиции</div>
-          <div id="kpiLowStockCount" style="font-size: 1.5rem; font-weight: 800; color: #f87171;">0 позиций</div>
+          <div style="font-size: 0.75rem; color: #475569; font-weight: 600; margin-bottom: 0.25rem;">Заканчивающиеся Позиции</div>
+          <div id="kpiLowStockCount" style="font-size: 1.5rem; font-weight: 800; color: #dc2626;">0 позиций</div>
         </div>
         <div class="glass-card" style="padding: 1.25rem;">
-          <div style="font-size: 0.75rem; color: #a1a1aa; margin-bottom: 0.25rem;">Подарков на Витрине</div>
-          <div id="kpiTotalGifts" style="font-size: 1.5rem; font-weight: 800; color: var(--accent-gold);">0 видов</div>
+          <div style="font-size: 0.75rem; color: #475569; font-weight: 600; margin-bottom: 0.25rem;">Подарков на Витрине</div>
+          <div id="kpiTotalGifts" style="font-size: 1.5rem; font-weight: 800; color: #d97706;">0 видов</div>
         </div>
       </div>
 
       <!-- Gifts Management Table -->
       <div class="glass-card" style="margin-bottom: 2rem;">
-        <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">🎁 Витрина Подарков заезда (CRUD)</h3>
+        <h3 style="color: #d97706; margin-bottom: 1rem; font-weight: 800;">🎁 Витрина Подарков заезда (CRUD)</h3>
         <div class="table-container" style="margin-top: 0;">
           <table>
             <thead>
@@ -251,7 +271,7 @@
 
       <!-- Warehouse Products Table -->
       <div class="glass-card" style="margin-bottom: 2rem;">
-        <h3 style="color: #60a5fa; margin-bottom: 1rem;">📦 Склад Товаров и Услуг Каталога</h3>
+        <h3 style="color: #0284c7; margin-bottom: 1rem; font-weight: 800;">📦 Склад Товаров и Услуг Каталога</h3>
         <div class="table-container" style="margin-top: 0;">
           <table>
             <thead>
@@ -272,7 +292,7 @@
 
       <!-- Stock Movement Log -->
       <div class="glass-card">
-        <h3 style="color: #a1a1aa; margin-bottom: 1rem;">📋 Лог движения запасов и списаний</h3>
+        <h3 style="color: #475569; margin-bottom: 1rem; font-weight: 800;">📋 Лог движения запасов и списаний</h3>
         <div class="table-container" style="margin-top: 0;">
           <table>
             <thead>
@@ -294,21 +314,21 @@
     <div id="viewBroadcast" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
         <div>
-          <h2 style="color: white; margin-bottom: 0.25rem;">📢 Срочная СМС-Рассылка Проживающим Гостям</h2>
-          <p style="font-size: 0.8125rem; color: #a1a1aa; margin: 0;">Отправляйте горячие спецпредложения или утренние анонсы всем гостям на базе в 1 клик</p>
+          <h2 style="color: #0f172a; margin-bottom: 0.25rem;">📢 Срочная СМС-Рассылка Проживающим Гостям</h2>
+          <p style="font-size: 0.8125rem; color: #475569; margin: 0; font-weight: 500;">Отправляйте горячие спецпредложения или утренние анонсы всем гостям на базе в 1 клик</p>
         </div>
         <div style="display: flex; gap: 0.5rem; align-items: center;">
           <button class="btn btn-edit" id="refreshBroadcastBtn" style="padding: 0.45rem 0.75rem; font-size: 0.8125rem; font-weight: 700;">🔄 Обновить список</button>
-          <span id="inHouseGuestsCountBadge" style="background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 0.5rem 1rem; border-radius: 9999px; font-weight: 700; border: 1px solid rgba(52, 211, 153, 0.3);">👥 0 гостей сейчас в парке</span>
+          <span id="inHouseGuestsCountBadge" style="background: #dcfce7; color: #15803d; padding: 0.5rem 1rem; border-radius: 9999px; font-weight: 700; border: 1px solid #86efac;">👥 0 гостей сейчас в парке</span>
         </div>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
         <!-- Broadcast Composer -->
         <div class="glass-card">
-          <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">Составление Сообщения</h3>
-          <div style="margin-bottom: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
-            <label style="display: block; font-size: 0.8125rem; color: #a1a1aa; margin-bottom: 0.5rem;">📜 Сохраненные шаблоны рассылок:</label>
+          <h3 style="color: #d97706; margin-bottom: 1rem; font-weight: 800;">Составление Сообщения</h3>
+          <div style="margin-bottom: 1rem; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
+            <label style="display: block; font-size: 0.8125rem; color: #475569; margin-bottom: 0.5rem;">📜 Сохраненные шаблоны рассылок:</label>
             <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
               <select id="templateSelect" style="margin-bottom: 0; flex: 1; font-size: 0.8125rem;">
                 <option value="">-- Выберите шаблон для вставки --</option>
@@ -318,22 +338,22 @@
           </div>
 
           <div style="margin-bottom: 1rem;">
-            <label style="display: block; font-size: 0.8125rem; color: #a1a1aa; margin-bottom: 0.5rem;">Вставьте персонализацию:</label>
+            <label style="display: block; font-size: 0.8125rem; color: #475569; margin-bottom: 0.5rem;">Вставьте персонализацию:</label>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <button class="btn" id="insertNameTagBtn" style="background: rgba(0, 150, 217, 0.2); color: #0096d9; border: 1px solid rgba(0, 150, 217, 0.4); font-size: 0.8125rem; font-weight: 700;">+ {имя}</button>
-              <button class="btn" id="saveTemplateBtn" style="background: rgba(52, 211, 153, 0.2); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.4); font-size: 0.8125rem; font-weight: 700;">💾 Сохранить текст как новый шаблон</button>
+              <button class="btn" id="insertNameTagBtn" style="background: #e0f2fe; color: #0284c7; border: 1px solid #7dd3fc; font-size: 0.8125rem; font-weight: 700;">+ {имя}</button>
+              <button class="btn" id="saveTemplateBtn" style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-size: 0.8125rem; font-weight: 700;">💾 Сохранить текст как новый шаблон</button>
             </div>
           </div>
-          <textarea id="broadcastTextarea" rows="5" placeholder="Пример: {имя}, добрый день! На сегодня в 19:00 освободилась Баня на берегу со скидкой 20%! Напишите в ответ или забронируйте в приложении." style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 0.75rem; color: white; padding: 0.875rem; font-size: 0.875rem; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
+          <textarea id="broadcastTextarea" rows="5" placeholder="Пример: {имя}, добрый день! На сегодня в 19:00 освободилась Баня на берегу со скидкой 20%! Напишите в ответ или забронируйте в приложении." style="width: 100%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.75rem; color: #0f172a; padding: 0.875rem; font-size: 0.875rem; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
           <button class="btn btn-primary" id="sendBroadcastBtn" style="width: 100%; margin-top: 1rem; padding: 0.875rem; font-size: 1rem; font-weight: 800;">🚀 Отправить СМС Всем Проживающим</button>
         </div>
 
         <!-- Live Preview -->
         <div class="glass-card">
-          <h3 style="color: #60a5fa; margin-bottom: 1rem;">📱 Предпросмотр у Гостя</h3>
-          <div style="background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem; padding: 1.25rem; color: white;">
-            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem; font-weight: 600;">СМС от Ладога Парк:</div>
-            <div id="broadcastPreviewText" style="font-size: 0.875rem; line-height: 1.5; color: #f1f5f9; background: #0f172a; padding: 0.875rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.05);">
+          <h3 style="color: #0284c7; margin-bottom: 1rem; font-weight: 800;">📱 Предпросмотр у Гостя</h3>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem; color: #0f172a;">
+            <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem; font-weight: 700;">СМС от Ладога Парк:</div>
+            <div id="broadcastPreviewText" style="font-size: 0.875rem; line-height: 1.5; color: #0f172a; background: #ffffff; padding: 0.875rem; border-radius: 0.75rem; border: 1px solid #cbd5e1; font-weight: 500;">
               [Введите текст слева]
             </div>
           </div>
@@ -345,7 +365,7 @@
   <!-- Edit/Add Modal -->
   <div id="itemModal" class="modal">
     <div class="glass-card modal-content">
-      <h2 id="modalTitle" style="color: var(--accent-gold); margin-bottom: 1.5rem;">Добавить услугу</h2>
+      <h2 id="modalTitle" style="color: #d97706; margin-bottom: 1.5rem; font-weight: 800;">Добавить услугу</h2>
       <form id="itemForm">
         <input type="hidden" id="originalId" />
         
@@ -382,7 +402,7 @@
         
         <div style="display: flex; gap: 1rem;">
           <button type="submit" class="btn btn-primary" style="flex: 1;">Сохранить</button>
-          <button type="button" class="btn" style="flex: 1; background: rgba(255,255,255,0.1); color: white;" id="closeModalBtn">Отмена</button>
+          <button type="button" class="btn" style="flex: 1; background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1;" id="closeModalBtn">Отмена</button>
         </div>
       </form>
     </div>
@@ -391,7 +411,7 @@
   <!-- Gift Add/Edit Modal -->
   <div id="giftModalAdmin" class="modal">
     <div class="glass-card modal-content" style="max-width: 500px;">
-      <h2 id="giftModalAdminTitle" style="color: var(--accent-gold); margin-bottom: 1.5rem;">Добавить Подарок</h2>
+      <h2 id="giftModalAdminTitle" style="color: #d97706; margin-bottom: 1.5rem; font-weight: 800;">Добавить Подарок</h2>
       <form id="giftFormAdmin">
         <input type="hidden" id="giftIdAdmin" />
         
@@ -430,7 +450,7 @@
         
         <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
           <button type="submit" class="btn btn-primary" style="flex: 1;">Сохранить Подарок</button>
-          <button type="button" class="btn" style="flex: 1; background: rgba(255,255,255,0.1); color: white;" id="closeGiftModalAdminBtn">Отмена</button>
+          <button type="button" class="btn" style="flex: 1; background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1;" id="closeGiftModalAdminBtn">Отмена</button>
         </div>
       </form>
     </div>

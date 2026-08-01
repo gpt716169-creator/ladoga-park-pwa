@@ -93,15 +93,19 @@ function setActiveTab(activeBtn, activeView) {
   [tabCatalogBtn, tabBookingsBtn, tabWarehouseBtn, tabBroadcastBtn].forEach(btn => {
     if (btn) {
       btn.className = 'btn';
-      btn.style.background = 'rgba(255,255,255,0.1)';
-      btn.style.color = 'white';
+      btn.style.background = '#e2e8f0';
+      btn.style.color = '#334155';
+      btn.style.border = '1px solid #cbd5e1';
     }
   });
   [viewCatalog, viewBookings, viewWarehouse, viewBroadcast].forEach(v => {
     if (v) v.style.display = 'none';
   });
 
-  if (activeBtn) activeBtn.className = 'btn btn-primary';
+  if (activeBtn) {
+    activeBtn.className = 'btn btn-primary';
+    activeBtn.style.border = 'none';
+  }
   if (activeView) activeView.style.display = 'block';
 }
 
@@ -258,7 +262,7 @@ function renderActiveGroupedBookingsTable(tomorrowArrivals, todayArrivals, curre
   }
 
   if (totalCount === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #a1a1aa; padding: 1.5rem;">Активных заездов и проживаний не найдено</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #64748b; padding: 1.5rem; font-weight: 500;">Активных заездов и проживаний не найдено</td></tr>';
     return;
   }
 
@@ -267,8 +271,8 @@ function renderActiveGroupedBookingsTable(tomorrowArrivals, todayArrivals, curre
   // 1. TOMORROW ARRIVALS FIRST
   if (tomorrowArrivals && tomorrowArrivals.length > 0) {
     html += `
-      <tr style="background: rgba(52, 211, 153, 0.15); border-left: 4px solid #34d399;">
-        <td colspan="8" style="padding: 0.65rem 0.75rem; font-weight: 800; color: #34d399; font-size: 0.8125rem; letter-spacing: 0.05em;">
+      <tr style="background: #f0fdf4; border-left: 4px solid #16a34a;">
+        <td colspan="8" style="padding: 0.65rem 0.75rem; font-weight: 800; color: #15803d; font-size: 0.8125rem; letter-spacing: 0.05em;">
           ⚡ ЗАЕЗЖАЮТ ЗАВТРА (${tomorrowArrivals.length})
         </td>
       </tr>
@@ -279,8 +283,8 @@ function renderActiveGroupedBookingsTable(tomorrowArrivals, todayArrivals, curre
   // 2. TODAY ARRIVALS SECOND (Check-in at 15:00)
   if (todayArrivals && todayArrivals.length > 0) {
     html += `
-      <tr style="background: rgba(56, 189, 248, 0.15); border-left: 4px solid #38bdf8;">
-        <td colspan="8" style="padding: 0.65rem 0.75rem; font-weight: 800; color: #38bdf8; font-size: 0.8125rem; letter-spacing: 0.05em;">
+      <tr style="background: #f0f9ff; border-left: 4px solid #0284c7;">
+        <td colspan="8" style="padding: 0.65rem 0.75rem; font-weight: 800; color: #0369a1; font-size: 0.8125rem; letter-spacing: 0.05em;">
           🌟 ЗАЕЗЖАЮТ СЕГОДНЯ (Заезд с 15:00) (${todayArrivals.length})
         </td>
       </tr>
@@ -291,8 +295,8 @@ function renderActiveGroupedBookingsTable(tomorrowArrivals, todayArrivals, curre
   // 3. CURRENT STAYS THIRD (In-House)
   if (currentStays && currentStays.length > 0) {
     html += `
-      <tr style="background: rgba(232, 165, 88, 0.15); border-left: 4px solid var(--accent-gold);">
-        <td colspan="8" style="padding: 0.65rem 0.75rem; font-weight: 800; color: var(--accent-gold); font-size: 0.8125rem; letter-spacing: 0.05em;">
+      <tr style="background: #fffbeb; border-left: 4px solid #d97706;">
+        <td colspan="8" style="padding: 0.65rem 0.75rem; font-weight: 800; color: #b45309; font-size: 0.8125rem; letter-spacing: 0.05em;">
           🏡 УЖЕ ПРОЖИВАЮТ В ПАРКЕ (${currentStays.length})
         </td>
       </tr>
@@ -313,47 +317,47 @@ function renderBookingRow(b, tagText) {
 
   const hasSmsSent = b.sms_stages || (b.sms && Object.keys(b.sms).length > 0);
   const smsBadge = hasSmsSent 
-    ? `<span style="background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 0.2rem 0.45rem; border-radius: 0.375rem; font-size: 11px; font-weight: 700; border: 1px solid rgba(52, 211, 153, 0.3);">✅ Ушла</span>`
-    : `<span style="background: rgba(148, 163, 184, 0.12); color: #94a3b8; padding: 0.2rem 0.45rem; border-radius: 0.375rem; font-size: 11px; font-weight: 600;">⏳ Ожидает</span>`;
+    ? `<span style="background: #dcfce7; color: #15803d; padding: 0.2rem 0.45rem; border-radius: 0.375rem; font-size: 11px; font-weight: 700; border: 1px solid #86efac;">✅ Ушла</span>`
+    : `<span style="background: #f1f5f9; color: #64748b; padding: 0.2rem 0.45rem; border-radius: 0.375rem; font-size: 11px; font-weight: 600; border: 1px solid #cbd5e1;">⏳ Ожидает</span>`;
 
   const isTomorrow = tagText && tagText.includes('завтра');
   const isToday = tagText && tagText.includes('сегодня');
-  let tagStyle = 'background: rgba(232, 165, 88, 0.2); color: #facc15;';
+  let tagStyle = 'background: #fef3c7; color: #b45309; border: 1px solid #fde68a;';
   let rowBg = '';
   if (isTomorrow) {
-    tagStyle = 'background: rgba(52, 211, 153, 0.2); color: #34d399;';
-    rowBg = 'background: rgba(52, 211, 153, 0.03);';
+    tagStyle = 'background: #dcfce7; color: #15803d; border: 1px solid #86efac;';
+    rowBg = 'background: #fafdfb;';
   } else if (isToday) {
-    tagStyle = 'background: rgba(56, 189, 248, 0.2); color: #38bdf8;';
-    rowBg = 'background: rgba(56, 189, 248, 0.03);';
+    tagStyle = 'background: #e0f2fe; color: #0284c7; border: 1px solid #7dd3fc;';
+    rowBg = 'background: #f8fcff;';
   }
 
   const tagBadge = tagText ? `<span style="font-size: 10px; font-weight: 700; padding: 0.15rem 0.35rem; border-radius: 0.25rem; margin-left: 0.35rem; ${tagStyle}">${tagText}</span>` : '';
 
   return `
-    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); ${rowBg}">
+    <tr style="border-bottom: 1px solid #e2e8f0; ${rowBg}">
       <td style="padding: 0.6rem 0.5rem;">
-        <button class="btn" style="background: rgba(255,255,255,0.08); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); padding: 0.25rem 0.5rem; font-size: 11px; font-weight: 600;" onclick="navigator.clipboard.writeText('${b.id}'); this.innerText='✓ Скопировано'; setTimeout(() => this.innerText='📋 ID', 1500);" title="Скопировать номер брони (${b.id})">📋 ID</button>
+        <button class="btn" style="background: #f1f5f9; color: #0284c7; border: 1px solid #93c5fd; padding: 0.25rem 0.5rem; font-size: 11px; font-weight: 600;" onclick="navigator.clipboard.writeText('${b.id}'); this.innerText='✓ Скопировано'; setTimeout(() => this.innerText='📋 ID', 1500);" title="Скопировать номер брони (${b.id})">📋 ID</button>
       </td>
       <td style="padding: 0.6rem 0.5rem;">
-        <strong style="color: white; font-size: 0.875rem;">${shortGuest}</strong> ${tagBadge}
+        <strong style="color: #0f172a; font-size: 0.875rem;">${shortGuest}</strong> ${tagBadge}
       </td>
       <td style="padding: 0.6rem 0.5rem;">
-        <input type="text" value="${b.phone || ''}" placeholder="📱 +7..." style="width: 110px; margin-bottom: 0; padding: 0.25rem 0.4rem; font-size: 11px; font-weight: 600; color: #34d399; background: rgba(0,0,0,0.4); border: 1px solid rgba(52,211,153,0.3); border-radius: 0.375rem;" onchange="window.autoSavePhone('${b.id}', this.value)" title="Нажмите, чтобы ввести или отредактировать телефон для СМС" />
+        <input type="text" value="${b.phone || ''}" placeholder="📱 +7..." style="width: 110px; margin-bottom: 0; padding: 0.25rem 0.4rem; font-size: 11px; font-weight: 700; color: #16a34a; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.375rem;" onchange="window.autoSavePhone('${b.id}', this.value)" title="Нажмите, чтобы ввести или отредактировать телефон для СМС" />
       </td>
-      <td style="padding: 0.6rem 0.5rem; color: #e4e4e7; font-size: 0.8125rem;">
+      <td style="padding: 0.6rem 0.5rem; color: #334155; font-size: 0.8125rem; font-weight: 600;">
         ${b.cabin_name || 'Домик'}
       </td>
-      <td style="padding: 0.6rem 0.5rem; font-size: 11px; color: #a1a1aa; font-weight: 600;">
+      <td style="padding: 0.6rem 0.5rem; font-size: 11px; color: #475569; font-weight: 600;">
         ${datesFormatted}
       </td>
       <td style="padding: 0.6rem 0.5rem;">
-        <select style="margin-bottom: 0; padding: 0.3rem 0.4rem; font-size: 12px; font-weight: 700; color: #facc15; background: #0f172a; border: 1px solid rgba(250,204,21,0.5); border-radius: 0.375rem; cursor: pointer;" onchange="window.autoSaveHouseNumber('${b.id}', this.value)">
+        <select style="margin-bottom: 0; padding: 0.3rem 0.4rem; font-size: 12px; font-weight: 700; color: #b45309; background: #ffffff; border: 1px solid #fcd34d; border-radius: 0.375rem; cursor: pointer;" onchange="window.autoSaveHouseNumber('${b.id}', this.value)">
           ${houseSelectHtml}
         </select>
       </td>
       <td style="padding: 0.6rem 0.5rem;">
-        <a href="/?booking=${b.id}" target="_blank" class="btn" style="background: rgba(0, 150, 217, 0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 0.25rem 0.5rem; font-size: 11px; font-weight: 600; text-decoration: none;">📱 ПВА</a>
+        <a href="/?booking=${b.id}" target="_blank" class="btn" style="background: #e0f2fe; color: #0284c7; border: 1px solid #7dd3fc; padding: 0.25rem 0.5rem; font-size: 11px; font-weight: 700; text-decoration: none;">📱 ПВА</a>
       </td>
       <td style="padding: 0.6rem 0.5rem;">
         ${smsBadge}
@@ -372,7 +376,7 @@ function renderMasterBookingsTable(tbodyId, badgeId, bookings, emptyBadgeText) {
   }
 
   if (!bookings || bookings.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #a1a1aa; padding: 1.5rem;">Бронирований не найдено</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #64748b; padding: 1.5rem; font-weight: 500;">Бронирований не найдено</td></tr>';
     return;
   }
 
@@ -386,33 +390,33 @@ function renderMasterBookingsTable(tbodyId, badgeId, bookings, emptyBadgeText) {
 
     const hasSmsSent = b.sms_stages || (b.sms && Object.keys(b.sms).length > 0);
     const smsBadge = hasSmsSent 
-      ? `<span style="background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 0.2rem 0.45rem; border-radius: 0.375rem; font-size: 11px; font-weight: 700; border: 1px solid rgba(52, 211, 153, 0.3);">✅ Ушла</span>`
-      : `<span style="background: rgba(148, 163, 184, 0.12); color: #94a3b8; padding: 0.2rem 0.45rem; border-radius: 0.375rem; font-size: 11px; font-weight: 600;">⏳ Ожидает</span>`;
+      ? `<span style="background: #dcfce7; color: #15803d; padding: 0.2rem 0.45rem; border-radius: 0.375rem; font-size: 11px; font-weight: 700; border: 1px solid #86efac;">✅ Ушла</span>`
+      : `<span style="background: #f1f5f9; color: #64748b; padding: 0.2rem 0.45rem; border-radius: 0.375rem; font-size: 11px; font-weight: 600; border: 1px solid #cbd5e1;">⏳ Ожидает</span>`;
 
     return `
-      <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+      <tr style="border-bottom: 1px solid #e2e8f0;">
         <td style="padding: 0.6rem 0.5rem;">
-          <button class="btn" style="background: rgba(255,255,255,0.08); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); padding: 0.25rem 0.5rem; font-size: 11px; font-weight: 600;" onclick="navigator.clipboard.writeText('${b.id}'); this.innerText='✓ Скопировано'; setTimeout(() => this.innerText='📋 ID', 1500);" title="Скопировать номер брони (${b.id})">📋 ID</button>
+          <button class="btn" style="background: #f1f5f9; color: #0284c7; border: 1px solid #93c5fd; padding: 0.25rem 0.5rem; font-size: 11px; font-weight: 600;" onclick="navigator.clipboard.writeText('${b.id}'); this.innerText='✓ Скопировано'; setTimeout(() => this.innerText='📋 ID', 1500);" title="Скопировать номер брони (${b.id})">📋 ID</button>
         </td>
         <td style="padding: 0.6rem 0.5rem;">
-          <strong style="color: white; font-size: 0.875rem;">${shortGuest}</strong>
+          <strong style="color: #0f172a; font-size: 0.875rem;">${shortGuest}</strong>
         </td>
         <td style="padding: 0.6rem 0.5rem;">
-          <input type="text" value="${b.phone || ''}" placeholder="📱 +7..." style="width: 110px; margin-bottom: 0; padding: 0.25rem 0.4rem; font-size: 11px; font-weight: 600; color: #34d399; background: rgba(0,0,0,0.4); border: 1px solid rgba(52,211,153,0.3); border-radius: 0.375rem;" onchange="window.autoSavePhone('${b.id}', this.value)" title="Нажмите, чтобы ввести или отредактировать телефон для СМС" />
+          <input type="text" value="${b.phone || ''}" placeholder="📱 +7..." style="width: 110px; margin-bottom: 0; padding: 0.25rem 0.4rem; font-size: 11px; font-weight: 700; color: #16a34a; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.375rem;" onchange="window.autoSavePhone('${b.id}', this.value)" title="Нажмите, чтобы ввести или отредактировать телефон для СМС" />
         </td>
-        <td style="padding: 0.6rem 0.5rem; color: #e4e4e7; font-size: 0.8125rem;">
+        <td style="padding: 0.6rem 0.5rem; color: #334155; font-size: 0.8125rem; font-weight: 600;">
           ${b.cabin_name || 'Домик'}
         </td>
-        <td style="padding: 0.6rem 0.5rem; font-size: 11px; color: #a1a1aa; font-weight: 600;">
+        <td style="padding: 0.6rem 0.5rem; font-size: 11px; color: #475569; font-weight: 600;">
           ${datesFormatted}
         </td>
         <td style="padding: 0.6rem 0.5rem;">
-          <select style="margin-bottom: 0; padding: 0.3rem 0.4rem; font-size: 12px; font-weight: 700; color: #facc15; background: #0f172a; border: 1px solid rgba(250,204,21,0.5); border-radius: 0.375rem; cursor: pointer;" onchange="window.autoSaveHouseNumber('${b.id}', this.value)">
+          <select style="margin-bottom: 0; padding: 0.3rem 0.4rem; font-size: 12px; font-weight: 700; color: #b45309; background: #ffffff; border: 1px solid #fcd34d; border-radius: 0.375rem; cursor: pointer;" onchange="window.autoSaveHouseNumber('${b.id}', this.value)">
             ${houseSelectHtml}
           </select>
         </td>
         <td style="padding: 0.6rem 0.5rem;">
-          <a href="/?booking=${b.id}" target="_blank" class="btn" style="background: rgba(0, 150, 217, 0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 0.25rem 0.5rem; font-size: 11px; font-weight: 600; text-decoration: none;">📱 ПВА</a>
+          <a href="/?booking=${b.id}" target="_blank" class="btn" style="background: #e0f2fe; color: #0284c7; border: 1px solid #7dd3fc; padding: 0.25rem 0.5rem; font-size: 11px; font-weight: 700; text-decoration: none;">📱 ПВА</a>
         </td>
         <td style="padding: 0.6rem 0.5rem;">
           ${smsBadge}
@@ -473,12 +477,12 @@ function renderTable() {
     }
 
     tr.innerHTML = `
-      <td style="color: #9ca3af; font-weight: 600;">${item.id}</td>
+      <td style="color: #64748b; font-weight: 600;">${item.id}</td>
       <td>${mediaHtml}</td>
-      <td style="font-weight: 700;">${item.displayName}</td>
-      <td>${item.category === 'service' ? 'Услуга' : 'Баня'}</td>
-      <td style="color: var(--accent-gold); font-weight: 700;">${item.price} ₽</td>
-      <td>${item.isQuickOrder ? '✅ Да' : '❌ Нет'}</td>
+      <td style="font-weight: 700; color: #0f172a;">${item.displayName}</td>
+      <td style="color: #334155;">${item.category === 'service' ? 'Услуга' : 'Баня'}</td>
+      <td style="color: #d97706; font-weight: 700;">${item.price} ₽</td>
+      <td style="color: #0f172a;">${item.isQuickOrder ? '✅ Да' : '❌ Нет'}</td>
       <td>
         <button class="btn btn-edit" onclick="editItem('${item.id}')">Изменить</button>
         <button class="btn btn-danger" onclick="deleteItem('${item.id}')">Удалить</button>
@@ -646,23 +650,23 @@ async function loadWarehouseDashboard() {
         const isLow = g.stock <= g.min_threshold;
         return `
           <tr>
-            <td><img src="${g.image_url}" style="width: 40px; height: 40px; object-fit: contain; background: white; border-radius: 6px; padding: 2px;" /></td>
-            <td><strong>${g.title}</strong><br><span style="font-size: 11px; color: #a1a1aa;">${g.subtitle || ''}</span></td>
-            <td><span style="background: rgba(0,150,217,0.2); color: #0096d9; padding: 2px 8px; border-radius: 999px; font-weight: 700; font-size: 11px;">${g.badge || 'Подарок'}</span></td>
+            <td><img src="${g.image_url}" style="width: 40px; height: 40px; object-fit: contain; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px;" /></td>
+            <td><strong style="color: #0f172a;">${g.title}</strong><br><span style="font-size: 11px; color: #475569;">${g.subtitle || ''}</span></td>
+            <td><span style="background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 999px; font-weight: 700; font-size: 11px; border: 1px solid #7dd3fc;">${g.badge || 'Подарок'}</span></td>
             <td>
               <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <button class="btn" style="padding: 2px 8px;" onclick="window.updateStock('gift', '${g.id}', ${g.stock - 1}, ${g.min_threshold}, ${g.unit_cost})">-</button>
-                <strong style="color: ${isLow ? '#f87171' : '#34d399'};">${g.stock} шт.</strong>
-                <button class="btn" style="padding: 2px 8px;" onclick="window.updateStock('gift', '${g.id}', ${g.stock + 1}, ${g.min_threshold}, ${g.unit_cost})">+</button>
+                <button class="btn" style="padding: 2px 8px; background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1;" onclick="window.updateStock('gift', '${g.id}', ${g.stock - 1}, ${g.min_threshold}, ${g.unit_cost})">-</button>
+                <strong style="color: ${isLow ? '#dc2626' : '#16a34a'};">${g.stock} шт.</strong>
+                <button class="btn" style="padding: 2px 8px; background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1;" onclick="window.updateStock('gift', '${g.id}', ${g.stock + 1}, ${g.min_threshold}, ${g.unit_cost})">+</button>
               </div>
             </td>
-            <td>${g.min_threshold} шт.</td>
-            <td>${(g.unit_cost || 0).toLocaleString('ru-RU')} ₽</td>
-            <td><span style="color: ${g.is_active ? '#34d399' : '#f87171'}; font-weight: 700;">${g.is_active ? 'Активен' : 'Скрыт'}</span></td>
+            <td style="color: #334155;">${g.min_threshold} шт.</td>
+            <td style="color: #334155;">${(g.unit_cost || 0).toLocaleString('ru-RU')} ₽</td>
+            <td><span style="color: ${g.is_active ? '#16a34a' : '#dc2626'}; font-weight: 700;">${g.is_active ? 'Активен' : 'Скрыт'}</span></td>
             <td>
               <div style="display: flex; gap: 0.25rem;">
                 <button class="btn btn-edit" onclick="window.editGift('${g.id}')">✏️ Edit</button>
-                <button class="btn" style="background: rgba(239,68,68,0.2); color: #ef4444;" onclick="window.deleteGift('${g.id}')">🗑️</button>
+                <button class="btn btn-danger" onclick="window.deleteGift('${g.id}')">🗑️</button>
               </div>
             </td>
           </tr>
@@ -677,18 +681,18 @@ async function loadWarehouseDashboard() {
         const isLow = p.stock <= p.min_threshold;
         return `
           <tr>
-            <td><strong>${p.name}</strong></td>
-            <td>${p.category || 'Услуги'}</td>
+            <td><strong style="color: #0f172a;">${p.name}</strong></td>
+            <td style="color: #334155;">${p.category || 'Услуги'}</td>
             <td>
               <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <button class="btn" style="padding: 2px 8px;" onclick="window.updateStock('product', '${p.id}', ${p.stock - 1}, ${p.min_threshold}, ${p.unit_cost})">-</button>
-                <strong style="color: ${isLow ? '#f87171' : '#34d399'};">${p.stock} шт.</strong>
-                <button class="btn" style="padding: 2px 8px;" onclick="window.updateStock('product', '${p.id}', ${p.stock + 1}, ${p.min_threshold}, ${p.unit_cost})">+</button>
+                <button class="btn" style="padding: 2px 8px; background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1;" onclick="window.updateStock('product', '${p.id}', ${p.stock - 1}, ${p.min_threshold}, ${p.unit_cost})">-</button>
+                <strong style="color: ${isLow ? '#dc2626' : '#16a34a'};">${p.stock} шт.</strong>
+                <button class="btn" style="padding: 2px 8px; background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1;" onclick="window.updateStock('product', '${p.id}', ${p.stock + 1}, ${p.min_threshold}, ${p.unit_cost})">+</button>
               </div>
             </td>
-            <td>${p.min_threshold} шт.</td>
-            <td>${(p.unit_cost || 0).toLocaleString('ru-RU')} ₽</td>
-            <td>${(p.price || 0).toLocaleString('ru-RU')} ₽</td>
+            <td style="color: #334155;">${p.min_threshold} шт.</td>
+            <td style="color: #334155;">${(p.unit_cost || 0).toLocaleString('ru-RU')} ₽</td>
+            <td style="color: #d97706; font-weight: 700;">${(p.price || 0).toLocaleString('ru-RU')} ₽</td>
             <td><button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="window.promptStockUpdate('product', '${p.id}', ${p.stock}, ${p.min_threshold}, ${p.unit_cost})">Корректировка</button></td>
           </tr>
         `;
@@ -700,11 +704,11 @@ async function loadWarehouseDashboard() {
     if (logsBody) {
       logsBody.innerHTML = (logs || []).map(l => `
         <tr>
-          <td style="font-size: 11px; color: #a1a1aa;">${l.created_at || ''}</td>
-          <td><span style="font-weight: 700; font-size: 11px; color: ${l.item_type === 'gift' ? 'var(--accent-gold)' : '#60a5fa'};">${l.item_type === 'gift' ? 'Подарок' : 'Товар'}</span></td>
-          <td><strong>${l.item_name || ''}</strong></td>
-          <td><span style="font-weight: 800; color: ${l.change_qty >= 0 ? '#34d399' : '#f87171'};">${l.change_qty > 0 ? '+' : ''}${l.change_qty}</span></td>
-          <td style="font-size: 11px; color: #e4e4e7;">${l.reason || ''}</td>
+          <td style="font-size: 11px; color: #64748b;">${l.created_at || ''}</td>
+          <td><span style="font-weight: 700; font-size: 11px; color: ${l.item_type === 'gift' ? '#d97706' : '#0284c7'};">${l.item_type === 'gift' ? 'Подарок' : 'Товар'}</span></td>
+          <td><strong style="color: #0f172a;">${l.item_name || ''}</strong></td>
+          <td><span style="font-weight: 800; color: ${l.change_qty >= 0 ? '#16a34a' : '#dc2626'};">${l.change_qty > 0 ? '+' : ''}${l.change_qty}</span></td>
+          <td style="font-size: 11px; color: #334155;">${l.reason || ''}</td>
         </tr>
       `).join('');
     }
@@ -888,28 +892,28 @@ window.renderInHouseGuestsTable = (guests) => {
   const tbody = document.getElementById('inHouseGuestsTableBody');
   if (!tbody) return;
   if (!guests || guests.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #a1a1aa; padding: 1rem;">Нет текущих проживающих гостей</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #64748b; padding: 1rem; font-weight: 500;">Нет текущих проживающих гостей</td></tr>';
     return;
   }
   tbody.innerHTML = guests.map(g => {
     const cur = String(g.house_number || '');
     return `
-      <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+      <tr style="border-bottom: 1px solid #e2e8f0;">
         <td style="padding: 0.75rem 0.5rem;">
-          <strong style="color: white; font-size: 0.875rem;">${g.guest_name || 'Гость'}</strong><br>
-          <span style="font-size: 11px; color: #94a3b8;">ID: ${g.id}</span>
+          <strong style="color: #0f172a; font-size: 0.875rem;">${g.guest_name || 'Гость'}</strong><br>
+          <span style="font-size: 11px; color: #64748b;">ID: ${g.id}</span>
         </td>
         <td style="padding: 0.75rem 0.5rem;">
-          <span style="color: #34d399; font-weight: 700; font-size: 0.8125rem;">📞 ${g.phone || 'Нет телефона'}</span>
+          <span style="color: #16a34a; font-weight: 700; font-size: 0.8125rem;">📞 ${g.phone || 'Нет телефона'}</span>
         </td>
-        <td style="padding: 0.75rem 0.5rem; color: #e4e4e7; font-size: 0.8125rem;">
+        <td style="padding: 0.75rem 0.5rem; color: #334155; font-size: 0.8125rem; font-weight: 600;">
           ${g.cabin_name || 'Домик'}
         </td>
-        <td style="padding: 0.75rem 0.5rem; font-size: 11px; color: #a1a1aa;">
+        <td style="padding: 0.75rem 0.5rem; font-size: 11px; color: #475569; font-weight: 600;">
           ${g.arrival_date ? g.arrival_date.slice(0, 10) : ''} – ${g.departure_date ? g.departure_date.slice(0, 10) : ''}
         </td>
         <td style="padding: 0.75rem 0.5rem;">
-          <select style="margin-bottom: 0; padding: 0.4rem 0.6rem; font-size: 0.8125rem; font-weight: 700; color: #facc15; background: #0f172a; border: 1px solid rgba(250,204,21,0.5); border-radius: 0.5rem; cursor: pointer;" onchange="window.autoSaveHouseNumber('${g.id}', this.value)">
+          <select style="margin-bottom: 0; padding: 0.4rem 0.6rem; font-size: 0.8125rem; font-weight: 700; color: #b45309; background: #ffffff; border: 1px solid #fcd34d; border-radius: 0.5rem; cursor: pointer;" onchange="window.autoSaveHouseNumber('${g.id}', this.value)">
             <option value="">-- Без номера --</option>
             <optgroup label="Дом в лесу 7-местный (101-103)">
               <option value="101" ${cur === '101' ? 'selected' : ''}>№ 101 (7-местный)</option>

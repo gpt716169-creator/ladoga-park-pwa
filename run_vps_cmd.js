@@ -9,9 +9,8 @@ async function run() {
     password: '@bh)/94\\q8o3xBOX'
   });
 
-  const res = await ssh.execCommand('pm2 logs --lines 30 --nostream');
-  console.log('PM2 LOGS:\n', res.stdout);
-  if (res.stderr) console.error('PM2 ERR LOGS:\n', res.stderr);
+  const res = await ssh.execCommand('curl -s https://лп-спб.рф/api/booking/20260731-52159-449544510');
+  console.log('LIVE API RESPONSE:\n', res.stdout);
   ssh.dispose();
 }
 
